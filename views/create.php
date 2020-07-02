@@ -3,5 +3,8 @@
     <input type="text" name="username" value="" id="username" placeholder="And your username" />
     <input type="password" name="password" value="" id="password" placeholder="And a password" />
     <input type="password" name="confirm" value="" id="confirm" placeholder="Confirm password" />
-    <input type="submit" name="submit" value="Register" />
+    <input class="button accent" type="submit" name="submit" value="Register" />
 </form>
+<div class="section_form">
+    <button class="button" onclick="signIn()">Sign in</button>
+</div>

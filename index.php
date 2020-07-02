@@ -29,8 +29,7 @@ if ($_GET) {
                 $main = './views/settings.php';
                 break;
             case 'gallery':
-                $createTableUsers();
-                // $main = './views/gallery.php';
+                $main = './views/gallery.php';
                 break;
             case 'main':
                 $main = './views/main.php';

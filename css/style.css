@@ -37,8 +37,7 @@ ul {
   flex-direction: column;
 }
 
-.button,
-input[type="submit"] {
+.button {
   display: inline-block;
   outline: none;
   font-size: 1rem;
@@ -58,9 +57,7 @@ input[type="submit"] {
 }
 
 .button:hover,
-.button:active,
-input[type="submit"]:hover,
-input[type="submit"]:active {
+.button:active {
   background-color: #2a2a2a;
   border: 1px solid #6d6d6d;
   color: #7e57c2;
@@ -99,6 +96,17 @@ footer {
   border: 1px solid #fb8a00;
 }
 
+.secondary {
+  color: #7e57c2;
+  border: 1px solid #7e57c2;
+}
+
+.secondary:hover,
+.secondary:active {
+  color: #7e57c2;
+  border: 1px solid #7e57c2;
+}
+
 .error {
   background-color: #b00020;
   padding: 10px;
@@ -128,8 +136,6 @@ form {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  /* border: 1px solid #444;
-  border-radius: 5px; */
 }
 
 form input {
@@ -151,9 +157,9 @@ form input::placeholder {
   font-size: 1rem;
 }
 
-.section_register {
+.section_form {
   width: 60%;
-  margin: 2rem auto;
+  margin: 1rem auto;
   display: flex;
   justify-content: center;
   align-items: center;
