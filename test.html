@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Camagru</title>
+  </head>
+  <body>
+    <h1>Welcome to <span class="uppercase">Filler championship</span></h1>
+    <section>
+      <nav>
+        <ul>
+          <li>
+            <a class="button menuItem" href="http://localhost:3000/game"
+              >game</a
+            >
+          </li>
+          <li>
+            <a class="button menuItem" href="http://localhost:3000/settings"
+              >settings</a
+            >
+          </li>
+          <li>
+            <a class="button menuItem" href="http://localhost:3000/about"
+              >about</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <form action="login.php" method="post">
+        <fieldset>
+          <label for="username">username</label><br />
+          <input type="text" name="username" value="" id="username" /><br />
+          <label for="password">password</label><br />
+          <input type="password" name="password" value="" id="password" /><br />
+          <label for="email">email</label><br />
+          <input type="email" name="email" value="" id="email" /><br />
+          <input type="submit" onclick="register" value="Register" /><br />
+        </fieldset>
+      </form>
+    </section>
+  </body>
+</html>
