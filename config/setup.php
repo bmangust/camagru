@@ -1,6 +1,7 @@
 <?php
 require_once 'database.php';
 $db = null;
+// $_SESSION['is_auth'] = false;
 
 function connect() {
     try {
@@ -50,13 +51,16 @@ function getMessage($code) {
     if (!$db) {
         $db = connect();
     }
-    $stmt = $db->prepare('SELECT `message` FROM `messages` WHERE `code`=?');
-    $stmt->execute([$code]);
-    $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (isset($res['message'])) {
-        return $res['message'];
+    try {
+        $stmt = $db->prepare('SELECT `message` FROM `messages` WHERE `code`=?');
+        $stmt->execute([$code]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (isset($res['message'])) {
+            return $res['message'];
+        }
+    } catch  (PDOException $e) {
+        return 'Unknown error';
     }
-    return 'Unknown error';
 }
 
 function insertUser($username, $email, $pwd) {

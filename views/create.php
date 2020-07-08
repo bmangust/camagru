@@ -1,10 +1,38 @@
-<form name="register" id="register" action="config/users.php" onsubmit="return validateRegisterForm()" method="post">
-    <input type="email" name="email" value="" id="email" placeholder="Your email here, please" />
-    <input type="text" name="username" value="" id="username" placeholder="And your username" />
-    <input type="password" name="password" value="" id="password" placeholder="And a password" />
-    <input type="password" name="confirm" value="" id="confirm" placeholder="Confirm password" />
-    <input class="button accent" type="submit" name="submit" value="Register" />
-</form>
-<div class="section_form">
-    <button class="button" onclick="signIn()">Sign in</button>
+<div class="createView">
+    <div class="editor">
+    <div id="imgViewer">
+        <img src="https://image.freepik.com/free-vector/abstract-halftone-background_23-2148583453.jpg"/>
+    </div>
+    <div class="controls">
+        <button class="controls_button" onclick="loadImage()">Load</button>
+        <button class="controls_button" onclick="captureImage()">
+        Capture
+        </button>
+        <button class="controls_button" onclick="clearEdit()">Reset</button>
+    </div>
+    <div class="snippets">
+        <!-- PNG images for edit -->
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+        <div class="imgWrapper"></div>
+    </div>
+    </div>
+    <aside class="preview">
+        <div class="gallery">
+            <!-- pagination gallery here -->
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+            <div class="imgWrapper"></div>
+        </div>
+    </aside>
 </div>

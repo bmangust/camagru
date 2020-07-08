@@ -3,41 +3,120 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .wrapper {
+        position: relative;
+      }
+
+      .wrapper::after {
+        content: "username";
+        font-size: 0.9em;
+        font-family: Arial, Helvetica, sans-serif;
+        position: absolute;
+        left: 20px;
+        top: 0;
+        color: darkcyan;
+        padding: 2px;
+        background-color: white;
+      }
+
+      input {
+        padding: 5px 10px;
+        margin: 10px;
+        border-radius: 5px;
+        border: 1px solid darkcyan;
+        outline: none;
+        background-color: white;
+        /* position: relative; */
+      }
+
+      input[type="submit"] {
+        transition: 0.3s;
+        min-width: 100px;
+      }
+
+      input[type="submit"]:hover {
+        border: 1px solid darkcyan;
+        box-shadow: 2px 1px 14px #ccc;
+        transition: 0.3s;
+      }
+
+      input[type="text"]::after {
+        content: "Username";
+        /* position: absolute; */
+        /* left: 0;
+        top: 0; */
+        color: darkcyan;
+        padding: 2px;
+        background-color: darkcyan;
+        z-index: 2;
+        width: 10px;
+        height: 10px;
+      }
+    </style>
     <title>Camagru</title>
   </head>
   <body>
-    <h1>Welcome to <span class="uppercase">Filler championship</span></h1>
-    <section>
-      <nav>
-        <ul>
-          <li>
-            <a class="button menuItem" href="http://localhost:3000/game"
-              >game</a
-            >
-          </li>
-          <li>
-            <a class="button menuItem" href="http://localhost:3000/settings"
-              >settings</a
-            >
-          </li>
-          <li>
-            <a class="button menuItem" href="http://localhost:3000/about"
-              >about</a
-            >
-          </li>
-        </ul>
-      </nav>
-      <form action="login.php" method="post">
-        <fieldset>
-          <label for="username">username</label><br />
-          <input type="text" name="username" value="" id="username" /><br />
-          <label for="password">password</label><br />
-          <input type="password" name="password" value="" id="password" /><br />
-          <label for="email">email</label><br />
-          <input type="email" name="email" value="" id="email" /><br />
-          <input type="submit" onclick="register" value="Register" /><br />
-        </fieldset>
-      </form>
-    </section>
+    <!-- <form>
+      <div class="wrapper">
+        <input type="text" value="" />
+      </div>
+      <input type="submit" value="done" />
+    </form> -->
+    <div class="createView">
+      <div class="editor">
+        <div id="imgViewer"></div>
+        <div class="controls">
+          <button class="controls_button" onclick="loadImage()">Load</button>
+          <button class="controls_button" onclick="captureImage()">
+            Capture
+          </button>
+          <button class="controls_button" onclick="clearEdit()">Reset</button>
+        </div>
+        <div class="snippets">
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+          <div class="imgWrapper"></div>
+        </div>
+      </div>
+      <aside class="preview">
+          <div class="gallery">
+              <!-- pagination gallery here -->
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+              <div class="imgWrapper"></div>
+          </div>
+      </aside>
   </body>
 </html>

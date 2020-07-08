@@ -4,7 +4,7 @@ $enable_debug = true;
 function LOG_ARRAY($array) {
     foreach ($array as $k=>$v) {
         if (is_array($v)) {
-            LOG_MESSAGE("\t".$k);
+            LOG_M("\t".$k);
             LOG_ARRAY($v);
         } else if (is_bool($v) && $v)
             echo "\t{$k}: TRUE\n";
@@ -17,7 +17,7 @@ function LOG_ARRAY($array) {
     }
 }
 
-function LOG_MESSAGE(...$args) {
+function LOG_M(...$args) {
     global $enable_debug;
     if ($enable_debug) {
         foreach($args as $arg) {

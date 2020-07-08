@@ -1,7 +1,7 @@
 const register = () => {
-  window.location.href = "index.php?route=create";
+  window.location.href = "index.php?route=register";
 };
 
-const signIn = () => {
+const login = () => {
   window.location.href = "index.php?route=login";
 };

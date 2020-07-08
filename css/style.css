@@ -7,6 +7,7 @@
   padding: 0;
   font-family: "Montserrat", sans-serif;
   color: #fafafa;
+  transition: 0.3s;
 }
 
 h1 {
@@ -53,7 +54,6 @@ ul {
   border-radius: 5px;
   border: 1px solid #a1a1a1;
   background-color: #1a1a1a;
-  transition: 0.3s;
 }
 
 .button:hover,
@@ -64,12 +64,14 @@ ul {
   transition: 0.6s;
 }
 
-.flex {
+.row {
   display: flex;
   align-items: center;
 }
 
 .column {
+  display: flex;
+  align-items: center;
   flex-direction: column;
 }
 
@@ -78,6 +80,27 @@ footer {
   padding: 3rem;
   color: #444;
   font-size: 0.9rem;
+}
+
+.nav {
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 10px 20px;
+}
+
+.navItem {
+  width: 50px;
+  min-width: 30px;
+  max-width: 100px;
+  padding: 10px;
+  margin: 5px;
+  font-size: 0.7rem;
+  border: 1px solid transparent;
+}
+
+.navItem:hover,
+.navItem:active {
+  border: 1px solid #a1a1a1;
 }
 
 .invalid {
@@ -149,7 +172,6 @@ form input {
   text-align: center;
   border-radius: 5px;
   border: 1px solid #a1a1a1;
-  transition: 0.3s;
 }
 
 form input::placeholder {
@@ -164,6 +186,117 @@ form input::placeholder {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+/* create */
+
+#imgViewer {
+  width: 90%;
+  min-width: 300px;
+  /* height: 60vh; */
+  /* background-color: darkgrey; */
+  margin: 20px;
+}
+
+#imgViewer img {
+  width: 100%;
+}
+
+.createView {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  /* min-width: 600px; */
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 70%;
+  margin: 10px;
+  min-width: 430px;
+}
+
+.controls_button {
+  min-width: 100px;
+  padding: 5px;
+  background-color: #1a1a1a;
+  border: 1px solid #4527a0;
+  border-radius: 5px;
+  margin: 5px;
+  text-transform: uppercase;
+}
+
+.controls_button:hover,
+.controls_button:active {
+  background-color: #444;
+  transition: 0.3s;
+}
+
+.gallery {
+  min-width: 230px;
+  padding: 10px;
+  min-height: 300px;
+  max-height: 500px;
+  overflow: auto;
+}
+
+aside {
+  width: 30%;
+}
+
+.snippets {
+  width: 470px;
+  max-height: 150px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+
+.imgWrapper {
+  display: inline-block;
+  width: 100px;
+  min-width: 100px;
+  height: 60px;
+  background-color: darkgrey;
+  margin: 5px;
+  position: relative;
+}
+
+.imgWrapper:after {
+  content: "PNG";
+  position: absolute;
+  top: 20px;
+  left: 30px;
+}
+
+@media screen and (max-width: 700px) {
+  .createView {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+  }
+
+  .controls_button {
+    display: block;
+  }
+
+  .snippets {
+    width: 250px;
+    min-width: 250px;
+  }
+
+  .preview {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 /* 

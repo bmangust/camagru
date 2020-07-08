@@ -7,6 +7,8 @@ $main = './views/menu.php';
 $footer = './views/footer.php';
 $error = null;
 
+LOG_M("session", $_SESSION);
+
 if ($_GET) {
     if (isset($_GET['msg'])) {
         $msg = getMessage($_GET['msg']);
@@ -21,6 +23,9 @@ if ($_GET) {
                 break;
             case 'login':
                 $main = './views/login.php';
+                break;
+            case 'register':
+                $main = './views/register.php';
                 break;
             case 'create':
                 $main = './views/create.php';
