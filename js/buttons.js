@@ -5,3 +5,7 @@ const register = () => {
 const login = () => {
   window.location.href = "index.php?route=login";
 };
+
+const forgot = () => {
+  window.location.href = "index.php?route=forgot";
+};

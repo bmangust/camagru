@@ -6,4 +6,5 @@
 <div class="section_form">
     <span>Nor yet in a club?</span>
     <button class="button" onclick="register()">Register</button>
+    <button class="button" onclick="forgot()">Forgot password?</button>
 </div>

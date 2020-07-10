@@ -27,6 +27,9 @@ if ($_GET) {
             case 'register':
                 $main = './views/register.php';
                 break;
+            case 'forgot':
+                $main = './views/forgot.php';
+                break;
             case 'create':
                 $main = './views/create.php';
                 break;
