@@ -25,7 +25,9 @@ function createTableUsers() {
         (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
         `name` VARCHAR(25) NOT NULL UNIQUE, 
         `email` VARCHAR(40) NOT NULL, 
-        `password` VARCHAR(128) NOT NULL)';
+        `password` VARCHAR(128) NOT NULL,
+        `verified` BOOLEAN DEFAULT FALSE,
+        `restoreCode` VARCHAR(10))';
     $db->query($createSQL);
 };
 
@@ -87,11 +89,35 @@ function selectUser($user) {
     if (!$db) {
         $db = connect();
     }
-    $stmt = $db->prepare('SELECT `name`, `password` FROM `users` where `name`=?');
+    $stmt = $db->prepare('SELECT * FROM `users` where `name`=?');
     $stmt->execute([$user]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     return $res;
 };
+
+function setUserCode($code, $user)
+{
+    $db = &$GLOBALS['db'];
+    if (!$db) {
+        $db = connect();
+    }
+    $stmt = $db->prepare('UPDATE `users` SET restoreCode=? WHERE `name`=? OR `email`=?');
+    return $stmt->execute([$code, $user, $user]);
+}
+
+function getUserEmail($user)
+{
+    $db = &$GLOBALS['db'];
+    if (!$db) {
+        $db = connect();
+    }
+    $stmt = $db->prepare('SELECT `email` FROM `users` WHERE `name`=?');
+    $stmt->execute([$user]);
+    $email = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    if (count($email) === 1) {
+        return $email[0];
+    }
+}
 
 function disconnect() {
     $db = &$GLOBALS['db'];
@@ -100,5 +126,6 @@ function disconnect() {
 
 
 // createTableMessages();
+createTableUsers();
 
 ?>
