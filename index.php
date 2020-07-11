@@ -30,6 +30,9 @@ if ($_GET) {
             case 'forgot':
                 $main = './views/forgot.php';
                 break;
+            case 'restore':
+                $main = './views/restore.php';
+                break;
             case 'create':
                 $main = './views/create.php';
                 break;

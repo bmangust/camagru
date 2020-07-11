@@ -13,12 +13,12 @@ const selectInput = (form, selector) => {
   return document.forms[form][selector];
 };
 
-const validateEmail = () => {
-  const field = selectInput("register", "email");
+const validateEmail = (form) => {
+  const field = selectInput(form, "email");
   if (field.value === "") {
-    return makeAlert(field, "register", "Email must not be empty");
-  } else if (field.value.search(/\w+@\w+\.[a-z]+/) === -1) {
-    return makeAlert(field, "register", "This does not look like email");
+    return makeAlert(field, form, "Email must not be empty");
+  } else if (field.value.toLowerCase().search(/\w+@\w+\.[a-z]+/) === -1) {
+    return makeAlert(field, form, "This does not look like email");
   }
   field.classList.remove("invalid");
   return true;
@@ -37,32 +37,24 @@ const validateUsername = (form) => {
   field.classList.remove("invalid");
   return true;
 };
-const validatePassword = () => {
-  const field = selectInput("register", "password");
+const validatePassword = (form) => {
+  const field = selectInput(form, "password");
   if (field.value.length < 8) {
     return makeAlert(
       field,
-      "register",
+      form,
       "Password must be at least 8 characters long"
     );
   } else if (field.value.search(/[a-z]/) === -1) {
-    return makeAlert(
-      field,
-      "register",
-      "Password must contain lowercase letters"
-    );
+    return makeAlert(field, form, "Password must contain lowercase letters");
   } else if (field.value.search(/[A-Z]/) === -1) {
-    return makeAlert(
-      field,
-      "register",
-      "Password must contain uppercase letters"
-    );
+    return makeAlert(field, form, "Password must contain uppercase letters");
   } else if (field.value.search(/\s/) !== -1) {
-    return makeAlert(field, "register", "Password must not contain spaces");
+    return makeAlert(field, form, "Password must not contain spaces");
   } else if (field.value.search(/\W/) === -1) {
     return makeAlert(
       field,
-      "register",
+      form,
       "Password must contain at least one special character"
     );
   }
@@ -77,11 +69,11 @@ const validateLoginPassword = () => {
   field.classList.remove("invalid");
   return true;
 };
-const confirmPassword = () => {
-  const password = selectInput("register", "password").value;
-  const confirm = selectInput("register", "confirm");
+const confirmPassword = (form) => {
+  const password = selectInput(form, "password").value;
+  const confirm = selectInput(form, "confirm");
   if (password.localeCompare(confirm.value)) {
-    return makeAlert(confirm, "register", "Password is not confirmed");
+    return makeAlert(confirm, form, "Password is not confirmed");
   }
   confirm.classList.remove("invalid");
   return true;
@@ -89,13 +81,21 @@ const confirmPassword = () => {
 
 const validateRegisterForm = () => {
   return (
-    validateEmail() &&
+    validateEmail("register") &&
     validateUsername("register") &&
-    validatePassword() &&
-    confirmPassword()
+    validatePassword("register") &&
+    confirmPassword("register")
   );
 };
 
 const validateLoginForm = () => {
   return validateUsername("login") && validateLoginPassword();
+};
+
+const validateRestoreForm = () => {
+  return validatePassword("restore") && confirmPassword("restore");
+};
+
+const validateForgotForm = () => {
+  return validateEmail("forgot");
 };

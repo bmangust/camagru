@@ -1,5 +1,5 @@
-<form name="login" id="login" action="config/users.php" method="post">
-    <input type="text" name="username" value="" id="username" required placeholder="Your username, please" />
+<form name="forgot" id="forgot" action="config/users.php" onsubmit="return validateForgotForm()" method="post">
+    <input type="email" name="email" value="" id="email" required placeholder="Your email, please" />
     <input class="button accent" type="submit" name="submit" value="Restore password" />
 </form>
 <div class="section_form">
