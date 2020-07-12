@@ -24,7 +24,7 @@ function createTableUsers() {
     $createSQL = 'CREATE TABLE IF NOT EXISTS `users` 
         (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
         `name` VARCHAR(25) NOT NULL UNIQUE, 
-        `email` VARCHAR(40) NOT NULL, 
+        `email` VARCHAR(40) NOT NULL UNIQUE, 
         `password` VARCHAR(128) NOT NULL,
         `verified` BOOLEAN DEFAULT FALSE,
         `restoreCode` VARCHAR(10))';
@@ -44,7 +44,7 @@ function createTableMessages() {
         `code` VARCHAR(8) NOT NULL)';
     $db->query($createSQL);
     $stmt = $db->prepare('INSERT INTO `messages` (`message`, `code`) VALUES (?, ?)');
-    $messages = ['This email as already been taken', 'User succesfully created', 'Authorized persons only', 'Sucsessfully authorized', 'Wrong restore code', 'Your new password saved', 'Check your email', 'Email not found'];
+    $messages = ['This email has already been taken', 'This username has already been taken', 'User succesfully created', 'Username or password in wrong', 'Authorized persons only', 'Sucsessfully authorized', 'Wrong restore code', 'Your new password saved', 'Check your email', 'Email not found', 'Email confirmed', 'Email is not confirmed', 'Server error, please try again'];
     foreach($messages as $message) {
         try {
             $stmt->execute([$message, hash('crc32', $message)]);
@@ -89,22 +89,25 @@ function selectUser($user) {
     return $res;
 };
 
-function setUserCode($code, $user)
-{
+function setUserCode($code, $user) {
     $db = connect();
     $stmt = $db->prepare('UPDATE `users` SET restoreCode=? WHERE `name`=? OR `email`=?');
     return $stmt->execute([$code, $user, $user]);
 };
 
-function updatePassword($email, $passwd)
-{
+function updatePassword($email, $passwd) {
     $db = connect();
-    $stmt = $db->prepare('UPDATE `users` SET `password`=? WHERE `email`=?');
+    $stmt = $db->prepare("UPDATE `users` SET `password`=?, `restoreCode`='' WHERE `email`=?");
     return $stmt->execute([$passwd, $email]);
 };
 
-function getUserEmail($user)
-{
+function activateUserAccount($username) {
+    $db = connect();
+    $stmt = $db->prepare("UPDATE `users` SET `verified`=?, `restoreCode`='' WHERE `name`=?");
+    return $stmt->execute([true, $username]);
+}
+
+function getUserEmail($user) {
     $db = connect();
     $stmt = $db->prepare('SELECT `email` FROM `users` WHERE `name`=?');
     $stmt->execute([$user]);

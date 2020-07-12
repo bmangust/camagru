@@ -1,3 +1,5 @@
+<?php
+if (isset($_SESSION['is_auth']) && isset($_SESSION['user']) && $_SESSION['is_auth'] == true) { ?>
 <div class="createView">
     <div class="editor">
     <div id="imgViewer">
@@ -36,3 +38,8 @@
         </div>
     </aside>
 </div>
+<?php } else {
+    $_SERVER['msg'] = "Authorized persons only";
+    $_SERVER['class'] = "error";
+    include "./views/error.php";
+}

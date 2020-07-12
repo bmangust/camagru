@@ -1,3 +1,7 @@
+<?php
+if (isset($_SESSION['user'])) {
+    header("Location: ./index.php?route=menu");
+}?>
 <form name="login" id="login" action="config/users.php" onsubmit="return validateLoginForm()" method="post">
     <input type="text" name="username" value="" id="username" placeholder="Your username, please" />
     <input type="password" name="password" value="" id="password" placeholder="And a password" />
