@@ -1,5 +1,5 @@
 <?php
-if (isset($_SESSION['user'])) {
+if (isset($_SESSION['user']) && $_SESSION['user'] != FALSE) {
     header("Location: ./index.php?route=menu");
 }?>
 <form name="login" id="login" action="config/users.php" onsubmit="return validateLoginForm()" method="post">

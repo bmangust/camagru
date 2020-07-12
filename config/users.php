@@ -7,8 +7,7 @@ define(ACTION_ACTIVATE, "ACTIVATE_ACCOUNT");
 // LOG_M($_POST);
 
 // check if user entered valid password
-function authorize($user, $pwd)
-{
+function authorize($user, $pwd) {
     $userRes = selectUser($user);
     if (isset($userRes['name'])) {
         return hash('whirlpool', $pwd) === $userRes['password'];
@@ -17,8 +16,7 @@ function authorize($user, $pwd)
 }
 
 // check if user confirmed email
-function checkUserVerification($username)
-{
+function checkUserVerification($username) {
     $user = selectUser($username);
     if ($user && $user['verified'] == true) {
         return true;
@@ -26,8 +24,7 @@ function checkUserVerification($username)
     return false;
 }
 
-function sendEmail($userEmail, $message)
-{
+function sendEmail($userEmail, $message) {
     global $enable_debug;
     $url = 'https://api.elasticemail.com/v2/email/send';
 
@@ -62,11 +59,9 @@ function sendEmail($userEmail, $message)
 }
 
 // log POST request to file
-function logToFile($var)
-{
+function logToFile($var) {
     file_put_contents( 'debug' . time() . '.log', var_export($var, true) );
 }
-
 
 // register new user
 if ($_POST && isset($_POST['submit']) && $_POST['submit'] === 'Register') {

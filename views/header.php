@@ -17,4 +17,6 @@
         <?php } ?>
     </ul>
 </nav>
-<h1>Welcome to <span class="uppercase">Camagru</span></h1>
+<h1>
+    <?=$_SERVER['header']?>
+</h1>
