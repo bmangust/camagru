@@ -151,7 +151,7 @@ footer {
 
 form {
   width: 60%;
-  min-width: 300px;
+  min-width: 400px;
   margin: 0 auto;
   text-align: center;
   display: flex;
@@ -186,6 +186,14 @@ form input::placeholder {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+@media screen and (max-width: 500px) {
+  form,
+  .section_form {
+    width: 400px;
+    padding: 0;
+  }
 }
 
 /* create */
