@@ -10,8 +10,41 @@ const forgot = () => {
   window.location.href = "index.php?route=forgot";
 };
 
-// add email and submit form
-window.onload = () => {
+const changeIconOnUpload = () => {
+  const input = document.querySelector(".input-file");
+  const viewer = document.querySelector("#imgViewer img");
+  const colorGreen = "#5aac7b";
+  const colorWhite = "#fff";
+  const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
+  const upload =
+    "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
+  const iconPath = document.querySelector(".icon path");
+  if (input) {
+    input.addEventListener("change", (element) => {
+      const $label = document.querySelector(".file_label");
+      const labelVal = $label.innerHTML;
+
+      var fileName = "";
+      if (element.target.value) {
+        fileName = element.target.value.split("\\").pop();
+      }
+      if (fileName) {
+        iconPath.setAttribute("d", tick);
+        iconPath.setAttribute("fill", colorGreen);
+        $label.querySelector(".file_name").innerHTML = fileName;
+        viewer.src = URL.createObjectURL(element.target.files[0]);
+        viewer.onload = () => URL.revokeObjectURL(viewer.src);
+      } else {
+        iconPath.setAttribute("d", upload);
+        iconPath.setAttribute("fill", colorWhite);
+        $label.innerHTML = labelVal;
+        viewer.setAttribute("src", "");
+      }
+    });
+  }
+};
+
+const sendRestoreEmail = () => {
   const formRestore = document.querySelector("#restorePassword");
   if (formRestore) {
     formRestore.addEventListener("submit", async (e) => {
@@ -23,4 +56,10 @@ window.onload = () => {
       this.appendChild(email);
     });
   }
+};
+
+// add email and submit form
+window.onload = () => {
+  sendRestoreEmail();
+  changeIconOnUpload();
 };

@@ -229,14 +229,20 @@ form input::placeholder {
   min-width: 430px;
 }
 
+.controls {
+  flex-direction: row;
+}
+
 .controls_button {
   min-width: 100px;
   padding: 5px;
+  color: white;
   background-color: #1a1a1a;
   border: 1px solid #4527a0;
   border-radius: 5px;
   margin: 5px;
   text-transform: uppercase;
+  outline: none;
 }
 
 .controls_button:hover,
@@ -281,6 +287,41 @@ aside {
   position: absolute;
   top: 20px;
   left: 30px;
+}
+
+.button_file {
+  padding: 0;
+  line-height: 40px;
+  width: 300px;
+  margin: auto;
+  display: block;
+  color: white;
+  background-color: #1a1a1a;
+  border: 1px solid #4527a0;
+  border-radius: 5px;
+}
+.input-file {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+.input-file + .file_label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.icon {
+  width: 32px;
+  height: 32px;
+  margin-right: 5px;
 }
 
 @media screen and (max-width: 700px) {

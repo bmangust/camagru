@@ -5,41 +5,9 @@ if (!isset($_SESSION['is_auth']) || !isset($_SESSION['user']) || $_SESSION['is_a
     include "./views/error.php";
 } else {?>
 <div class="createView">
-    <div class="editor">
-    <div id="imgViewer">
-        <img src="https://image.freepik.com/free-vector/abstract-halftone-background_23-2148583453.jpg"/>
-    </div>
-    <div class="controls">
-        <button class="controls_button" onclick="loadImage()">Load</button>
-        <button class="controls_button" onclick="captureImage()">
-        Capture
-        </button>
-        <button class="controls_button" onclick="clearEdit()">Reset</button>
-    </div>
-    <div class="snippets">
-        <!-- PNG images for edit -->
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-        <div class="imgWrapper"></div>
-    </div>
-    </div>
+    <?php include 'editor.php'; ?>
     <aside class="preview">
-        <div class="gallery">
-            <!-- pagination gallery here -->
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-            <div class="imgWrapper"></div>
-        </div>
+        <?php include 'gallery.php'; ?>
     </aside>
 </div>
 <?php }
