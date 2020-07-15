@@ -66,13 +66,13 @@ const addUploadListener = () => {
 const sendRestoreEmail = () => {
   const formRestore = document.querySelector("#restorePassword");
   if (formRestore) {
-    formRestore.addEventListener("submit", async (e) => {
+    formRestore.addEventListener("submit", (e) => {
       const urlParams = new URLSearchParams(window.location.search);
       const email = document.createElement("input");
       email.type = "hidden";
       email.name = "email";
       email.value = urlParams.get("email");
-      this.appendChild(email);
+      formRestore.appendChild(email);
     });
   }
 };

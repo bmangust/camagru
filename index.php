@@ -11,10 +11,9 @@ LOG_M("session", $_SESSION);
 $_SERVER['header'] = "Welcome to CAMAGRU";
 
 if ($_GET) {
-    if (isset($_GET['msg'])) {
-        $msg = getMessage($_GET['msg']);
-        $_SERVER['msg'] = $msg;
-        $_SERVER['class'] = $_GET['class'];
+    if (isset($_SESSION['msg'])) {
+        $_SERVER['msg'] = $_SESSION['msg'];
+        $_SERVER['class'] = @$_SESSION['class'] ?? "";
         $error = "./views/error.php";
     }
     if (isset($_GET['route'])) {
@@ -54,9 +53,11 @@ if ($_GET) {
                 $main = './views/main.php';
                 break;
             default:
-                $main = './views/menu.php';
+                header("Location: ./index.php?route=menu");
         }
     }
 }
 ?>
-<?php include './views/main.php';?>
+<?php include './views/main.php';
+unset($_SESSION['class']);
+?>

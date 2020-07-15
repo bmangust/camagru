@@ -2,6 +2,10 @@
 $enable_debug = true;
 
 function LOG_ARRAY($array) {
+    if (!$array) {
+        LOG_M('NULL');
+        return;
+    };
     foreach ($array as $k=>$v) {
         if (is_array($v)) {
             LOG_M("\t".$k);

@@ -130,14 +130,42 @@ footer {
   border: 1px solid #7e57c2;
 }
 
-.error {
-  background-color: #b00020;
+.float {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 400px;
   padding: 10px;
+  z-index: 1000;
+  background-color: #7e57c2;
+  overflow: hidden;
 }
 
-.msg {
-  background-color: #7e57c2;
-  padding: 10px;
+.float::after {
+  content: "";
+  width: 30px;
+  height: 100px;
+  background-color: #ffffff40;
+  transform: rotateZ(-20deg);
+  position: absolute;
+  left: -40px;
+  top: -20px;
+  animation: message 3s ease-in-out 2s infinite normal forwards;
+}
+
+@keyframes message {
+  0% {
+    left: -40px;
+  }
+  30% {
+    left: 600px;
+  }
+  100% {
+    left: 600px;
+  }
+}
+.error {
+  background-color: #b00020;
 }
 
 /* index */

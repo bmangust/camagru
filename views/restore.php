@@ -1,4 +1,8 @@
-<form name="restore" id="restorePassword" action="config/users.php" onsubmit="return validateRestoreForm()" method="post">
+<?php
+if (!isset($_GET['email'])) {
+    header("Location: ./index.php?route=menu");
+}?>
+<form name="restore" id="restorePassword" action="api/users.php" onsubmit="return validateRestoreForm()" method="post">
     <input type="password" name="password" value="" id="password" required placeholder="Enter new password" />
     <input type="password" name="confirm" value="" id="confirm" required placeholder="Confirm new password" />
     <input class="button accent" type="submit" name="submit" value="Save" />

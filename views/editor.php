@@ -4,6 +4,7 @@
     </div>
     <div class="controls">
         <form action="api/image.php" method="post" enctype="multipart/form-data" class="controls_form">
+            <input type="hidden" name="MAX_FILE_SIZE" value="1000000" />
             <input type="file" name="file[]" id="file" class="input-file">
             <label for="file" class="controls_button button_file file_label">
                 <svg class="icon" viewBox="0 0 32 32">

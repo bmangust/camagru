@@ -1,8 +1,11 @@
 <?php
-require_once 'setup.php';
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'config', 'setup.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
-define(ACTION_RESTORE, "RESTORE_PASSWORD");
-define(ACTION_ACTIVATE, "ACTIVATE_ACCOUNT");
+$GLOBALS['ACTION_RESTORE'] = "RESTORE_PASSWORD";
+$GLOBALS['ACTION_ACTIVATE'] = "ACTIVATE_ACCOUNT";
+if (@!$_SESSION) {
+    session_start();
+}
 
 // LOG_M($_POST);
 
@@ -72,28 +75,30 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] === 'Register') {
         $pwd = hash('whirlpool', $_POST['password']);
         if(!insertUser($_POST['username'], $email, $pwd)) {
             unset($_SESSION['user']);
-            $msg=hash('crc32', 'This username has already been taken');
-            header("Location: ../index.php?route=login&msg={$msg}&class=error");
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'This username has already been taken';
+            header("Location: ../index.php?route=register");
         }
         $bytes = random_bytes(5);
         $code = bin2hex($bytes);
         $message = [];
         $message['title'] = "Activate account";
-        $message['body'] = "Activate account link: http://localhost/camagru/config/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}";
+        $message['body'] = "Activate account link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}";
         setUserCode($code, $_POST['username'], $email);
         if (!sendEmail($email, $message)) {
             unset($_SESSION['user']);
-            $msg=hash('crc32', 'Server error, please try again');
-            header("Location: ../index.php?route=login&msg={$msg}&class=error");
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'Server error, please try again';
+            header("Location: ../index.php?route=register");
         }
-        session_start();
-        $_SESSION['user'] = $_POST['username'];
-        $msg=hash('crc32', 'Check your email');
-        header("Location: ../index.php?route=login&msg={$msg}&class=msg");
+        // $_SESSION['user'] = $_POST['username'];
+        $_SESSION['msg'][] = 'Check your email';
+        header("Location: ../index.php?route=login");
     } else {
         unset($_SESSION['user']);
-        $msg=hash('crc32', 'This email has already been taken');
-        header("Location: ../index.php?route=login&msg={$msg}&class=error");
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'This email has already been taken';
+        header("Location: ../index.php?route=register");
     }
 }
 
@@ -103,18 +108,19 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] === 'Login') {
         if (!checkUserVerification($_POST['username'])) {
             unset($_SESSION['user']);
             $_SESSION['is_auth'] = false;
-            $msg=hash('crc32', 'Email is not confirmed');
-            header("Location: ../index.php?route=login&msg={$msg}&class=error");
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'Email is not confirmed';
+            header("Location: ../index.php?route=login");
         }
-        session_start();
         $_SESSION['user'] = $_POST['username'];
         $_SESSION['is_auth'] = true;
         header("Location: ../index.php?route=menu");
     } else {
         unset($_SESSION['user']);
         $_SESSION['is_auth'] = false;
-        $msg=hash('crc32', 'Username or password in wrong');
-        header("Location: ../index.php?route=login&msg={$msg}&class=error");
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'Username or password in wrong';
+        header("Location: ../index.php?route=login");
     }
 }
 
@@ -128,18 +134,20 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] === 'Restore password'
         $code = bin2hex($bytes);
         $message = [];
         $message['title'] = "Restore password";
-        $message['body'] = "Restore password link: http://localhost/camagru/config/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}";
+        $message['body'] = "Restore password link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}";
         setUserCode($code, $user['name'], $email);
         if (!sendEmail($email, $message)) {
             unset($_SESSION['user']);
-            $msg=hash('crc32', 'Server error, please try again');
-            header("Location: ../index.php?route=login&msg={$msg}&class=error");
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'Server error, please try again';
+            header("Location: ../index.php?route=forgot");
         }
-        $msg=hash('crc32', 'Check your email');
-        header("Location: ../index.php?route=login&msg={$msg}&class=msg");
+        $_SESSION['msg'][] = 'Check your email';
+        header("Location: ../index.php?route=login");
     } else {
-        $msg=hash('crc32', 'Email not found');
-        header("Location: ../index.php?route=login&msg={$msg}&class=error");
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'Email not found';
+        header("Location: ../index.php?route=forgot");
     }
 }
 
@@ -150,32 +158,42 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] === 'Save') {
     LOG_M('user', $user);
     if ($user) {
         updatePassword($user['email'], hash('whirlpool', $_POST['password']));
-        $msg=hash('crc32', 'Your new password saved');
-        header("Location: ../index.php?route=login&msg={$msg}&class=msg");
+        $_SESSION['msg'][] = 'Your new password saved';
+        header("Location: ../index.php?route=login");
     } else {
-        $msg=hash('crc32', 'Email not found');
-        header("Location: ../index.php?route=login&msg={$msg}&class=error");
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'Email not found';
+        header("Location: ../index.php?route=restore");
     }
 }
 
 if ($_GET && isset($_GET['action'])) {
-    $user = selectUser($_GET['email']);
-    if ($_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_RESTORE'] && $_GET['code'] === $user['restoreCode']) {
+    LOG_M("get", $_GET);
+    $user = null;
+    if (isset($_GET['email'])) {
+        $user = selectUser($_GET['email']);
+    }
+    if ($_GET['action'] == 'logout') {
+        $_SESSION['user'] = false;
+        $_SESSION['is_auth'] = false;
+        header("Location: ../index.php?route=menu");
+    }
+    else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_RESTORE'] && $_GET['code'] === $user['restoreCode']) {
         header("Location: ../index.php?route=restore&email={$user['email']}");
-    } else if ($_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_ACTIVATE'] && $_GET['code'] === $user['restoreCode']) {
+    } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_ACTIVATE'] && $_GET['code'] === $user['restoreCode']) {
         activateUserAccount($user['name']);
-        $msg=hash('crc32', 'Email confirmed');
-        header("Location: ../index.php?route=menu&msg={$msg}&class=msg");
+        $_SESSION['msg'][] = 'Email confirmed';
+        header("Location: ../index.php?route=menu");
     } else {
-        $msg=hash('crc32', 'Wrong restore code');
-        header("Location: ../index.php?route=create&msg={$msg}&class=error");
+        $_SESSION['class'] = 'error';
+        if ($_GET['action'] === $GLOBALS['ACTION_RESTORE']) {
+            $_SESSION['msg'][] = 'Wrong restore code';
+        } else if ($_GET['action'] === $GLOBALS['ACTION_ACTIVATE']) {
+            $_SESSION['msg'][] = 'Wrong restore code';
+        } else if ($_GET['action'] !== 'logout') {
+            $_SESSION['msg'][] = 'Please follow the link in your email';
+        }
+        header("Location: ../index.php?route=menu");
     }
 }
-
-if ($_GET && isset($_GET['action']) && $_GET['action'] == 'logout') {
-    session_start();
-    $_SESSION['user'] = false;
-    $_SESSION['is_auth'] = false;
-    LOG_M($_SESSION);
-    header("Location: ../index.php?route=menu");
-}
+LOG_M("session after user", $_SESSION);

@@ -35,39 +35,6 @@ function createTableUsers() {
     }
 };
 
-function createTableMessages() {
-    $db = connect();
-    global $enable_debug;
-    $createSQL = 'CREATE TABLE IF NOT EXISTS `messages` 
-        (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-        `message` VARCHAR(128) NOT NULL UNIQUE, 
-        `code` VARCHAR(8) NOT NULL)';
-    $db->query($createSQL);
-    $stmt = $db->prepare('INSERT INTO `messages` (`message`, `code`) VALUES (?, ?)');
-    $messages = ['This email has already been taken', 'This username has already been taken', 'User succesfully created', 'Username or password in wrong', 'Authorized persons only', 'Sucsessfully authorized', 'Wrong restore code', 'Your new password saved', 'Check your email', 'Email not found', 'Email confirmed', 'Email is not confirmed', 'Server error, please try again'];
-    foreach($messages as $message) {
-        try {
-            $stmt->execute([$message, hash('crc32', $message)]);
-        } catch (Exception $ex) {
-            return;
-        }
-    }
-};
-
-function getMessage($code) {
-    $db = connect();
-    try {
-        $stmt = $db->prepare('SELECT `message` FROM `messages` WHERE `code`=?');
-        $stmt->execute([$code]);
-        $res = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (isset($res['message'])) {
-            return $res['message'];
-        }
-    } catch  (PDOException $e) {
-        return 'Unknown error';
-    }
-}
-
 function insertUser($username, $email, $pwd) {
     $db = connect();
     $stmt = $db->prepare('INSERT INTO `users` (`name`, `email`, `password`) VALUES (:username, :email, :pwd)');
@@ -122,8 +89,6 @@ function disconnect() {
     $db = null;
 };
 
-
-createTableMessages();
 createTableUsers();
 
 ?>
