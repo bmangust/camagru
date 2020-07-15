@@ -10,7 +10,26 @@ const forgot = () => {
   window.location.href = "index.php?route=forgot";
 };
 
-const changeIconOnUpload = () => {
+const sendImage = async () => {
+  const baseImage = document.querySelector(".input-file").files[0];
+
+  let formData = new FormData();
+  formData.append("baseImage", baseImage);
+
+  const request = {
+    method: "POST",
+    headers: {
+      "Content-Type": "image/jpeg",
+      // "multipart/form-data;charset=utf-8; boundary=" +
+      // Math.random().toString().substr(2),
+    },
+    body: formData,
+  };
+  let response = await fetch("/camagru/api/image.php", request);
+  console.log(response);
+};
+
+const addUploadListener = () => {
   const input = document.querySelector(".input-file");
   const viewer = document.querySelector("#imgViewer img");
   const colorGreen = "#5aac7b";
@@ -61,5 +80,5 @@ const sendRestoreEmail = () => {
 // add email and submit form
 window.onload = () => {
   sendRestoreEmail();
-  changeIconOnUpload();
+  addUploadListener();
 };

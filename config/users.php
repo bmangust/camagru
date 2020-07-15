@@ -152,7 +152,6 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] === 'Save') {
         updatePassword($user['email'], hash('whirlpool', $_POST['password']));
         $msg=hash('crc32', 'Your new password saved');
         header("Location: ../index.php?route=login&msg={$msg}&class=msg");
-        
     } else {
         $msg=hash('crc32', 'Email not found');
         header("Location: ../index.php?route=login&msg={$msg}&class=error");

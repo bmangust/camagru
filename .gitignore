@@ -1,2 +1,4 @@
 keys.php
-
+debug*
+*.log
+uploads/
