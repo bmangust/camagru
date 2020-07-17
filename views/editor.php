@@ -1,6 +1,6 @@
 <div class="editor">
     <div id="imgViewer">
-        <img src="https://image.freepik.com/free-vector/abstract-halftone-background_23-2148583453.jpg"/>
+        <img src="https://image.freepik.com/free-vector/abstract-background-flowing-dots_1048-12616.jpg"/>
     </div>
     <div class="controls">
         <form action="api/image.php" method="post" enctype="multipart/form-data" class="controls_form">

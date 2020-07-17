@@ -237,11 +237,6 @@ form input::placeholder {
 
 .createView {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 80%;
-  /* min-width: 600px; */
 }
 
 .editor {
@@ -249,7 +244,7 @@ form input::placeholder {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 70%;
+  width: 65%;
   margin: 10px;
   min-width: 430px;
 }
@@ -279,41 +274,52 @@ form input::placeholder {
 
 .gallery {
   min-width: 230px;
+  width: 100%;
   padding: 10px;
   min-height: 300px;
   max-height: 500px;
   overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 aside {
-  width: 30%;
+  width: 35%;
 }
 
 .snippets {
   width: 470px;
-  max-height: 150px;
+  max-height: 250px;
   display: flex;
-  justify-content: center;
+  /* justify-content: flex-start; */
   flex-wrap: wrap;
   overflow: auto;
 }
 
 .imgWrapper {
-  display: inline-block;
   width: 100px;
   min-width: 100px;
-  height: 60px;
-  background-color: darkgrey;
+  height: 100px;
+  background-image: linear-gradient(to bottom right, #4527a0, #2e1a69);
+  /* border: 1px solid darkgray; */
+  border-radius: 5px;
+  box-sizing: border-box;
   margin: 5px;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.imgWrapper:after {
+.imgWrapper img {
+  width: 100%;
+}
+/* .imgWrapper:after {
   content: "PNG";
   position: absolute;
   top: 20px;
   left: 30px;
-}
+} */
 
 .button_file {
   /* padding: 10px 20px; */
