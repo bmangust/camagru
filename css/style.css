@@ -228,11 +228,20 @@ form input::placeholder {
 
 #imgViewer {
   width: 90%;
+  height: 100%;
   min-width: 300px;
+  position: relative;
 }
 
-#imgViewer img {
+#imgViewer .base {
   width: 100%;
+}
+
+#imgViewer .snippet {
+  width: 40%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .createView {

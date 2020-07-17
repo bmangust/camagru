@@ -1,3 +1,6 @@
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+
 const register = () => {
   window.location.href = "index.php?route=register";
 };
@@ -11,7 +14,7 @@ const forgot = () => {
 };
 
 const sendImage = async () => {
-  const baseImage = document.querySelector(".input-file").files[0];
+  const baseImage = $(".input-file").files[0];
 
   let formData = new FormData();
   formData.append("baseImage", baseImage);
@@ -55,18 +58,40 @@ function post(path, params, method = "post") {
   form.submit();
 }
 
+const addSnippetClickListener = () => {
+  const snippets = $$(".snippet");
+  const viewer = $("#imgViewer");
+  const addClickListener = (event) => {
+    console.log(viewer.children);
+    console.log(event);
+    if (viewer) {
+      if (event.target.localName === "div") {
+        viewer.appendChild(event.target.children[0]);
+      } else if (event.target.localName === "img") {
+        viewer.appendChild(event.target);
+      }
+    }
+  };
+  if (snippets) {
+    console.log(snippets);
+    snippets.forEach((el) => {
+      el.addEventListener("click", addClickListener);
+    });
+  }
+};
+
 const addUploadListener = () => {
-  const input = document.querySelector(".input-file");
-  const viewer = document.querySelector("#imgViewer img");
+  const input = $(".input-file");
+  const viewer = $("#imgViewer .base");
   const colorGreen = "#5aac7b";
   const colorWhite = "#fff";
   const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
   const upload =
     "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
-  const iconPath = document.querySelector(".icon path");
+  const iconPath = $(".icon path");
   if (input) {
     input.addEventListener("change", (element) => {
-      const $label = document.querySelector(".file_label");
+      const $label = $(".file_label");
       const labelVal = $label.innerHTML;
 
       var fileName = "";
@@ -89,8 +114,9 @@ const addUploadListener = () => {
   }
 };
 
+// add email and submit form
 const sendRestoreEmail = () => {
-  const formRestore = document.querySelector("#restorePassword");
+  const formRestore = $("#restorePassword");
   if (formRestore) {
     formRestore.addEventListener("submit", (e) => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -103,8 +129,11 @@ const sendRestoreEmail = () => {
   }
 };
 
-// add email and submit form
+/**
+ * add event listeners
+ */
 window.onload = () => {
   sendRestoreEmail();
   addUploadListener();
+  addSnippetClickListener();
 };
