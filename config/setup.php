@@ -8,6 +8,7 @@ function connect() {
     global $enable_debug;
     try {
         $db = &$GLOBALS['db'];
+        if ($db) return $db;
         $db = new PDO($GLOBALS['dsn'], $GLOBALS['dbuser'], $GLOBALS['dbpwd'], array(PDO::ATTR_PERSISTENT => true));
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $db->query('CREATE DATABASE IF NOT EXISTS akraig_camagru');
@@ -34,6 +35,60 @@ function createTableUsers() {
         LOG_M('Create table users failed: ', $ex->getMessage());
     }
 };
+
+function createTableSnippets() {
+    $db = connect();
+    global $enable_debug;
+    $createSQL = 'CREATE TABLE IF NOT EXISTS `snippets` 
+        (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+        `name` VARCHAR(25) NOT NULL UNIQUE,
+        `width` INT(5) NOT NULL,
+        `height` INT(5) NOT NULL)';
+    try {
+        $db->query($createSQL);
+    } catch (Exception $ex) {
+        LOG_M('Create table users failed: ', $ex->getMessage());
+    }
+};
+
+function insertSnippets() {
+    $db = connect();
+    createTableSnippets();
+    $stmt = $db->prepare('INSERT INTO `snippets` (`name`, `width`, `height`) VALUES (?, ?, ?)');
+    $values = [
+        ['camera', 2048, 2048],
+        ['hud', 4167, 4167],
+        ['confetti', 1028, 856],
+        ['sunglasses', 1000, 471],
+        ['glasses', 2000, 700],
+        ['moustasche', 900, 762],
+        ['beard', 700, 587],
+        ['santa_hat', 1552, 1456],
+        ['mexican_hat', 669, 640]
+    ];
+    foreach ($values as $value) {
+        try {
+            $stmt->execute($value);
+        } catch(Exception $ex){
+            // LOG_M($ex->getMessage());
+            return false;
+        }
+    }
+};
+
+function selectSnippet($s) {
+    $db = connect();
+    if (isset($s['id'])) {
+        $stmt = $db->prepare('SELECT * FROM `snippets` WHERE `id`=?');
+        $stmt->execute([$s['id']]);
+    } else if (isset($s['name'])) {
+        $stmt = $db->prepare('SELECT * FROM `snippets` WHERE `name`=?');
+        $stmt->execute([$s['name']]);
+    }
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $res;
+};
+
 
 function insertUser($username, $email, $pwd) {
     $db = connect();
@@ -90,5 +145,5 @@ function disconnect() {
 };
 
 createTableUsers();
-
+insertSnippets();
 ?>
