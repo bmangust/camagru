@@ -60,20 +60,42 @@ function post(path, params, method = "post") {
 
 const addSnippetClickListener = () => {
   const snippets = $$(".snippet");
+  console.log(snippets);
   const viewer = $("#imgViewer");
-  const addClickListener = (event) => {
-    console.log(viewer.children);
-    console.log(event);
-    if (viewer) {
-      if (event.target.localName === "div") {
-        viewer.appendChild(event.target.children[0]);
-      } else if (event.target.localName === "img") {
-        viewer.appendChild(event.target);
+  function findClickedSnippet(collection, element) {
+    let foundElementIndex;
+    let index = 0;
+    collection.forEach((el) => {
+      if (el == element) {
+        foundElementIndex = index;
       }
+      index++;
+    });
+    return foundElementIndex;
+  }
+  function addClickListener(event) {
+    // find if clicked element is viewer's child
+    const isInViewer = Array.prototype.slice
+      .call(viewer.children)
+      .find((el) => el === this);
+    if (isInViewer) {
+      // if clicked element is actually in viewer
+      // then we should find it's index in snippets array to place it back
+      // to the gallery of snippets
+      const index = findClickedSnippet(
+        Array.prototype.slice.call(snippets),
+        this
+      );
+      const snippetPlaceholder = $(".snippets").children[index];
+      const elem = viewer.removeChild(this);
+      snippetPlaceholder.appendChild(elem);
+    } else {
+      // if snippet is in his initail place (in gallery)
+      // then find it and place to the viewer
+      viewer.appendChild(event.target);
     }
-  };
+  }
   if (snippets) {
-    console.log(snippets);
     snippets.forEach((el) => {
       el.addEventListener("click", addClickListener);
     });
