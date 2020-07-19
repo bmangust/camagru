@@ -1,5 +1,5 @@
 <div class="editor">
-    <div id="imgViewer">
+    <div id="imgViewer" class="droppable">
         <img class="base" src="https://image.freepik.com/free-vector/abstract-background-flowing-dots_1048-12616.jpg"/>
     </div>
     <div class="controls">
