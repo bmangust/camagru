@@ -60,34 +60,12 @@ function post(path, params, method = "post") {
 
 const addSnippetClickListener = () => {
   const snippets = $$(".snippet");
-  console.log(snippets);
   const viewer = $("#imgViewer");
   let dragged;
-  let currentSnippetIndex;
   let currentDroppable = null;
-  let shiftX = 0;
-  let shiftY = 0;
-  let prevPosition = [0, 0];
-  const delta = 50;
   let inDraggableZone = true;
   let onMouseMoveEvent;
 
-  function checkPosition(pageX, pageY) {
-    return (
-      Math.abs(prevPosition[currentSnippetIndex][0] - pageX) < delta &&
-      Math.abs(prevPosition[currentSnippetIndex][1] - pageY) < delta
-    );
-  }
-  function moveAt(pageX, pageY) {
-    if (dragged && checkPosition(pageX, pageY)) {
-      console.log(`cursor position: ${pageX} ${pageY}`);
-      dragged.style.left = pageX - shiftX + "px";
-      dragged.style.top = pageY - shiftY + "px";
-      // dragged.style.left = pageX - dragged.offsetWidth / 2 + "px";
-      // dragged.style.top = pageY - dragged.offsetHeight / 2 + "px";
-      console.log(`image position: ${dragged.style.left} ${dragged.style.top}`);
-    }
-  }
   function findClickedSnippet(collection, element) {
     let foundElementIndex;
     let index = 0;
@@ -98,24 +76,6 @@ const addSnippetClickListener = () => {
       index++;
     });
     return foundElementIndex;
-  }
-  function getCoords(elem) {
-    let box = elem.getBoundingClientRect();
-
-    return {
-      top: box.top + pageYOffset,
-      left: box.left + pageXOffset,
-    };
-  }
-  function findPos(obj) {
-    var curleft = (curtop = 0);
-    if (obj.offsetParent) {
-      do {
-        curleft += obj.offsetLeft;
-        curtop += obj.offsetTop;
-      } while ((obj = obj.offsetParent));
-      return { x: curleft, y: curtop };
-    }
   }
 
   function onClickListener(event) {
@@ -144,92 +104,8 @@ const addSnippetClickListener = () => {
     const elem = viewer.removeChild(this);
     this.dx = null;
     this.dy = null;
-    this.adx = null;
-    this.ady = null;
     elem.setAttribute("draggable", false);
     snippetPlaceholder.appendChild(elem);
-  }
-  function onDragStart(event) {
-    console.log("dragStart");
-    console.log(event);
-
-    dragged = event.target;
-    dragged.style.opacity = 0.5;
-    currentSnippetIndex = findClickedSnippet(
-      Array.prototype.slice.call(snippets),
-      this
-    );
-    const position = findPos(dragged);
-    // shiftX =
-    //   dragged.offsetLeft -
-    //   dragged.getBoundingClientRect().left * +dragged.style.width;
-    // shiftY =
-    //   dragged.offsetTop -
-    //   dragged.getBoundingClientRect().top * +dragged.style.width;
-
-    // shiftX =
-    //   // event.pageX -
-    //   viewer.getBoundingClientRect().left * 2 -
-    //   dragged.getBoundingClientRect().left * +dragged.style.width;
-    // shiftY =
-    //   // event.pageY -
-    //   viewer.getBoundingClientRect().top * 2 -
-    //   dragged.getBoundingClientRect().top * +dragged.style.width;
-
-    shiftX =
-      event.pageX -
-      position.x -
-      dragged.getBoundingClientRect().left * +dragged.style.width;
-    shiftY =
-      event.pageY -
-      position.y -
-      dragged.getBoundingClientRect().top * +dragged.style.width;
-    console.log(`initial shift: ${shiftX} ${shiftY}`);
-    // console.log(prevPosition);
-    // this.style.left = prevPosition[currentSnippetIndex][0];
-    // this.style.top = prevPosition[currentSnippetIndex][1];
-    // prevPosition[currentSnippetIndex] = [event.pageX, event.pageY];
-    // if (dragged.style.left != 0) {
-    //   moveAt(prevPosition[0], prevPosition[1]);
-    // }
-  }
-  function onDragEnd(event) {
-    console.log("dragEnd");
-    console.log(event);
-    // prevPosition[currentSnippetIndex] = [this.style.left, this.style.top];
-    // console.log(prevPosition);
-    dragged = null;
-    event.target.style.opacity = "";
-  }
-  function onDrag(event) {
-    console.log("drag");
-    // console.log(event);
-    if (!dragged) return;
-
-    if (inDraggableZone) {
-      moveAt(event.pageX, event.pageY);
-    }
-    prevPosition[currentSnippetIndex] = [event.pageX, event.pageY];
-
-    // check what element is under cursor
-    dragged.hidden = true;
-    let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
-    dragged.hidden = false;
-
-    if (!elemBelow) return;
-
-    let droppableBelow = elemBelow.closest(".droppable");
-    if (currentDroppable != droppableBelow) {
-      if (currentDroppable) {
-        // null when we were not over a droppable before target event
-        inDraggableZone = false;
-      }
-      currentDroppable = droppableBelow;
-      if (currentDroppable) {
-        // null if we're not coming over a droppable now
-        inDraggableZone = true;
-      }
-    }
   }
   document.addEventListener("keydown", (e) => {
     console.log(e);
@@ -244,84 +120,7 @@ const addSnippetClickListener = () => {
   if (snippets) {
     snippets.forEach((el) => {
       el.addEventListener("click", onClickListener);
-      // el.addEventListener("dragstart", onDragStart);
-      // el.addEventListener("drag", onDrag);
-      // el.addEventListener("dragend", onDragEnd);
-      // el.addEventListener("mousedown", onDragStart);
-      // document.addEventListener("mouseup", onDragEnd);
       el.addEventListener("dblclick", onMouseDoubleClick);
-      el.onmousedown = function (event) {
-        //   if (this.draggable == false) return;
-        //   dragged = this;
-        //   dragged.style.opacity = 0.5;
-        //   console.log(dragged);
-        //   const position = findPos(dragged);
-        //   shiftX =
-        //     event.pageX -
-        //     position.x -
-        //     dragged.getBoundingClientRect().left * +dragged.style.width;
-        //   shiftY =
-        //     event.pageY -
-        //     position.y -
-        //     dragged.getBoundingClientRect().top * +dragged.style.width;
-        //   console.log(`initial shift: ${shiftX} ${shiftY}`);
-        //   // shiftX = 100;
-        //   // shiftY = 300;
-        //   // if (dragged.style.left != 0) {
-        //   // moveAt(dragged.style.left, dragged.style.top);
-        //   // moveAt(event.pageX, event.pageY);
-        //   // }
-        //   function moveAt(pageX, pageY) {
-        //     if (dragged) {
-        //       console.log(pageX + " " + pageY);
-        //       dragged.style.left = pageX - shiftX + "px";
-        //       dragged.style.top = pageY - shiftY + "px";
-        //       console.log(dragged.style.left + " " + dragged.style.top);
-        //     }
-        //   }
-        //   let inDraggableZone = true;
-        //   function onMouseMove(event) {
-        //     if (!dragged) return;
-        //     if (inDraggableZone) {
-        //       moveAt(event.pageX, event.pageY);
-        //     }
-        //     dragged.hidden = true;
-        //     let elemBelow = document.elementFromPoint(
-        //       event.clientX,
-        //       event.clientY
-        //     );
-        //     dragged.hidden = false;
-        //     if (!elemBelow) return;
-        //     let droppableBelow = elemBelow.closest(".droppable");
-        //     if (currentDroppable != droppableBelow) {
-        //       if (currentDroppable) {
-        //         // null when we were not over a droppable before target event
-        //         console.log("leave droppable");
-        //         console.log(currentDroppable);
-        //         inDraggableZone = false;
-        //       }
-        //       currentDroppable = droppableBelow;
-        //       if (currentDroppable) {
-        //         // null if we're not coming over a droppable now
-        //         // (maybe just left the droppable)
-        //         console.log("enter droppable");
-        //         console.log(currentDroppable);
-        //         inDraggableZone = true;
-        //         // enterDroppable(currentDroppable);
-        //       }
-        //     }
-        //   }
-        //   // pass function reference outside to enable stop dragging on Esc
-        //   onMouseMoveEvent = onMouseMove;
-        //   document.addEventListener("mousemove", onMouseMove);
-        //   dragged.onmouseup = function () {
-        //     console.log("mouse up, should release");
-        //     document.removeEventListener("mousemove", onMouseMove);
-        //     dragged.style.opacity = "";
-        //     dragged.onmouseup = null;
-        //     dragged = null;
-        //   };
-      };
       el.ondragstart = function () {
         return false;
       };
