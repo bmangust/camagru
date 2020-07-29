@@ -59,5 +59,5 @@ if ($_GET) {
 }
 ?>
 <?php include './views/main.php';
-unset($_SESSION['class']);
+// unset($_SESSION['class']);
 ?>

@@ -3,6 +3,6 @@
         echo "<div>$msg</div>";
     }
     unset($_SESSION['msg']);
-    // unset($_SESSION['class']);
+    unset($_SESSION['class']);
     ?>
 </div>

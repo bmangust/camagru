@@ -13,23 +13,23 @@ const forgot = () => {
   window.location.href = "index.php?route=forgot";
 };
 
-const sendImage = async () => {
-  const baseImage = $(".input-file").files[0];
-
-  let formData = new FormData();
-  formData.append("baseImage", baseImage);
-
-  const request = {
-    method: "POST",
-    headers: {
-      "Content-Type": "image/jpeg",
-      // "multipart/form-data;charset=utf-8; boundary=" +
-      // Math.random().toString().substr(2),
-    },
-    body: formData,
-  };
-  let response = await fetch("/camagru/api/image.php", request);
-  console.log(response);
+const sendImages = () => {
+  const form = $`.controls_form`;
+  const snippets = $$`#imgViewer .snippet`;
+  snippets.forEach((el) => {
+    const snippetData = {
+      path: el.src.substring(el.src.indexOf("assets")),
+      left: el.style.left ? parseInt(el.style.left) : 0,
+      top: el.style.top ? parseInt(el.style.top) : 0,
+      width: el.offsetWidth,
+      height: el.offsetHeight,
+    };
+    const snippet = document.createElement("input");
+    snippet.type = "hidden";
+    snippet.name = "snippet[]";
+    snippet.value = JSON.stringify(snippetData);
+    form.appendChild(snippet);
+  });
 };
 
 /**
@@ -63,7 +63,7 @@ const addSnippetClickListener = () => {
   const viewer = $("#imgViewer");
   let dragged;
   let currentDroppable = null;
-  let inDraggableZone = true;
+  // let inDroppableZone = true;
   let onMouseMoveEvent;
 
   function findClickedSnippet(collection, element) {
@@ -108,7 +108,6 @@ const addSnippetClickListener = () => {
     snippetPlaceholder.appendChild(elem);
   }
   document.addEventListener("keydown", (e) => {
-    console.log(e);
     if (e.key === "Escape" && dragged) {
       document.removeEventListener("mousemove", onMouseMoveEvent);
       dragged.style.opacity = "";
@@ -128,16 +127,16 @@ const addSnippetClickListener = () => {
       set_drag_drop(el);
 
       function set_drag_drop(obj) {
-        obj.adx = viewer.offsetLeft;
-        obj.ady = viewer.offsetTop;
-
         obj.onmousedown = function (e) {
+          const parent = viewer.getBoundingClientRect();
+          obj.adx = parent.left;
+          obj.ady = parent.top;
           if (this.draggable == false) return;
-          console.log(e);
+          // console.log(e);
 
           var rect = obj.getBoundingClientRect();
-          obj.dx = rect.left - e.clientX;
-          obj.dy = rect.top - e.clientY;
+          obj.dx = e.clientX - rect.left;
+          obj.dy = e.clientY - rect.top;
           dragged = this;
 
           document.onmousemove = onMouseMoveEvent;
@@ -149,32 +148,34 @@ const addSnippetClickListener = () => {
 
         onMouseMoveEvent = function (e) {
           // check what element is under cursor
+
           if (!dragged) return;
           dragged.hidden = true;
-          let elemBelow = document.elementFromPoint(
-            event.clientX,
-            event.clientY
-          );
+          let elemBelow = document.elementFromPoint(e.clientX, e.clientY);
           dragged.hidden = false;
 
-          if (!elemBelow) return;
+          if (!elemBelow) return false;
 
           let droppableBelow = elemBelow.closest(".droppable");
           if (currentDroppable != droppableBelow) {
             if (currentDroppable) {
               // null when we were not over a droppable before target event
-              inDraggableZone = false;
+              inDroppableZone = false;
             }
             currentDroppable = droppableBelow;
             if (currentDroppable) {
               // null if we're not coming over a droppable now
-              inDraggableZone = true;
+              inDroppableZone = true;
             }
           }
 
-          if (dragged && inDraggableZone) {
-            dragged.style.left = e.pageX - dragged.adx + dragged.dx + "px";
-            dragged.style.top = e.pageY - dragged.ady + dragged.dy + "px";
+          if (dragged && inDroppableZone) {
+            const left = e.clientX - dragged.adx - dragged.dx;
+            const top = e.clientY - dragged.ady - dragged.dy;
+            const parent = viewer.getBoundingClientRect();
+
+            dragged.style.left = (left * 100) / parent.width + "%";
+            dragged.style.top = (top * 100) / parent.height + "%";
           }
         };
       }
@@ -186,18 +187,14 @@ const addUploadListener = () => {
   const input = $(".input-file");
   const viewer = $("#imgViewer .base");
   const colorGreen = "#5aac7b";
-  const colorWhite = "#fff";
   const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
-  const upload =
-    "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
   const iconPath = $(".icon path");
   if (input) {
     input.addEventListener("change", (element) => {
       const $label = $(".file_label");
-      const labelVal = $label.innerHTML;
-
       var fileName = "";
       if (element.target.value) {
+        input.lastFile = element.target.files[0];
         fileName = element.target.value.split("\\").pop();
       }
       if (fileName) {
@@ -207,12 +204,41 @@ const addUploadListener = () => {
         viewer.src = URL.createObjectURL(element.target.files[0]);
         viewer.onload = () => URL.revokeObjectURL(viewer.src);
       } else {
-        iconPath.setAttribute("d", upload);
-        iconPath.setAttribute("fill", colorWhite);
-        $label.innerHTML = labelVal;
-        viewer.setAttribute("src", "");
+        viewer.src = URL.createObjectURL(input.lastFile);
+        viewer.onload = () => URL.revokeObjectURL(viewer.src);
       }
     });
+  }
+};
+
+const clearEdit = () => {
+  const viewer = $("#imgViewer .base");
+  const $label = $(".file_label");
+  const input = $("#file");
+  const iconPath = $(".icon path");
+  const colorWhite = "#fff";
+  const upload =
+    "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
+  const resetSnippets = () => {
+    const snippets = $$`#imgViewer .snippet`;
+    snippets.forEach((el) => {
+      const snippetPlaceholder = $(".snippets").children[el.index];
+      const elem = viewer.parentElement.removeChild(el);
+      el.dx = null;
+      el.dy = null;
+      elem.setAttribute("draggable", false);
+      snippetPlaceholder.appendChild(elem);
+    });
+  };
+  resetSnippets();
+  if (input.files.length) {
+    iconPath.setAttribute("d", upload);
+    iconPath.setAttribute("fill", colorWhite);
+    $label.querySelector(".file_name").innerHTML = "Upload file";
+    viewer.setAttribute(
+      "src",
+      "https://image.freepik.com/free-vector/abstract-background-flowing-dots_1048-12616.jpg"
+    );
   }
 };
 

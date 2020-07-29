@@ -1,6 +1,6 @@
 <div class="editor">
     <div id="imgViewer" class="droppable">
-        <img class="base" src="https://image.freepik.com/free-vector/abstract-background-flowing-dots_1048-12616.jpg"/>
+        <img class="base" src="./assets/bg.jpg"/>
     </div>
     <div class="controls">
         <form action="api/image.php" method="post" enctype="multipart/form-data" class="controls_form">
@@ -15,7 +15,7 @@
             
             <input type="button" class="controls_button" onclick="captureImage()" value="Capture"/>
             <input type="button" class="controls_button" onclick="clearEdit()" value="Reset"/>
-            <input type="submit" class="controls_button" value="Send"/>
+            <input type="submit" class="controls_button" onclick="sendImages()" value="Send"/>
         </form>
         <?php include 'snippets.php'; ?>
     </div>

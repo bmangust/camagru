@@ -227,7 +227,6 @@ form input::placeholder {
 /* create */
 
 #imgViewer {
-  width: 90%;
   height: 100%;
   min-width: 300px;
   position: relative;
