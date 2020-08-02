@@ -15,6 +15,7 @@ function connect() {
         $db->exec('USE akraig_camagru');
     } catch (PDOException $ex) {
         LOG_M('Connection failed: ', $ex->getMessage());
+        die();
     }
     return $db;
 }
@@ -33,6 +34,7 @@ function createTableUsers() {
         $db->query($createSQL);
     } catch (Exception $ex) {
         LOG_M('Create table users failed: ', $ex->getMessage());
+        die();
     }
 };
 
@@ -47,7 +49,8 @@ function createTableSnippets() {
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table users failed: ', $ex->getMessage());
+        LOG_M('Create table snippets failed: ', $ex->getMessage());
+        die();
     }
 };
 
@@ -60,7 +63,6 @@ function insertSnippets() {
         ['hud', 4167, 4167],
         ['confetti', 1028, 856],
         ['sunglasses', 1000, 471],
-        ['glasses', 2000, 700],
         ['moustasche', 900, 762],
         ['beard', 700, 587],
         ['santa_hat', 1552, 1456],
@@ -70,7 +72,7 @@ function insertSnippets() {
         try {
             $stmt->execute($value);
         } catch(Exception $ex){
-            // LOG_M($ex->getMessage());
+            LOG_M($ex->getMessage());
             return false;
         }
     }

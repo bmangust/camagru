@@ -4,32 +4,88 @@ require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 session_start();
 $username = $_SESSION['user'];
 
-// log POST request to file
-function logToFile($var) {
-    file_put_contents( 'debug' . time() . '.jpg', $var );
-}
-
-// $request = file_get_contents('php://input');
-// logToFile($request);
 LOG_M("files", $_FILES);
 LOG_M("post", $_POST);
 
-if (isset($_POST['snippet'])) {
-    foreach($_POST['snippet'] as $snippet) {
-        $s[] = json_decode($snippet);
+function addSnippet($snippetData, $target_file)
+{
+    $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+    LOG_M ("imageFileType:", $imageFileType);
+    switch($imageFileType) {
+        case 'png':
+            $dest = imagecreatefrompng($target_file);
+            break;
+        case 'jpg':
+        case 'jpeg':
+            $dest = imagecreatefromjpeg($target_file);
+            break;
+        case 'gif':
+            $dest = imagecreatefromgif($target_file);
+            break;
+        default:
+            $dest = null;
     }
-    print_r($s);
+    if ($dest == null) {
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'Error when create image';
+        header("Location: ../index.php?route=create");
+        echo 'Error when create image';
+        die();
+    }
+    $src = imagecreatefrompng("../{$snippetData->path}");
+
+    // absolute values
+    $destwidth = imagesx( $dest );
+    $destheight = imagesy( $dest );
+    $srcwidth = imagesx( $src );
+    $srcheight = imagesy( $src );
+    
+    if ($snippetData->top < 0) {
+        $top = ( -$snippetData->offsetTop * $srcheight ) / ( $snippetData->height );
+        $topOffset = 0;
+        $hidden = ( -$snippetData->top * $snippetData->drawerHeight / 100 );
+        $pngHeight = ( $snippetData->height - $hidden ) * $destheight / $snippetData->drawerHeight;
+        $height = $srcheight - $top;
+    } else {
+        $top = 0;
+        $topOffset = $snippetData->top * $destheight / 100;
+        $pngHeight = $destheight * ( $snippetData->height / $snippetData->drawerHeight );
+        $height = $srcheight;
+    }
+    if ($snippetData->left < 0) {
+        $left = ( -$snippetData->offsetLeft *  $srcwidth ) / ( $snippetData->width );
+        $leftOffset = 0;
+        $hidden = ( -$snippetData->left * $snippetData->drawerWidth / 100 );
+        $pngWidth = ( $snippetData->width - $hidden ) * $destwidth / $snippetData->drawerWidth;
+        $width = $srcwidth - $left;
+    } else {
+        $left = 0;
+        $leftOffset = $snippetData->left * $destwidth / 100;
+        $pngWidth = $destwidth * ( $snippetData->width / $snippetData->drawerWidth );
+        $width = $srcwidth;
+    }
+
+    imagealphablending($src, false);
+    imagesavealpha($src,true);
+    imagecopyresampled($dest,$src, $leftOffset, $topOffset, $left, $top, $pngWidth, $pngHeight, $width, $height );
+
+    imagejpeg($dest, $target_file);
+    
+    imagedestroy($dest);
+    imagedestroy($src);
+
 }
 
-foreach ($_FILES["file"]["error"] as $i => $error) {
-    if ($error == UPLOAD_ERR_OK) {
+function uploadFile() {
+    global $username;
+    if ($_FILES["file"]["error"] == UPLOAD_ERR_OK) {
         $target_dir = "../assets/uploads/";
-        $target_file = "{$target_dir}{$username}_".time()."_".basename($_FILES["file"]["name"][$i]);
+        $target_file = "{$target_dir}{$username}_".time()."_".basename($_FILES["file"]["name"]);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
         // Check if image file is a actual image or fake image
         if($_POST) {
-            $check = mime_content_type($_FILES["file"]["tmp_name"][$i]);
+            $check = mime_content_type($_FILES["file"]["tmp_name"]);
             LOG_M("check", $check);
             if(strstr($check, "image") !== false) {
                 LOG_M ("File is an image - " . $check .PHP_EOL);
@@ -41,7 +97,7 @@ foreach ($_FILES["file"]["error"] as $i => $error) {
         }
 
         // Check file size
-        if ($uploadOk && $_FILES["file"]["size"][$i] > 1000000) {
+        if ($uploadOk && $_FILES["file"]["size"] > 1000000) {
             $_SESSION['msg'][] = 'Sorry, your file is too large';
             $uploadOk = 0;
         }
@@ -59,77 +115,39 @@ foreach ($_FILES["file"]["error"] as $i => $error) {
             $_SESSION['msg'][] = 'Your file was not uploaded';
             // if everything is ok, try to upload file
         } else {
-            switch($imageFileType) {
-                case 'png':
-                    $dest = imagecreatefrompng($_FILES["file"]["tmp_name"][$i]);
-                    break;
-                case 'jpg':
-                case 'jpeg':
-                    $dest = imagecreatefromjpeg($_FILES["file"]["tmp_name"][$i]);
-                    break;
-                case 'gif':
-                    $dest = imagecreatefromgif($_FILES["file"]["tmp_name"][$i]);
-                    break;
-                default:
-                    $dest = null;
-            }
-            $src = imagecreatefrompng("../{$s[0]->path}");
-
-            $width = imagesx( $dest );
-            $height = imagesy( $dest );
-            $srcwidth = imagesx( $src );
-            $srcheight = imagesy( $src );
-            
-            if ($s[0]->top < 0) {
-                $top = -$s[0]->top;
-                $topOffset = 0;
-                $pngHeight = $s[0]->height + $s[0]->top;
+            if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
+                $_SESSION['msg'][] = "The file ". basename( $_FILES["file"]["name"]). " has been uploaded";
             } else {
-                $top = 0;
-                $topOffset = $s[0]->top;
-                $pngHeight = $s[0]->height;
+                $_SESSION['class'] = 'error';
+                $_SESSION['msg'][] = 'Sorry, there was an error uploading your file';
+                LOG_M ("Sorry, there was an error uploading your file ". basename( $_FILES["file"]["name"]));
             }
-            if ($s[0]->left < 0) {
-                $left = -$s[0]->left;
-                $leftOffset = 0;
-                $pngWidth = $s[0]->width + $s[0]->left;
-            } else {
-                $left = 0;
-                $leftOffset = $s[0]->left;
-                $pngWidth = $s[0]->width;
-            }
-            
-            // // save the alpha
-            imagealphablending($src, false);
-            imagesavealpha($src,true);
-            // copy the frame into the output image (layered on top of the thumbnail)
-            // imagecopyresampled($dest,$src,$leftOffset,$topOffset,$left,$top,$pngWidth,$pngHeight,$pngWidth,$pngHeight);
-            // imagecopyresampled($dest,$src,10,10,0,0,100,100,100,100);
-            
-            // imagecopymerge($dest, $src, $leftOffset, $topOffset, $left, $top, $pngWidth, $pngHeight, 100); //have to play with these numbers for it to work for you, etc.
-            
-            imagecopyresampled($dest,$src, $leftOffset, $topOffset, $left, $top, $pngWidth, $pngHeight, $srcwidth, $srcheight );
+        }
+    } else {
+        LOG_M("no file uploaded, take default");
+        $target_dir = "../assets/uploads/";
+        $target_file = "{$target_dir}{$username}_".time()."_template.jpg";
+        $file = "../assets/bg.jpg";
+        $bg = imagecreatefromjpeg($file);
+        $width = imagesx( $bg );
+        $height = imagesy( $bg );
+        echo "w:".$width.", h:".$height;
+        $dest = imagecreatetruecolor($width, $height);
 
-            
-            // // header('Content-Type: image/png');
-            imagejpeg($dest, $target_file);
-        
-            // emit the image
-            // header('Content-type: image/jpeg');
-            // imagejpeg( $img, $target_file );
-            // imagedestroy($img);
-            
-            imagedestroy($dest);
-            imagedestroy($src);
+        imagecopy($dest, $bg, 0, 0, 0, 0, $width, $height);
+        imagejpeg($dest, $target_file);
+        imagedestroy($dest);
+        imagedestroy($bg);
 
-            // if (move_uploaded_file($_FILES["file"]["tmp_name"][$i], $target_file)) {
-                $_SESSION['msg'][] = "The file ". basename( $_FILES["file"]["name"][$i]). " has been uploaded";
-            // } else {
-            //     $_SESSION['class'] = 'error';
-            //     $_SESSION['msg'][] = 'Sorry, there was an error uploading your file';
-            //     LOG_M ("Sorry, there was an error uploading your file ". basename( $_FILES["file"]["name"][$i]));
-            // }
+    }
+    if (isset($_POST['snippet'])) {
+        foreach($_POST['snippet'] as $snippet) {
+            $s = json_decode($snippet);
+            print_r($s);
+            addSnippet($s, $target_file);
         }
     }
 }
+
+uploadFile();
 header("Location: ../index.php?route=create");

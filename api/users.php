@@ -196,4 +196,3 @@ if ($_GET && isset($_GET['action'])) {
         header("Location: ../index.php?route=menu");
     }
 }
-LOG_M("session after user", $_SESSION);

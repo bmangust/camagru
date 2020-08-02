@@ -16,13 +16,18 @@ const forgot = () => {
 const sendImages = () => {
   const form = $`.controls_form`;
   const snippets = $$`#imgViewer .snippet`;
+  const img = $`#imgViewer .base`;
   snippets.forEach((el) => {
     const snippetData = {
       path: el.src.substring(el.src.indexOf("assets")),
-      left: el.style.left ? parseInt(el.style.left) : 0,
-      top: el.style.top ? parseInt(el.style.top) : 0,
+      left: el.style.left ? parseFloat(el.style.left) : 0,
+      top: el.style.top ? parseFloat(el.style.top) : 0,
+      offsetLeft: el.offsetLeft,
+      offsetTop: el.offsetTop,
       width: el.offsetWidth,
       height: el.offsetHeight,
+      drawerWidth: img.offsetWidth,
+      drawerHeight: img.offsetHeight,
     };
     const snippet = document.createElement("input");
     snippet.type = "hidden";
