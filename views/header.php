@@ -8,6 +8,9 @@
         </li>
         <?php if(isset($_SESSION['user']) && $_SESSION['is_auth'] === true) { ?>
             <li>
+                <a class="button navItem" href="./api/users.php?action=settings">settings</a>
+            </li>
+            <li>
                 <a class="button navItem" href="./api/users.php?action=logout">logout</a>
             </li>
         <?php } else { ?>

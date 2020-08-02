@@ -32,6 +32,8 @@ if ($_GET && isset($_GET['action'])) {
         $_SESSION['user'] = false;
         $_SESSION['is_auth'] = false;
         header("Location: ../index.php?route=menu");
+    } else if ($_GET['action'] == 'settings') {
+        header("Location: ../index.php?route=settings");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_RESTORE'] && $_GET['code'] === $user['restoreCode']) {
         header("Location: ../index.php?route=restore&email={$user['email']}");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_ACTIVATE'] && $_GET['code'] === $user['restoreCode']) {

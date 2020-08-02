@@ -9,6 +9,9 @@ $error = null;
 
 LOG_M("session", $_SESSION);
 $_SERVER['header'] = "Welcome to CAMAGRU";
+if (isset($_SESSION['user'])) {
+    $_SERVER['header'] =$_SERVER['header'] . ", " . $_SESSION['user'];
+}
 
 if ($_GET) {
     if (isset($_SESSION['msg'])) {
