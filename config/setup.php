@@ -50,7 +50,6 @@ function createTableSnippets() {
         $db->query($createSQL);
     } catch (Exception $ex) {
         LOG_M('Create table snippets failed: ', $ex->getMessage());
-        die();
     }
 };
 
@@ -72,7 +71,7 @@ function insertSnippets() {
         try {
             $stmt->execute($value);
         } catch(Exception $ex){
-            LOG_M($ex->getMessage());
+            // LOG_M($ex->getMessage());
             return false;
         }
     }
