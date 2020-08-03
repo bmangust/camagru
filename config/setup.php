@@ -4,8 +4,7 @@ require_once 'database.php';
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 $db;
 
-function connect() {
-    global $enable_debug;
+function DBOconnect() {
     try {
         $db = &$GLOBALS['db'];
         if ($db) return $db;
@@ -20,9 +19,8 @@ function connect() {
     return $db;
 }
 
-function createTableUsers() {
-    $db = connect();
-    global $enable_debug;
+function DBOcreateTableUsers() {
+    $db = DBOconnect();
     $createSQL = 'CREATE TABLE IF NOT EXISTS `users` 
         (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
         `name` VARCHAR(25) NOT NULL UNIQUE, 
@@ -38,9 +36,8 @@ function createTableUsers() {
     }
 };
 
-function createTableSnippets() {
-    $db = connect();
-    global $enable_debug;
+function DBOcreateTableSnippets() {
+    $db = DBOconnect();
     $createSQL = 'CREATE TABLE IF NOT EXISTS `snippets` 
         (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
         `name` VARCHAR(25) NOT NULL UNIQUE,
@@ -53,9 +50,9 @@ function createTableSnippets() {
     }
 };
 
-function insertSnippets() {
-    $db = connect();
-    createTableSnippets();
+function DBOinsertSnippets() {
+    $db = DBOconnect();
+    DBOcreateTableSnippets();
     $stmt = $db->prepare('INSERT INTO `snippets` (`name`, `width`, `height`) VALUES (?, ?, ?)');
     $values = [
         ['camera', 2048, 2048],
@@ -77,8 +74,8 @@ function insertSnippets() {
     }
 };
 
-function selectSnippet($s) {
-    $db = connect();
+function DBOselectSnippet($s) {
+    $db = DBOconnect();
     if (isset($s['id'])) {
         $stmt = $db->prepare('SELECT * FROM `snippets` WHERE `id`=?');
         $stmt->execute([$s['id']]);
@@ -91,47 +88,47 @@ function selectSnippet($s) {
 };
 
 
-function insertUser($username, $email, $pwd) {
-    $db = connect();
+function DBOinsertUser($username, $email, $pwd) {
+    $db = DBOconnect();
     $stmt = $db->prepare('INSERT INTO `users` (`name`, `email`, `password`) VALUES (:username, :email, :pwd)');
     return $stmt->execute([':username'=>$username, ':email'=>$email, ':pwd'=>$pwd]);
 };
 
-function selectUsers() {
-    $db = connect();
+function DBOselectUsers() {
+    $db = DBOconnect();
     $stmt = $db->prepare('SELECT `name` FROM `users`');
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 };
 
-function selectUser($user) {
-    $db = connect();
+function DBOselectUser($user) {
+    $db = DBOconnect();
     $stmt = $db->prepare('SELECT * FROM `users` WHERE `name`=? OR `email`=?');
     $stmt->execute([$user, $user]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     return $res;
 };
 
-function setUserCode($code, $user) {
-    $db = connect();
+function DBOsetUserCode($code, $user) {
+    $db = DBOconnect();
     $stmt = $db->prepare('UPDATE `users` SET restoreCode=? WHERE `name`=? OR `email`=?');
     return $stmt->execute([$code, $user, $user]);
 };
 
-function updatePassword($email, $passwd) {
-    $db = connect();
+function DBOupdatePassword($email, $passwd) {
+    $db = DBOconnect();
     $stmt = $db->prepare("UPDATE `users` SET `password`=?, `restoreCode`='' WHERE `email`=?");
     return $stmt->execute([$passwd, $email]);
 };
 
-function activateUserAccount($username) {
-    $db = connect();
+function DBOactivateUserAccount($username) {
+    $db = DBOconnect();
     $stmt = $db->prepare("UPDATE `users` SET `verified`=?, `restoreCode`='' WHERE `name`=?");
     return $stmt->execute([true, $username]);
 }
 
-function getUserEmail($user) {
-    $db = connect();
+function DBOgetUserEmail($user) {
+    $db = DBOconnect();
     $stmt = $db->prepare('SELECT `email` FROM `users` WHERE `name`=?');
     $stmt->execute([$user]);
     $email = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
@@ -140,11 +137,11 @@ function getUserEmail($user) {
     }
 };
 
-function disconnect() {
+function DBOdisconnect() {
     $db = &$GLOBALS['db'];
     $db = null;
 };
 
-createTableUsers();
-insertSnippets();
+DBOcreateTableUsers();
+DBOinsertSnippets();
 ?>

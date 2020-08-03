@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once 'config/setup.php';
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'config', 'setup.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'api', 'globals.php'));
 require_once 'log.php';
 $header = './views/header.php';
 $main = './views/menu.php';
@@ -8,8 +9,9 @@ $footer = './views/footer.php';
 $error = null;
 
 LOG_M("session", $_SESSION);
+LOG_M("post",$_POST);
 $_SERVER['header'] = "Welcome to CAMAGRU";
-if (isset($_SESSION['user'])) {
+if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE) {
     $_SERVER['header'] =$_SERVER['header'] . ", " . $_SESSION['user'];
 }
 
@@ -37,16 +39,16 @@ if ($_GET) {
                 $main = './views/forgot.php';
                 break;
             case 'restore':
-                $_SERVER['header'] = "Come join us!";
+                $_SERVER['header'] = "Get your new password here";
                 $main = './views/restore.php';
                 break;
             case 'create':
                 $_SERVER['header'] = "Let's create some stuff!";
                 $main = './views/create.php';
                 break;
-            case 'settings':
-                $_SERVER['header'] = "Settings";
-                $main = './views/settings.php';
+            case 'profile':
+                $_SERVER['header'] = $_SESSION['user']."'s profile";
+                $main = './views/profile.php';
                 break;
             case 'gallery':
                 $_SERVER['header'] = "Gallery";

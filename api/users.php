@@ -1,7 +1,6 @@
 <?php
-require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes','User.class.php'));
-$GLOBALS['ACTION_RESTORE'] = "RESTORE_PASSWORD";
-$GLOBALS['ACTION_ACTIVATE'] = "ACTIVATE_ACCOUNT";
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'User.class.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'globals.php'));
 session_start();
 
 // log POST request to file
@@ -10,6 +9,7 @@ function logToFile($var) {
 }
 
 if ($_POST && isset($_POST['submit'])) {
+    LOG_M("post",$_POST);
     $email = $_POST['email'] ? strtolower($_POST['email']) : "";
     if ($_POST['submit'] === 'Register') {
         User::registerUser($_POST['username'], $email, $_POST['password']);
@@ -26,14 +26,18 @@ if ($_GET && isset($_GET['action'])) {
     LOG_M("get", $_GET);
     $user = null;
     if (isset($_GET['email'])) {
-        $user = selectUser($_GET['email']);
+        $user = DBOselectUser($_GET['email']);
+    } else if (isset($_SESSION['user'])) {
+        $user = DBOselectUser($_SESSION['user']);
     }
     if ($_GET['action'] == 'logout') {
         $_SESSION['user'] = false;
         $_SESSION['is_auth'] = false;
         header("Location: ../index.php?route=menu");
-    } else if ($_GET['action'] == 'settings') {
-        header("Location: ../index.php?route=settings");
+    } else if ($_GET['action'] == 'profile') {
+        header("Location: ../index.php?route=profile");
+    }  else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_PASS']) {
+        header("Location: ../index.php?route=restore");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_RESTORE'] && $_GET['code'] === $user['restoreCode']) {
         header("Location: ../index.php?route=restore&email={$user['email']}");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_ACTIVATE'] && $_GET['code'] === $user['restoreCode']) {

@@ -5,7 +5,7 @@ require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 class User {
     // check if user entered valid password
     public static function authorize($user, $pwd) {
-        $userRes = selectUser($user);
+        $userRes = DBOselectUser($user);
         if (isset($userRes['name'])) {
             return hash('whirlpool', $pwd) === $userRes['password'];
         }
@@ -14,14 +14,14 @@ class User {
 
     // check if user confirmed email
     public static function checkUserVerification($username) {
-        $user = selectUser($username);
+        $user = DBOselectUser($username);
         if ($user && $user['verified'] == true) {
             return true;
         }
         return false;
     }
 
-    public static function sendEmail($userEmail, $message) {
+    public static function sendEmail($userEmail, array $message) {
         global $enable_debug;
         $url = 'https://api.elasticemail.com/v2/email/send';
 
@@ -57,7 +57,7 @@ class User {
 
     public static function registerUser($username, $email, $password)
     {
-        $user = User::selectUser($_POST['email']);
+        $user = DBOselectUser($_POST['email']);
         $_SESSION['is_auth'] = false;
         if (!isset($user['email'])) {
             $email = strtolower($_POST['email']);
@@ -74,7 +74,7 @@ class User {
             $message['title'] = "Activate account";
             $message['body'] = "Activate account link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}";
             setUserCode($code, $_POST['username'], $email);
-            if (!sendEmail($email, $message)) {
+            if (!User::sendEmail($email, $message)) {
                 unset($_SESSION['user']);
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Server error, please try again';
@@ -115,7 +115,7 @@ class User {
 
     public static function restorePassword($email)
     {
-        $user = selectUser($email);
+        $user = DBOselectUser($email);
         LOG_M('user', $user);
         if ($user) {
             $bytes = random_bytes(5);
@@ -124,7 +124,7 @@ class User {
             $message['title'] = "Restore password";
             $message['body'] = "Restore password link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}";
             setUserCode($code, $user['name'], $email);
-            if (!sendEmail($email, $message)) {
+            if (!User::sendEmail($email, $message)) {
                 unset($_SESSION['user']);
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Server error, please try again';
@@ -141,10 +141,10 @@ class User {
 
     public static function savePassword($email, $password)
     {
-        $user = selectUser($email);
+        $user = DBOselectUser($email);
         LOG_M('user', $user);
         if ($user) {
-            $User::updatePassword($user['email'], hash('whirlpool', $password));
+            DBOupdatePassword($user['email'], hash('whirlpool', $password));
             $_SESSION['msg'][] = 'Your new password saved';
             header("Location: ../index.php?route=login");
         } else {
