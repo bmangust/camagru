@@ -27,7 +27,8 @@ function DBOcreateTableUsers() {
         `email` VARCHAR(40) NOT NULL UNIQUE, 
         `password` VARCHAR(128) NOT NULL,
         `verified` BOOLEAN DEFAULT FALSE,
-        `restoreCode` VARCHAR(10))';
+        `restoreCode` VARCHAR(10),
+        `is_admin` BOOLEAN DEFAULT FALSE)';
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
