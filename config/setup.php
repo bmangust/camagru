@@ -121,6 +121,36 @@ function DBOupdatePassword($email, $passwd) {
     return $stmt->execute([$passwd, $email]);
 };
 
+function DBOupdateEmail($email, $newEmail) {
+    $db = DBOconnect();
+    $user = DBOselectUser($newEmail);
+    if (isset($user['email'])) {
+        return false;
+    }
+    try {
+        $stmt = $db->prepare("UPDATE `users` SET `email`=? WHERE `email`=?");
+        return $stmt->execute([$newEmail, $email]);
+    } catch(Exception $ex){
+        LOG_M($ex->getMessage());
+        return false;
+    }
+};
+
+function DBOupdateUsername($email, $newUsername) {
+    $db = DBOconnect();
+    $user = DBOselectUser($newUsername);
+    if (isset($user['email'])) {
+        return false;
+    }
+    try {
+        $stmt = $db->prepare("UPDATE `users` SET `name`=? WHERE `email`=?");
+        return $stmt->execute([$newUsername, $email]);
+    } catch(Exception $ex){
+        LOG_M($ex->getMessage());
+        return false;
+    }
+};
+
 function DBOactivateUserAccount($username) {
     $db = DBOconnect();
     $stmt = $db->prepare("UPDATE `users` SET `verified`=?, `restoreCode`='' WHERE `name`=?");

@@ -1,5 +1,5 @@
 <?php
-if (isset($_SESSION['user']) && $_SESSION['user'] != FALSE) {
+if (isset($_SESSION['is_auth']) && $_SESSION['is_auth'] != FALSE) {
     header("Location: ./index.php?route=menu");
 }?>
 <form name="login" id="login" action="api/users.php" onsubmit="return validateLoginForm()" method="post">

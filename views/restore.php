@@ -1,7 +1,3 @@
-<?php
-if (isset($_SESSION['user'])) {
-    $user = selectUser($_SESSION['user']);
-}?>
 <form name="restore" id="restorePassword" action="api/users.php" onsubmit="return validateRestoreForm()" method="post">
     <input type="hidden" name="email" value="<?=$user['email']?>"/>
     <input type="password" name="password" value="" id="password" required placeholder="Enter new password" />

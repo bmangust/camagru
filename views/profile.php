@@ -5,13 +5,13 @@
                 <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_PASS']?>">change password</a>
             </li>
             <li>
-                <a class="button menuItem" href="./api/users.php?action=change_email">change email</a>
+                <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_EMAIL']?>">change email</a>
             </li>
             <li>
-                <a class="button menuItem" href="./api/users.php?action=change_username">change username</a>
+                <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_USERNAME']?>">change username</a>
             </li>
             <li>
-                <a class="button menuItem" href="./api/users.php?action=delete_account">delete account</a>
+                <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_DELETE_ACCOUNT']?>">delete account</a>
             </li>
         <?php } ?>
     </ul>

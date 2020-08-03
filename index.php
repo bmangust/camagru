@@ -11,8 +11,11 @@ $error = null;
 LOG_M("session", $_SESSION);
 LOG_M("post",$_POST);
 $_SERVER['header'] = "Welcome to CAMAGRU";
-if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE) {
+if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && $_SESSION['is_auth'] !== FALSE) {
     $_SERVER['header'] =$_SERVER['header'] . ", " . $_SESSION['user'];
+}
+if (isset($_SESSION['user'])) {
+    $user = DBOselectUser($_SESSION['user']);
 }
 
 if ($_GET) {
@@ -26,6 +29,7 @@ if ($_GET) {
             case 'menu':
                 $main = './views/menu.php';
                 break;
+                
             case 'login':
                 $_SERVER['header'] = "Are you with us?";
                 $main = './views/login.php';
@@ -38,10 +42,16 @@ if ($_GET) {
                 $_SERVER['header'] = "We'll help you!";
                 $main = './views/forgot.php';
                 break;
+
             case 'restore':
                 $_SERVER['header'] = "Get your new password here";
                 $main = './views/restore.php';
                 break;
+            case 'update_username':
+                $_SERVER['header'] = "Update your username";
+                $main = './views/update_username.php';
+                break;
+
             case 'create':
                 $_SERVER['header'] = "Let's create some stuff!";
                 $main = './views/create.php';

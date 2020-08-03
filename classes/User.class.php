@@ -73,7 +73,7 @@ class User {
             $message = [];
             $message['title'] = "Activate account";
             $message['body'] = "Activate account link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}";
-            setUserCode($code, $_POST['username'], $email);
+            DBOsetUserCode($code, $_POST['username'], $email);
             if (!User::sendEmail($email, $message)) {
                 unset($_SESSION['user']);
                 $_SESSION['class'] = 'error';
@@ -123,13 +123,14 @@ class User {
             $message = [];
             $message['title'] = "Restore password";
             $message['body'] = "Restore password link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}";
-            setUserCode($code, $user['name'], $email);
+            DBOsetUserCode($code, $user['name'], $email);
             if (!User::sendEmail($email, $message)) {
                 unset($_SESSION['user']);
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Server error, please try again';
                 header("Location: ../index.php?route=forgot");
             }
+            $_SESSION['user'] = $user['name'];
             $_SESSION['msg'][] = 'Check your email';
             header("Location: ../index.php?route=login");
         } else {
@@ -151,6 +152,28 @@ class User {
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'Email not found';
             header("Location: ../index.php?route=restore");
+        }
+    }
+
+    public static function updateUsername($username, $newUsername)
+    {
+        $user = DBOselectUser($username);
+        if ($user) {
+            if (!DBOupdateUsername($user['email'], $newUsername)) {
+                $_SESSION['class'] = 'error';
+                $_SESSION['msg'][] = 'Username already exists';
+                header("Location: ../index.php?route=update_username");
+                return;
+            }
+            $_SESSION['user'] = $newUsername;
+            $_SESSION['msg'][] = 'Your new username saved';
+            header("Location: ../index.php?route=profile");
+        } else {
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'Email not found';
+            $_SESSION['user'] = FALSE;
+            $_SESSION['is_auth'] = FALSE;
+            header("Location: ../index.php?route=menu");
         }
     }
 }
