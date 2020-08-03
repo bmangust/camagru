@@ -202,6 +202,15 @@ form input {
   border: 1px solid #a1a1a1;
 }
 
+form input[type="submit"]:focus {
+  background-color: #2a2a2a;
+}
+
+form input:focus,
+form input:active {
+  border: 1px solid #fb8a00;
+}
+
 form input::placeholder {
   color: #444;
   font-size: 1rem;
