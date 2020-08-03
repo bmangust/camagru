@@ -1,6 +1,9 @@
+<?php
+if ($_SESSION['is_auth'] == FALSE) {
+    header("Location: ./index.php?route=menu");
+}?>
 <div>
     <ul>
-        <?php if(isset($_SESSION['user']) && $_SESSION['is_auth'] === true) { ?>
             <li>
                 <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_PASS']?>">change password</a>
             </li>
@@ -13,6 +16,5 @@
             <li>
                 <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_DELETE_ACCOUNT']?>">delete account</a>
             </li>
-        <?php } ?>
     </ul>
 </div> 

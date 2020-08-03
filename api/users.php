@@ -19,6 +19,8 @@ if ($_POST && isset($_POST['submit'])) {
         User::restorePassword($email);
     } else if ($_POST['submit'] === 'Save') {
         User::savePassword($email, $_POST['password']);
+    } else if ($_POST['submit'] === 'Update email') {
+        User::updateEmail($email, $_POST['newEmail']);
     } else if ($_POST['submit'] === 'Update username') {
         User::updateUsername($email, $_POST['username']);
     }

@@ -47,6 +47,10 @@ if ($_GET) {
                 $_SERVER['header'] = "Get your new password here";
                 $main = './views/restore.php';
                 break;
+            case 'update_email':
+                $_SERVER['header'] = "Update your email";
+                $main = './views/update_email.php';
+                break;
             case 'update_username':
                 $_SERVER['header'] = "Update your username";
                 $main = './views/update_username.php';

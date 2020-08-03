@@ -151,13 +151,37 @@ class User {
         } else {
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'Email not found';
+            $_SESSION['user'] = FALSE;
+            $_SESSION['is_auth'] = FALSE;
             header("Location: ../index.php?route=restore");
         }
     }
 
-    public static function updateUsername($username, $newUsername)
+    public static function updateEmail($email, $newEmail)
     {
-        $user = DBOselectUser($username);
+        $user = DBOselectUser($email);
+        if ($user) {
+            if (!DBOupdateEmail($user['email'], $newEmail)) {
+                $_SESSION['class'] = 'error';
+                $_SESSION['msg'][] = 'Email already exists';
+                header("Location: ../index.php?route=update_email");
+                return;
+            }
+            $_SESSION['msg'][] = 'Your new email saved';
+            header("Location: ../index.php?route=profile");
+            return;
+        } else {
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'Email not found';
+            $_SESSION['user'] = FALSE;
+            $_SESSION['is_auth'] = FALSE;
+            header("Location: ../index.php?route=menu");
+        }
+    }
+
+    public static function updateUsername($email, $newUsername)
+    {
+        $user = DBOselectUser($email);
         if ($user) {
             if (!DBOupdateUsername($user['email'], $newUsername)) {
                 $_SESSION['class'] = 'error';
@@ -168,6 +192,7 @@ class User {
             $_SESSION['user'] = $newUsername;
             $_SESSION['msg'][] = 'Your new username saved';
             header("Location: ../index.php?route=profile");
+            return;
         } else {
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'Email not found';

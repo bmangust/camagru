@@ -99,3 +99,14 @@ const validateRestoreForm = () => {
 const validateForgotForm = () => {
   return validateEmail("forgot");
 };
+
+const validateUpdateEmail = () => {
+  const field = selectInput("update_email", "newEmail");
+  if (field.value === "") {
+    return makeAlert(field, form, "Email must not be empty");
+  } else if (field.value.toLowerCase().search(/\w+@\w+\.[a-z]+/) === -1) {
+    return makeAlert(field, "update_email", "This does not look like email");
+  }
+  field.classList.remove("invalid");
+  return true;
+};
