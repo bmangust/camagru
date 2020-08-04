@@ -14,7 +14,8 @@ if ($_SESSION['is_auth'] == FALSE) {
                 <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_USERNAME']?>">change username</a>
             </li>
             <li>
-                <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_DELETE_ACCOUNT']?>">delete account</a>
+                <a class="button menuItem" onclick="confirmDelete()" href="#">delete account</a>
+                    <!-- ./api/users.php?action=<?=$GLOBALS['ACTION_DELETE_ACCOUNT']?> -->
             </li>
     </ul>
 </div> 

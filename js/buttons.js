@@ -13,6 +13,17 @@ const forgot = () => {
   window.location.href = "index.php?route=forgot";
 };
 
+const confirmDelete = () => {
+  const answer = confirm(
+    "Are you sure? All your pictures will be removed from gallery as well as your account. This action cannot be undone."
+  );
+  if (answer) {
+    const url = "api/users.php";
+    const params = { action: "Delete account" };
+    post(url, params);
+  }
+};
+
 const sendImages = () => {
   const form = $`.controls_form`;
   const snippets = $$`#imgViewer .snippet`;
@@ -45,7 +56,7 @@ const sendImages = () => {
  */
 
 function post(path, params, method = "post") {
-  const form = document.createElement("form");
+  const form = document.createElement("FORM");
   form.method = method;
   form.action = path;
 

@@ -62,7 +62,7 @@ class User {
         if (!isset($user['email'])) {
             $email = strtolower($_POST['email']);
             $pwd = hash('whirlpool', $_POST['password']);
-            if(!insertUser($_POST['username'], $email, $pwd)) {
+            if(!DBOinsertUser($_POST['username'], $email, $pwd)) {
                 unset($_SESSION['user']);
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'This username has already been taken';
@@ -193,6 +193,22 @@ class User {
             $_SESSION['msg'][] = 'Your new username saved';
             header("Location: ../index.php?route=profile");
             return;
+        } else {
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = 'Email not found';
+            $_SESSION['user'] = FALSE;
+            $_SESSION['is_auth'] = FALSE;
+            header("Location: ../index.php?route=menu");
+        }
+    }
+
+    public static function deleteAccount($username)
+    {
+        if (DBOdeleteAccount($username)) {
+            $_SESSION['msg'][] = 'Your account has been deleted';
+            $_SESSION['user'] = FALSE;
+            $_SESSION['is_auth'] = FALSE;
+            header("Location: ../index.php?route=menu");
         } else {
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'Email not found';

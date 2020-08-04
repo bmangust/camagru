@@ -8,7 +8,7 @@ function logToFile($var) {
     file_put_contents( 'debug' . time() . '.log', var_export($var, true) );
 }
 
-if ($_POST && isset($_POST['submit'])) {
+if ($_POST && (isset($_POST['submit']) || isset($_POST['action']))) {
     LOG_M("post",$_POST);
     $email = $_POST['email'] ? strtolower($_POST['email']) : "";
     if ($_POST['submit'] === 'Register') {
@@ -23,6 +23,8 @@ if ($_POST && isset($_POST['submit'])) {
         User::updateEmail($email, $_POST['newEmail']);
     } else if ($_POST['submit'] === 'Update username') {
         User::updateUsername($email, $_POST['username']);
+    } else if ($_POST['action'] === 'Delete account') {
+        User::deleteAccount($_SESSION['user']);
     }
 }
 
@@ -40,18 +42,16 @@ if ($_GET && isset($_GET['action'])) {
         header("Location: ../index.php?route=menu");
     } else if ($_GET['action'] == 'profile') {
         header("Location: ../index.php?route=profile");
-    }  else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_PASS']) {
+    } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_PASS']) {
         header("Location: ../index.php?route=restore");
-    }  else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_EMAIL']) {
+    } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_EMAIL']) {
         header("Location: ../index.php?route=update_email");
-    }  else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_USERNAME']) {
+    } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_USERNAME']) {
         header("Location: ../index.php?route=update_username");
-    }  else if ($_GET['action'] === $GLOBALS['ACTION_DELETE_ACCOUNT']) {
-        header("Location: ../index.php?route=delete_account");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_RESTORE'] && $_GET['code'] === $user['restoreCode']) {
         header("Location: ../index.php?route=restore&email={$user['email']}");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_ACTIVATE'] && $_GET['code'] === $user['restoreCode']) {
-        activateUserAccount($user['name']);
+        DBOactivateUserAccount($user['name']);
         $_SESSION['msg'][] = 'Email confirmed';
         header("Location: ../index.php?route=menu");
     } else {

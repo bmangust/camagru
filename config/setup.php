@@ -168,6 +168,20 @@ function DBOgetUserEmail($user) {
     }
 };
 
+function DBOdeleteUserPictures($username)
+{
+    // prepare and delete all the user pictures
+    return true;
+}
+
+function DBOdeleteAccount($username)
+{
+    $db = DBOconnect();
+    DBOdeleteUserPictures($username);
+    $stmt = $db->prepare('DELETE FROM `users` WHERE `name`=?');
+    return $stmt->execute([$username]);
+}
+
 function DBOdisconnect() {
     $db = &$GLOBALS['db'];
     $db = null;
