@@ -269,6 +269,7 @@ form input::placeholder {
 
 .controls {
   flex-direction: row;
+  justify-content: center;
 }
 
 .controls_button {
@@ -306,10 +307,10 @@ aside {
 }
 
 .snippets {
-  width: 470px;
+  /* width: 470px; */
   max-height: 250px;
   display: flex;
-  /* justify-content: flex-start; */
+  justify-content: center;
   flex-wrap: wrap;
   overflow: auto;
 }

@@ -1,9 +1,9 @@
 <div class="snippets">
 <?php
-$numberOfSnippets = 10;
+$numberOfSnippets = 8;
 $folder = 'assets/png/';
-for ($i = 0; $i < $numberOfSnippets; $i++) {
-    $line = selectSnippet(['id'=>$i]);
+for ($i = 1; $i <= $numberOfSnippets; $i++) {
+    $line = DBOselectSnippet(['id'=>$i]);
     if (is_array($line) && isset($line['name'])) {
         $path = join('_', array($i, $line['name']));
         echo "<div class='imgWrapper snippetWrapper'><img class='snippet' src='{$folder}{$path}.png' draggable='false'/></div>".PHP_EOL;
