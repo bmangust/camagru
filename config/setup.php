@@ -59,7 +59,7 @@ function DBOcreateTableUploads() {
         `name` VARCHAR(50) NOT NULL,
         `rating` INT(1) UNSIGNED DEFAULT 0,
         `isPrivate` BOOLEAN DEFAULT FALSE,
-        FOREIGN KEY (`userid`) REFERENCES `users` (`id`)
+        FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE
         )';
     try {
         $db->query($createSQL);
@@ -197,6 +197,22 @@ function DBOdeleteAccount($username)
     DBOdeleteUserPictures($username);
     $stmt = $db->prepare('DELETE FROM `users` WHERE `name`=?');
     return $stmt->execute([$username]);
+}
+
+function DBOinsertUpload($name, $user)
+{
+    $db = DBOconnect();
+    $user = DBOselectUser($user);
+    if (isset($user['id'])) {
+        $stmt = $db->prepare('INSERT INTO `uploads` (`name`, `userid`) VALUES (?, ?)');
+        try {
+            return $stmt->execute([$name, $user['id']]);
+        } catch (Exception $e) {
+            LOG_M('SQL Error: '.$e->getMessage());
+            return false;
+        }
+    }
+    return false;
 }
 
 function DBOdisconnect() {

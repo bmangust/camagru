@@ -80,13 +80,13 @@ function uploadFile() {
     global $username;
     if ($_FILES["file"]["error"] == UPLOAD_ERR_OK) {
         $target_dir = "../assets/uploads/";
-        $target_file = "{$target_dir}{$username}_".time()."_".basename($_FILES["file"]["name"]);
+        $target_name = "{$username}_".time()."_".basename($_FILES["file"]["name"]);
+        $target_file = "{$target_dir}".$target_name;
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
         // Check if image file is a actual image or fake image
         if($_POST) {
             $check = mime_content_type($_FILES["file"]["tmp_name"]);
-            LOG_M("check", $check);
             if(strstr($check, "image") !== false) {
                 LOG_M ("File is an image - " . $check .PHP_EOL);
                 $uploadOk = 1;
@@ -113,25 +113,26 @@ function uploadFile() {
         if ($uploadOk == 0) {
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'Your file was not uploaded';
-            // if everything is ok, try to upload file
+            return;
+        // if everything is ok, try to upload file
         } else {
             if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
                 $_SESSION['msg'][] = "The file ". basename( $_FILES["file"]["name"]). " has been uploaded";
             } else {
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Sorry, there was an error uploading your file';
-                LOG_M ("Sorry, there was an error uploading your file ". basename( $_FILES["file"]["name"]));
+                return;
             }
         }
-    } else {
-        LOG_M("no file uploaded, take default");
+    } else if (isset($_POST['snippet'])) {
+        // upload default image only if some snippets were added
         $target_dir = "../assets/uploads/";
-        $target_file = "{$target_dir}{$username}_".time()."_template.jpg";
+        $target_name = "{$username}_".time()."_default.jpg";
+        $target_file = "{$target_dir}".$target_name;
         $file = "../assets/bg.jpg";
         $bg = imagecreatefromjpeg($file);
         $width = imagesx( $bg );
         $height = imagesy( $bg );
-        echo "w:".$width.", h:".$height;
         $dest = imagecreatetruecolor($width, $height);
 
         imagecopy($dest, $bg, 0, 0, 0, 0, $width, $height);
@@ -139,6 +140,10 @@ function uploadFile() {
         imagedestroy($dest);
         imagedestroy($bg);
 
+    } else {
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'No file was created - empty canvas';
+        return;
     }
     if (isset($_POST['snippet'])) {
         foreach($_POST['snippet'] as $snippet) {
@@ -146,6 +151,14 @@ function uploadFile() {
             print_r($s);
             addSnippet($s, $target_file);
         }
+    }
+    // add database record about new file. Delete file on error
+    if (DBOinsertUpload($target_name, $_SESSION['user'])) {
+        $_SESSION['msg'][] = 'Your file was successfuly uploaded';
+    } else {
+        unlink($target_file);
+        $_SESSION['class'] = 'error';
+        $_SESSION['msg'][] = 'Database error';
     }
 }
 
