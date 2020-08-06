@@ -28,7 +28,7 @@ function DBOcreateTableUsers() {
         `password` VARCHAR(128) NOT NULL,
         `verified` BOOLEAN DEFAULT FALSE,
         `restoreCode` VARCHAR(10),
-        `is_admin` BOOLEAN DEFAULT FALSE)';
+        `isAdmin` BOOLEAN DEFAULT FALSE)';
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
@@ -44,6 +44,23 @@ function DBOcreateTableSnippets() {
         `name` VARCHAR(25) NOT NULL UNIQUE,
         `width` INT(5) NOT NULL,
         `height` INT(5) NOT NULL)';
+    try {
+        $db->query($createSQL);
+    } catch (Exception $ex) {
+        LOG_M('Create table snippets failed: ', $ex->getMessage());
+    }
+};
+
+function DBOcreateTableUploads() {
+    $db = DBOconnect();
+    $createSQL = 'CREATE TABLE IF NOT EXISTS `uploads` 
+        (`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `userid` INT(5) UNSIGNED,
+        `name` VARCHAR(50) NOT NULL,
+        `rating` INT(1) UNSIGNED DEFAULT 0,
+        `isPrivate` BOOLEAN DEFAULT FALSE,
+        FOREIGN KEY (`userid`) REFERENCES `users` (`id`)
+        )';
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
