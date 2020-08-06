@@ -215,6 +215,15 @@ function DBOinsertUpload($name, $user)
     return false;
 }
 
+function DBOselectUploads($offset=0, $limit=100, $order='DESC')
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare("SELECT * FROM `uploads` ORDER BY `id` {$order} LIMIT {$offset}, {$limit}");
+    $stmt->execute();
+    $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $res;
+}
+
 function DBOdisconnect() {
     $db = &$GLOBALS['db'];
     $db = null;
