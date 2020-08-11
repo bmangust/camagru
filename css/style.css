@@ -11,7 +11,7 @@
 }
 
 h1 {
-  margin-top: 2rem;
+  margin: 1rem 0;
   text-align: center;
 }
 
@@ -25,7 +25,6 @@ body {
 }
 
 main {
-  padding-top: 2rem;
   width: 90%;
   text-align: center;
   margin: auto;
@@ -288,7 +287,6 @@ form input::placeholder {
 .controls_button:hover,
 .controls_button:active {
   background-color: #444;
-  transition: 0.3s;
 }
 
 .gallery {
@@ -300,6 +298,7 @@ form input::placeholder {
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 aside {
@@ -307,7 +306,6 @@ aside {
 }
 
 .snippets {
-  /* width: 470px; */
   max-height: 250px;
   display: flex;
   justify-content: center;
@@ -320,7 +318,6 @@ aside {
   min-width: 100px;
   height: 100px;
   background-image: linear-gradient(to bottom right, #4527a0, #2e1a69);
-  /* border: 1px solid darkgray; */
   border-radius: 5px;
   box-sizing: border-box;
   margin: 5px;
@@ -328,26 +325,25 @@ aside {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+
+.preview .info {
+  display: none;
 }
 
 .imgWrapper img {
   width: 100%;
 }
-/* .imgWrapper:after {
-  content: "PNG";
-  position: absolute;
-  top: 20px;
-  left: 30px;
-} */
 
 .button_file {
-  /* padding: 10px 20px; */
   display: block;
   color: white;
   background-color: #1a1a1a;
   border: 1px solid #4527a0;
   border-radius: 5px;
 }
+
 .input-file {
   width: 0.1px;
   height: 0.1px;
@@ -356,6 +352,7 @@ aside {
   position: absolute;
   z-index: -1;
 }
+
 .input-file + .file_label {
   margin: 5px;
   width: 230px;
@@ -367,9 +364,11 @@ aside {
   justify-content: center;
   align-items: center;
 }
+
 .file_name {
   font-size: 0.8rem;
 }
+
 .icon {
   width: 16px;
   height: 16px;
@@ -417,4 +416,66 @@ select,
 select > * {
   color: #1a1a1a;
   font-weight: 600;
+}
+
+/* gallery */
+
+.gallery .imgWrapper {
+  background-image: none;
+  width: 30%;
+  height: 100%;
+}
+
+.gallery .imgWrapper img {
+  width: 100%;
+  height: auto;
+}
+
+.imgWrapper .info {
+  position: absolute;
+  bottom: -30px;
+  left: 0;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  transition: 0.3s;
+  font-size: 0.7rem;
+  padding: 0 2px;
+  background-image: linear-gradient(#00000000, #00000044);
+}
+
+.imgWrapper:hover .info {
+  bottom: 0px;
+  transition: 0.3s;
+}
+
+.author {
+  font-size: inherit;
+  margin-left: 5px;
+}
+
+.like {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  background: url("../assets/png/heart_empty.png") right bottom no-repeat;
+  background-size: 20px 20px;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+}
+
+.like:hover {
+  background-image: url("../assets/png/heart_full.png");
+  opacity: 50%;
+}
+
+.liked {
+  background-image: url("../assets/png/heart_full.png");
+}
+
+.liked:hover {
+  opacity: 70%;
 }

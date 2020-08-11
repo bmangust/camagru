@@ -9,7 +9,7 @@ $footer = './views/footer.php';
 $error = null;
 
 LOG_M("session", $_SESSION);
-LOG_M("post",$_POST);
+// LOG_M("post",$_POST);
 $_SERVER['header'] = "Welcome to CAMAGRU";
 if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && $_SESSION['is_auth'] !== FALSE) {
     $_SERVER['header'] =$_SERVER['header'] . ", " . $_SESSION['user'];

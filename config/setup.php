@@ -64,7 +64,25 @@ function DBOcreateTableUploads() {
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table snippets failed: ', $ex->getMessage());
+        LOG_M('Create table uploads failed: ', $ex->getMessage());
+    }
+};
+
+function DBOcreateTableLikes() {
+    $db = DBOconnect();
+    $createSQL = 'CREATE TABLE IF NOT EXISTS `likes` 
+        (`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `userid` INT(5) UNSIGNED NOT NULL,
+        `imgid` INT(10) UNSIGNED NOT NULL,
+        FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+        FOREIGN KEY (`imgid`) REFERENCES `uploads` (`id`) ON DELETE CASCADE
+        )';
+    $uniqueSQL = 'ALTER TABLE likes ADD CONSTRAINT UNIQUE_userid_imgid UNIQUE CLUSTERED ( userid, imgid )';
+    try {
+        $db->query($createSQL);
+        $db->query($uniqueSQL);
+    } catch (Exception $ex) {
+        LOG_M('Create table uploads failed: ', $ex->getMessage());
     }
 };
 
@@ -214,13 +232,92 @@ function DBOinsertUpload($name, $user)
     }
     return false;
 }
+/**
+ * Searches for all the uploaded pictures
+ * Number of results could be limited using 'offset' and 'limit' params
+ * 'filter' array used to filter results based on 'col' and 'value'
+ * !!! when filter is used, 'value' param is mandatory !!!
+ * Ordering: 'orderby' and 'order'
+ * 
+ * @param $params['offset'] int - offset for limit, def 0
+ * @param $params['limit'] int - max limit for limit, def 20
+ * @param $params['filter'] array - filter:
+ *  @param $params['filter']['table'] - table name, def 'up'
+ *  @param $params['filter']['col'] - column name, def 'name'
+ *  @param $params['filter']['value'] - value, MANDATORY
+ * @param $params['orderby'] string - column name for sorting, def 'id'
+ * @param $params['order'] DESC/ASC - sorting direction, def 'DESC'
+ */
 
-function DBOselectUploads($offset=0, $limit=100, $order='DESC')
+function DBOselectUploads($params=null)
 {
     $db = DBOconnect();
-    $stmt = $db->prepare("SELECT * FROM `uploads` ORDER BY `id` {$order} LIMIT {$offset}, {$limit}");
+    // LOG_M('params', $params);
+    $offset = $params['offset'] ?? 0;
+    $limit = $params['limit'] ?? 20;
+    $filter = $params['filter'] ?? null;
+    $orderby = $params['orderby'] ?? 'id';
+    $order = $params['order'] ?? 'DESC';
+    if ($filter) {
+        $table = $filter['table'] ?? 'up';
+        $col = $filter['col'] ?? 'name';
+        if (!isset($filter['value'])) {
+            die('Value is not set when filter uploads');
+        }
+        $value = $filter['value'];
+        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE up.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+    } else {
+        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+    }
     $stmt->execute();
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $res;
+}
+
+function DBOinsertLike($user, $imgid)
+{
+    $db = DBOconnect();
+    $user = DBOselectUser($user);
+    $img = DBOselectUploads(['filter'=>['col'=>'id','value'=>$imgid]])[0];
+    if (isset($user['id'])) {
+        $stmt = $db->prepare('INSERT INTO `likes` (`userid`, `imgid`) VALUES (?, ?)');
+        try {
+            return $stmt->execute([$user['id'], $img['id']]);
+        } catch (Exception $e) {
+            // LOG_M('SQL Error: '.$e->getMessage());
+            return false;
+        }
+    }
+    return false;
+}
+
+function DBOremoveLike($user, $imgid)
+{
+    $db = DBOconnect();
+    $user = DBOselectUser($user);
+    if (isset($user['id'])) {
+        $stmt = $db->prepare('DELETE FROM `likes` WHERE `userid`=? AND `imgid` =?');
+        try {
+            return $stmt->execute([$user['id'], $imgid]);
+        } catch (Exception $e) {
+            // LOG_M('SQL Error: '.$e->getMessage());
+            return false;
+        }
+    }
+    return false;
+}
+
+function DBOselectLikes(array $imgs, $user)
+{
+    $db = DBOconnect();
+    $images = [];
+    foreach ($imgs as $item => $row) {
+        $images[] = $row['id'];
+    }
+    $images = implode(',', $images);
+    $stmt = $db->prepare("SELECT imgid FROM likes WHERE userid in (SELECT id from users WHERE name='{$user}') AND imgid IN ({$images})");
+    $stmt->execute();
+    $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     return $res;
 }
 

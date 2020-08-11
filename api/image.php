@@ -4,13 +4,12 @@ require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 session_start();
 $username = $_SESSION['user'];
 
-LOG_M("files", $_FILES);
-LOG_M("post", $_POST);
+// LOG_M("files", $_FILES);
+// LOG_M("post", $_POST);
 
 function addSnippet($snippetData, $target_file)
 {
     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-    LOG_M ("imageFileType:", $imageFileType);
     switch($imageFileType) {
         case 'png':
             $dest = imagecreatefrompng($target_file);
@@ -160,7 +159,53 @@ function uploadFile() {
         $_SESSION['class'] = 'error';
         $_SESSION['msg'][] = 'Database error';
     }
+    header("Location: ../index.php?route=create");
 }
 
-uploadFile();
-header("Location: ../index.php?route=create");
+function updateLike(Type $var = null)
+{
+    $data['message'] .= ', like path selected';
+    $inputJSON = file_get_contents('php://input');
+    $input = json_decode($inputJSON, TRUE);
+    if ($input['liked'] === true) {
+        if (DBOinsertLike($_SESSION['user'], $input['id'])) {
+            $data['success'] = true;
+            $data['message'] = 'Like added';
+        }
+    } else {
+        if (DBOremoveLike($_SESSION['user'], $input['id'])) {
+            $data['success'] = true;
+            $data['message'] = 'Like removed';
+        }
+    }
+}
+
+$method = $_SERVER['REQUEST_METHOD'];
+$url = explode('/', $_SERVER['REQUEST_URI']);
+$path = $url[4] ?? null;
+$id = $url[5] ?? null;
+$data = ['success' => false, 'message' => 'Method is not supported'];
+
+switch ($method) {
+    case 'GET':
+        # code...
+        break;
+    
+    case 'POST':
+        if ($_FILES['file']) {
+            uploadFile();
+        }
+        break;
+    
+    case 'PUT':            
+        if ($path === 'like') {
+            updateLike();
+        }
+        break;
+    
+    case 'DELETE':
+        # code...
+        break;
+}
+header('Content-Type: application/json; charset=UTF-8');
+echo json_encode($data);

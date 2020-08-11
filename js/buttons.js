@@ -25,9 +25,13 @@ const confirmDelete = () => {
 };
 
 const sendImages = () => {
+  // const input = $(".input-file");
   const form = $`.controls_form`;
   const snippets = $$`#imgViewer .snippet`;
   const img = $`#imgViewer .base`;
+  // if (input.files.length === 0 && input.lastFile) {
+  //   input.files.push(input.lastFile);
+  // }
   snippets.forEach((el) => {
     const snippetData = {
       path: el.src.substring(el.src.indexOf("assets")),
@@ -199,6 +203,37 @@ const addSnippetClickListener = () => {
   }
 };
 
+const resetSnippets = () => {
+  const viewer = $("#imgViewer .base");
+  const snippets = $$`#imgViewer .snippet`;
+  snippets.forEach((el) => {
+    const snippetPlaceholder = $(".snippets").children[el.index];
+    const elem = viewer.parentElement.removeChild(el);
+    el.dx = null;
+    el.dy = null;
+    elem.setAttribute("draggable", false);
+    snippetPlaceholder.appendChild(elem);
+  });
+};
+
+const clearViewer = () => {
+  const viewer = $("#imgViewer .base");
+  const $label = $(".file_label");
+  const iconPath = $(".icon path");
+  const colorWhite = "#fff";
+  const upload =
+    "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
+  iconPath.setAttribute("d", upload);
+  iconPath.setAttribute("fill", colorWhite);
+  $label.querySelector(".file_name").innerHTML = "Upload file";
+  viewer.setAttribute("src", "./assets/bg.jpg");
+};
+
+const clearEdit = () => {
+  clearViewer();
+  resetSnippets();
+};
+
 const addUploadListener = () => {
   const input = $(".input-file");
   const viewer = $("#imgViewer .base");
@@ -210,7 +245,6 @@ const addUploadListener = () => {
       const $label = $(".file_label");
       var fileName = "";
       if (element.target.value) {
-        input.lastFile = element.target.files[0];
         fileName = element.target.value.split("\\").pop();
       }
       if (fileName) {
@@ -220,41 +254,42 @@ const addUploadListener = () => {
         viewer.src = URL.createObjectURL(element.target.files[0]);
         viewer.onload = () => URL.revokeObjectURL(viewer.src);
       } else {
-        viewer.src = URL.createObjectURL(input.lastFile);
-        viewer.onload = () => URL.revokeObjectURL(viewer.src);
+        clearViewer();
       }
     });
   }
 };
 
-const clearEdit = () => {
-  const viewer = $("#imgViewer .base");
-  const $label = $(".file_label");
-  const input = $("#file");
-  const iconPath = $(".icon path");
-  const colorWhite = "#fff";
-  const upload =
-    "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
-  const resetSnippets = () => {
-    const snippets = $$`#imgViewer .snippet`;
-    snippets.forEach((el) => {
-      const snippetPlaceholder = $(".snippets").children[el.index];
-      const elem = viewer.parentElement.removeChild(el);
-      el.dx = null;
-      el.dy = null;
-      elem.setAttribute("draggable", false);
-      snippetPlaceholder.appendChild(elem);
-    });
-  };
-  resetSnippets();
-  if (input.files.length) {
-    iconPath.setAttribute("d", upload);
-    iconPath.setAttribute("fill", colorWhite);
-    $label.querySelector(".file_name").innerHTML = "Upload file";
-    viewer.setAttribute(
-      "src",
-      "https://image.freepik.com/free-vector/abstract-background-flowing-dots_1048-12616.jpg"
-    );
+const like = (el) => {
+  const url = "api/image.php/like";
+  const img = el.closest("a");
+  const urlParams = new URLSearchParams(img.href.split("?")[1]);
+  const id = urlParams.get("id");
+  const name = urlParams.get("img");
+  if (el.classList.contains("liked")) {
+    fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify({ liked: false, id: id, name: name }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) el.classList.remove("liked");
+      });
+  } else {
+    fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify({ liked: true, id: id, name: name }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) el.classList.add("liked");
+      });
   }
 };
 
@@ -280,4 +315,15 @@ window.onload = () => {
   sendRestoreEmail();
   addUploadListener();
   addSnippetClickListener();
+  const likeButtons = $$(".like");
+  if (likeButtons) {
+    likeButtons.forEach((el) =>
+      el.addEventListener("click", (e) => {
+        if (e.target === el) {
+          e.preventDefault();
+          like(el);
+        }
+      })
+    );
+  }
 };
