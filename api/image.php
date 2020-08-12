@@ -182,13 +182,26 @@ function updateLike(Type $var = null)
 
 $method = $_SERVER['REQUEST_METHOD'];
 $url = explode('/', $_SERVER['REQUEST_URI']);
-$path = $url[4] ?? null;
+$path = explode('?', $url[4])[0] ?? null;
 $id = $url[5] ?? null;
 $data = ['success' => false, 'message' => 'Method is not supported'];
 
 switch ($method) {
     case 'GET':
-        # code...
+        if ($path === 'more') {
+            // $offset = $_COOKIE['offset'] ?? 0;
+            // $limit = $_COOKIE['limit'] ?? 2;
+            // $_SESSION['pages']['limit'] = $_GET['limit'] ?? 2;
+            // $_SESSION['pages']['offset'] = $_GET['offset'] ?? 0;
+            $limit = $_GET['limit'] ?? 2;
+            $offset = $_GET['offset'] ?? 0;
+            setcookie('offset', $offset);
+            setcookie('limit', $limit);
+            $params = ['offset'=>$offset, 'limit'=>$limit];
+            $data['success'] = true;
+            $data['message'] = "limit: $limit, offset: $offset, url: {$_SERVER['REQUEST_URI']}";
+            $data['data'] = DBOselectAllUploads($_SESSION['user'], $params);
+        }
         break;
     
     case 'POST':

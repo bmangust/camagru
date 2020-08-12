@@ -24,6 +24,69 @@ const confirmDelete = () => {
   }
 };
 
+const htmlToElements = (html) => {
+  var template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.childNodes;
+};
+
+const htmlToElement = (html) => {
+  var template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.firstChild;
+};
+
+const baseURL = "http://localhost/camagru/";
+
+function getCookie(name) {
+  let matches = document.cookie.match(
+    new RegExp(
+      "(?:^|; )" +
+        name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
+        "=([^;]*)"
+    )
+  );
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+const moreImages = async () => {
+  const url = new URL("api/image.php/more", baseURL);
+  const limit = +getCookie("limit");
+  let offset = +getCookie("offset");
+  const params = { offset: offset, limit: limit };
+  offset += limit;
+  document.cookie = `limit=${limit}`;
+  document.cookie = `offset=${offset}`;
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url, { credentials: "include" });
+  let imgs = await resposne.json();
+  console.log(imgs);
+  const gallery = $("#gallery");
+  if (imgs.data.length === 0 || imgs.data.length < limit) {
+    const more = $("#more");
+    more.innerHTML = "No more images";
+    more.setAttribute("disabled", true);
+  }
+  imgs.data.forEach((el) => {
+    const classes = el.imgid ? "like liked" : "like";
+    const template = `
+    <div class="imgWrapper">
+        <a href="index.php?img=${el.name}&id=${el.id}"><img src="assets/uploads/${el.name}">
+        <div class="info">
+            <div class="author">
+                <span class="author-name">${el.user}</span>
+            </div>
+            <div class="${classes}"></div>
+        </div>
+        </a>
+    </div>`;
+    const img = htmlToElement(template);
+    gallery.appendChild(img);
+  });
+};
+
+const nextPage = async () => {};
+
 const sendImages = () => {
   // const input = $(".input-file");
   const form = $`.controls_form`;
@@ -321,6 +384,7 @@ window.onload = () => {
       el.addEventListener("click", (e) => {
         if (e.target === el) {
           e.preventDefault();
+          // add check if user is authorized
           like(el);
         }
       })

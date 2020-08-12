@@ -265,10 +265,30 @@ function DBOselectUploads($params=null)
             die('Value is not set when filter uploads');
         }
         $value = $filter['value'];
-        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE up.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE {$table}.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     } else {
         $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     }
+    $stmt->execute();
+    $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $res;
+}
+
+function DBOselectAllUploads($user, $params=null)
+{
+    $db = DBOconnect();
+    // LOG_M('params', $params);
+    $offset = $params['offset'] ?? 0;
+    $limit = $params['limit'] ?? 20;
+    $filter = $params['filter'] ?? null;
+    $orderby = $params['orderby'] ?? 'id';
+    $order = $params['order'] ?? 'DESC';
+    $stmt = $db->prepare(<<<EOL
+    SELECT us.name `user`, up.id, up.name, l.imgid, up.rating FROM `users` us 
+    JOIN `uploads` up ON us.id=up.userid 
+    LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id 
+    ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
+    EOL);
     $stmt->execute();
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
@@ -282,7 +302,8 @@ function DBOinsertLike($user, $imgid)
     if (isset($user['id'])) {
         $stmt = $db->prepare('INSERT INTO `likes` (`userid`, `imgid`) VALUES (?, ?)');
         try {
-            return $stmt->execute([$user['id'], $img['id']]);
+            // return $stmt->execute([$user['id'], $img['id']]);
+            return $stmt->execute([$user['id'], $imgid]);
         } catch (Exception $e) {
             // LOG_M('SQL Error: '.$e->getMessage());
             return false;
