@@ -72,7 +72,7 @@ if ($_GET) {
                 $main = './views/main.php';
                 break;
             default:
-                header("Location: ./index.php?route=menu");
+                // header("Location: ./index.php?route=menu");
         }
     }
 }

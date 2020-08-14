@@ -162,22 +162,22 @@ function uploadFile() {
     header("Location: ../index.php?route=create");
 }
 
-function updateLike(Type $var = null)
+function updateLike($data)
 {
-    $data['message'] .= ', like path selected';
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE);
     if ($input['liked'] === true) {
         if (DBOinsertLike($_SESSION['user'], $input['id'])) {
             $data['success'] = true;
-            $data['message'] = 'Like added';
+            $data['data'] = 'Like added';
         }
     } else {
         if (DBOremoveLike($_SESSION['user'], $input['id'])) {
             $data['success'] = true;
-            $data['message'] = 'Like removed';
+            $data['data'] = 'Like removed';
         }
     }
+    return $data;
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -209,7 +209,7 @@ switch ($method) {
     
     case 'PUT':            
         if ($path === 'like') {
-            updateLike();
+            $data = updateLike($data);
         }
         break;
     
