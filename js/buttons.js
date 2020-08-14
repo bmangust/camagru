@@ -1,5 +1,10 @@
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
+const logEnable = true;
+const baseURL = "http://localhost/camagru/";
+const log = (message) => {
+  if (logEnable) console.log(message);
+};
 
 const register = () => {
   window.location.href = "index.php?route=register";
@@ -36,8 +41,6 @@ const htmlToElement = (html) => {
   return template.content.firstChild;
 };
 
-const baseURL = "http://localhost/camagru/";
-
 function getCookie(name) {
   let matches = document.cookie.match(
     new RegExp(
@@ -49,25 +52,9 @@ function getCookie(name) {
   return matches ? decodeURIComponent(matches[1]) : undefined;
 }
 
-const moreImages = async () => {
-  const url = new URL("api/image.php/more", baseURL);
-  const limit = +getCookie("limit");
-  let offset = +getCookie("offset");
-  const params = { offset: offset, limit: limit };
-  offset += limit;
-  document.cookie = `limit=${limit}`;
-  document.cookie = `offset=${offset}`;
-  url.search = new URLSearchParams(params);
-  let resposne = await fetch(url, { credentials: "include" });
-  let imgs = await resposne.json();
-  console.log(imgs);
+const placeImages = (data) => {
   const gallery = $("#gallery");
-  if (imgs.data.length === 0 || imgs.data.length < limit) {
-    const more = $("#more");
-    more.innerHTML = "No more images";
-    more.setAttribute("disabled", true);
-  }
-  imgs.data.forEach((el) => {
+  data.forEach((el) => {
     const classes = el.imgid ? "like liked" : "like";
     const template = `
     <div class="imgWrapper">
@@ -85,7 +72,87 @@ const moreImages = async () => {
   });
 };
 
-const nextPage = async () => {};
+const moreImages = async () => {
+  const url = new URL("api/image.php/more", baseURL);
+  const limit = +getCookie("limit");
+  let offset = +getCookie("offset");
+  const params = { offset: offset, limit: limit };
+  offset += limit;
+  document.cookie = `limit=${limit}`;
+  document.cookie = `offset=${offset}`;
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url, { credentials: "include" });
+  let imgs = await resposne.json();
+  // console.log(imgs);
+  if (imgs.data.length === 0 || imgs.data.length < limit) {
+    const more = $("#more");
+    more.innerHTML = "No more images";
+    more.setAttribute("disabled", true);
+  }
+  placeImages(imgs.data);
+};
+
+const nextPage = async () => {
+  const gallery = $("#gallery");
+  // const galleryWidth = gallery.offsetWidth;
+  // const numberOfCols = Math.floor(galleryWidth / 100);
+  // const number = numberOfCols * 3;
+
+  const url = new URL("api/image.php/more", baseURL);
+  let limit = +getCookie("limit");
+  // limit = number;
+  let offset = +getCookie("offset");
+  // let offset = $$(".info").length;
+  const params = { offset: offset, limit: limit };
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url, { credentials: "include" });
+  let imgs = await resposne.json();
+  console.log(imgs);
+  $`#prev`.removeAttribute("disabled");
+  if (imgs.data.length === 0 || imgs.data.length < limit) {
+    $`#next`.setAttribute("disabled", true);
+    offset -= limit;
+  } else {
+    offset += limit;
+  }
+  document.cookie = `limit=${limit}`;
+  document.cookie = `offset=${offset}`;
+  while (gallery.children.length > 0) {
+    gallery.removeChild(gallery.children[0]);
+  }
+  placeImages(imgs.data);
+};
+
+const prevPage = async () => {
+  const gallery = $("#gallery");
+  // const galleryWidth = gallery.offsetWidth;
+  // const numberOfCols = Math.floor(galleryWidth / 100);
+  // const number = numberOfCols * 3;
+
+  const url = new URL("api/image.php/more", baseURL);
+  let limit = +getCookie("limit");
+  // limit = number;
+  let offset = +getCookie("offset");
+  // let offset = $$(".info").length;
+  const params = { offset: offset, limit: limit };
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url, { credentials: "include" });
+  let imgs = await resposne.json();
+  console.log(imgs);
+  $`#next`.removeAttribute("disabled");
+  if (offset === 0) {
+    $`#prev`.setAttribute("disabled", true);
+    offset += limit;
+  } else {
+    offset -= limit;
+  }
+  document.cookie = `limit=${limit}`;
+  document.cookie = `offset=${offset}`;
+  while (gallery.children.length > 0) {
+    gallery.removeChild(gallery.children[0]);
+  }
+  placeImages(imgs.data);
+};
 
 const sendImages = () => {
   // const input = $(".input-file");

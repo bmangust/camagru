@@ -298,20 +298,26 @@ form input::placeholder {
 }
 
 .gallery {
-  min-width: 230px;
   width: 100%;
-  margin: 10px;
   min-height: 300px;
-  max-height: 500px;
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-start;
   align-items: center;
+}
+
+.author-name:hover {
+  color: #7e57c2;
 }
 
 aside {
   width: 35%;
 }
+
+/* aside .gallery {
+  max-height: 500px;
+} */
 
 .snippets {
   max-height: 250px;
@@ -381,6 +387,18 @@ aside {
   width: 16px;
   height: 16px;
   margin-right: 5px;
+}
+
+.gallery_button {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  padding: 10px;
+  margin: 10px;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #a1a1a1;
+  background-color: #1a1a1a;
 }
 
 @media screen and (max-width: 700px) {

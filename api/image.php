@@ -195,12 +195,12 @@ switch ($method) {
             // $_SESSION['pages']['offset'] = $_GET['offset'] ?? 0;
             $limit = $_GET['limit'] ?? 2;
             $offset = $_GET['offset'] ?? 0;
-            setcookie('offset', $offset);
-            setcookie('limit', $limit);
             $params = ['offset'=>$offset, 'limit'=>$limit];
             $data['success'] = true;
             $data['message'] = "limit: $limit, offset: $offset, url: {$_SERVER['REQUEST_URI']}";
             $data['data'] = DBOselectAllUploads($_SESSION['user'], $params);
+            setcookie('offset', $offset);
+            setcookie('limit', $limit);
         }
         break;
     
