@@ -201,6 +201,7 @@ function DBOgetUserEmail($user) {
     if (count($email) === 1) {
         return $email[0];
     }
+    return false;
 };
 
 function DBOdeleteUserPictures($username)
@@ -294,6 +295,15 @@ function DBOselectAllUploads($user, $params=null)
     return $res;
 }
 
+function getGallerySize($user)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare("SELECT COUNT(id) FROM `uploads` WHERE `userid` in (SELECT `id` from `users` WHERE `name`='?') OR  `isPrivate`='false'");
+    $stmt->execute([$user]);
+    $res = $stmt->fetch(PDO::FETCH_COLUMN, 0);
+    return $res;
+}
+
 function DBOinsertLike($user, $imgid)
 {
     $db = DBOconnect();
@@ -302,7 +312,6 @@ function DBOinsertLike($user, $imgid)
     if (isset($user['id'])) {
         $stmt = $db->prepare('INSERT INTO `likes` (`userid`, `imgid`) VALUES (?, ?)');
         try {
-            // return $stmt->execute([$user['id'], $img['id']]);
             return $stmt->execute([$user['id'], $imgid]);
         } catch (Exception $e) {
             // LOG_M('SQL Error: '.$e->getMessage());

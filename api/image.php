@@ -184,23 +184,20 @@ $method = $_SERVER['REQUEST_METHOD'];
 $url = explode('/', $_SERVER['REQUEST_URI']);
 $path = explode('?', $url[4])[0] ?? null;
 $id = $url[5] ?? null;
-$data = ['success' => false, 'message' => 'Method is not supported'];
+$data = ['success' => false];
 
 switch ($method) {
     case 'GET':
         if ($path === 'more') {
-            // $offset = $_COOKIE['offset'] ?? 0;
-            // $limit = $_COOKIE['limit'] ?? 2;
-            // $_SESSION['pages']['limit'] = $_GET['limit'] ?? 2;
-            // $_SESSION['pages']['offset'] = $_GET['offset'] ?? 0;
             $limit = $_GET['limit'] ?? 2;
             $offset = $_GET['offset'] ?? 0;
             $params = ['offset'=>$offset, 'limit'=>$limit];
             $data['success'] = true;
             $data['message'] = "limit: $limit, offset: $offset, url: {$_SERVER['REQUEST_URI']}";
             $data['data'] = DBOselectAllUploads($_SESSION['user'], $params);
-            setcookie('offset', $offset);
-            setcookie('limit', $limit);
+        } else if ($path === 'size') {
+            $data['success'] = true;
+            $data['data'] = getGallerySize($_SESSION['user']);
         }
         break;
     
@@ -219,6 +216,8 @@ switch ($method) {
     case 'DELETE':
         # code...
         break;
+    default: 
+        $data['message'] = 'Method is not supported';
 }
 header('Content-Type: application/json; charset=UTF-8');
 echo json_encode($data);

@@ -2,8 +2,8 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const logEnable = true;
 const baseURL = "http://localhost/camagru/";
-const log = (message) => {
-  if (logEnable) console.log(message);
+const log = (...messages) => {
+  if (logEnable) messages.forEach((message) => console.log(message));
 };
 
 const register = () => {
@@ -53,7 +53,6 @@ function getCookie(name) {
 }
 
 const placeImages = (data) => {
-  const gallery = $("#gallery");
   data.forEach((el) => {
     const classes = el.imgid ? "like liked" : "like";
     const template = `
@@ -72,19 +71,42 @@ const placeImages = (data) => {
   });
 };
 
+const getGallerySize = async () => {
+  const url = new URL("api/image.php/size", baseURL);
+  let resposne = await fetch(url);
+  let resp = await resposne.json();
+  log(resp);
+  return +resp.data;
+};
+
+let offset = 0;
+let limit = 6;
+let gallerySize;
+getGallerySize().then((val) => (gallerySize = val));
+let currentPage = 1;
+
+const loadImages = async () => {
+  const url = new URL("api/image.php/more", baseURL);
+  const params = { offset: offset, limit: limit };
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url);
+  let imgs = await resposne.json();
+  if (limit >= gallerySize) {
+    $`#next`.setAttribute("disabled", true);
+    $`#last`.setAttribute("disabled", true);
+  }
+  placeImages(imgs.data);
+};
+
 const moreImages = async () => {
   const url = new URL("api/image.php/more", baseURL);
-  const limit = +getCookie("limit");
-  let offset = +getCookie("offset");
-  const params = { offset: offset, limit: limit };
   offset += limit;
-  document.cookie = `limit=${limit}`;
-  document.cookie = `offset=${offset}`;
+  const params = { offset: offset, limit: limit };
   url.search = new URLSearchParams(params);
-  let resposne = await fetch(url, { credentials: "include" });
+  let resposne = await fetch(url);
   let imgs = await resposne.json();
-  // console.log(imgs);
-  if (imgs.data.length === 0 || imgs.data.length < limit) {
+  currentPage++;
+  if (currentPage * limit >= gallerySize) {
     const more = $("#more");
     more.innerHTML = "No more images";
     more.setAttribute("disabled", true);
@@ -93,64 +115,101 @@ const moreImages = async () => {
 };
 
 const nextPage = async () => {
-  const gallery = $("#gallery");
-  // const galleryWidth = gallery.offsetWidth;
-  // const numberOfCols = Math.floor(galleryWidth / 100);
-  // const number = numberOfCols * 3;
-
   const url = new URL("api/image.php/more", baseURL);
-  let limit = +getCookie("limit");
-  // limit = number;
-  let offset = +getCookie("offset");
-  // let offset = $$(".info").length;
+  offset += limit;
   const params = { offset: offset, limit: limit };
   url.search = new URLSearchParams(params);
-  let resposne = await fetch(url, { credentials: "include" });
-  let imgs = await resposne.json();
-  console.log(imgs);
+  let resposne = await fetch(url);
+  const txt = await resposne.text();
+  if (txt.startsWith("<")) {
+    log(txt);
+    return;
+  }
+  let imgs = JSON.parse(txt);
+  log(imgs);
+  currentPage++;
+  $`#first`.removeAttribute("disabled");
   $`#prev`.removeAttribute("disabled");
-  if (imgs.data.length === 0 || imgs.data.length < limit) {
+  if (currentPage * limit >= gallerySize || imgs.data.length < limit) {
     $`#next`.setAttribute("disabled", true);
-    offset -= limit;
-  } else {
-    offset += limit;
+    $`#last`.setAttribute("disabled", true);
   }
-  document.cookie = `limit=${limit}`;
-  document.cookie = `offset=${offset}`;
-  while (gallery.children.length > 0) {
-    gallery.removeChild(gallery.children[0]);
-  }
+  log(params, currentPage);
+  const gallery = $("#gallery");
+  gallery.innerHTML = "";
   placeImages(imgs.data);
 };
 
 const prevPage = async () => {
-  const gallery = $("#gallery");
-  // const galleryWidth = gallery.offsetWidth;
-  // const numberOfCols = Math.floor(galleryWidth / 100);
-  // const number = numberOfCols * 3;
-
   const url = new URL("api/image.php/more", baseURL);
-  let limit = +getCookie("limit");
-  // limit = number;
-  let offset = +getCookie("offset");
-  // let offset = $$(".info").length;
+  offset -= limit;
   const params = { offset: offset, limit: limit };
   url.search = new URLSearchParams(params);
   let resposne = await fetch(url, { credentials: "include" });
-  let imgs = await resposne.json();
-  console.log(imgs);
+  const txt = await resposne.text();
+  if (txt.startsWith("<")) {
+    log(txt);
+    return;
+  }
+  let imgs = JSON.parse(txt);
+  log(imgs);
+  currentPage--;
   $`#next`.removeAttribute("disabled");
-  if (offset === 0) {
+  $`#last`.removeAttribute("disabled");
+  if (currentPage === 1) {
     $`#prev`.setAttribute("disabled", true);
-    offset += limit;
-  } else {
-    offset -= limit;
+    $`#first`.setAttribute("disabled", true);
   }
-  document.cookie = `limit=${limit}`;
-  document.cookie = `offset=${offset}`;
-  while (gallery.children.length > 0) {
-    gallery.removeChild(gallery.children[0]);
+  log(params, currentPage);
+  const gallery = $("#gallery");
+  gallery.innerHTML = "";
+  placeImages(imgs.data);
+};
+
+const firstPage = async () => {
+  const url = new URL("api/image.php/more", baseURL);
+  currentPage = 1;
+  offset = 0;
+  const params = { offset: offset, limit: limit };
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url, { credentials: "include" });
+  const txt = await resposne.text();
+  if (txt.startsWith("<")) {
+    log(txt);
+    return;
   }
+  let imgs = JSON.parse(txt);
+  log(imgs);
+  $`#prev`.setAttribute("disabled", true);
+  $`#first`.setAttribute("disabled", true);
+  $`#next`.removeAttribute("disabled");
+  $`#last`.removeAttribute("disabled");
+  const gallery = $("#gallery");
+  gallery.innerHTML = "";
+  placeImages(imgs.data);
+};
+
+const lastPage = async () => {
+  const url = new URL("api/image.php/more", baseURL);
+  currentPage = Math.floor(gallerySize / limit) + 1;
+  offset = (currentPage - 1) * limit;
+  const params = { offset: offset, limit: limit };
+  log(params);
+  url.search = new URLSearchParams(params);
+  let resposne = await fetch(url, { credentials: "include" });
+  const txt = await resposne.text();
+  if (txt.startsWith("<")) {
+    log(txt);
+    return;
+  }
+  let imgs = JSON.parse(txt);
+  log(imgs);
+  $`#next`.setAttribute("disabled", true);
+  $`#last`.setAttribute("disabled", true);
+  $`#prev`.removeAttribute("disabled");
+  $`#first`.removeAttribute("disabled");
+  const gallery = $("#gallery");
+  gallery.innerHTML = "";
   placeImages(imgs.data);
 };
 
@@ -456,5 +515,9 @@ window.onload = () => {
         }
       })
     );
+  }
+  const gallery = $`#gallery`;
+  if (gallery) {
+    loadImages();
   }
 };
