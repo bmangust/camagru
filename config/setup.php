@@ -218,6 +218,13 @@ function DBOdeleteAccount($username)
     return $stmt->execute([$username]);
 }
 
+function DBOremovePicture($imgid)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare('DELETE FROM `uploads` WHERE `id`=?');
+    return $stmt->execute([$imgid]);
+}
+
 function DBOinsertUpload($name, $user)
 {
     $db = DBOconnect();

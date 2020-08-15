@@ -175,6 +175,36 @@ const updatePrivacy = async (el) => {
   }
 };
 
+const removeImage = async (el) => {
+  const url = "api/image.php/remove";
+  const img = el.closest("a");
+  const imgWrapper = el.closest(".imgWrapper");
+  const urlParams = new URLSearchParams(img.href.split("?")[1]);
+  const id = urlParams.get("id");
+  const name = urlParams.get("img");
+  const params = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+  };
+  const body = { remove: true, id: id, name: name };
+  let response;
+  params.body = JSON.stringify(body);
+  response = await fetch(url, params);
+  const txt = await response.text();
+  let result;
+  try {
+    result = JSON.parse(txt);
+  } catch (e) {
+    log(txt);
+    return;
+  }
+  if (result.success && result.data === "removed") {
+    $(".gallery").removeChild(imgWrapper);
+  }
+};
+
 const getGallerySize = async () => {
   const url = new URL("api/image.php/size", baseURL);
   let response = await fetch(url);

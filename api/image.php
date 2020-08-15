@@ -198,6 +198,21 @@ function updatePrivacy($data)
     return $data;
 }
 
+function removePicture($data)
+{
+    $inputJSON = file_get_contents('php://input');
+    $input = json_decode($inputJSON, TRUE);
+    if ($input['remove'] === true) {
+        if (DBOremovePicture($input['id'])) {
+            $data['success'] = true;
+            $data['data'] = 'removed';
+        }
+    }
+    return $data;
+}
+
+
+
 $method = $_SERVER['REQUEST_METHOD'];
 $url = explode('/', $_SERVER['REQUEST_URI']);
 $path = explode('?', $url[4])[0] ?? null;
@@ -242,7 +257,9 @@ switch ($method) {
         break;
     
     case 'DELETE':
-        # code
+        if ($path === 'remove') {
+            $data = removePicture($data);
+        }
         break;
     default: 
         $data['message'] = 'Method is not supported';
