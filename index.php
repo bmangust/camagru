@@ -72,11 +72,9 @@ if ($_GET) {
                 $main = './views/main.php';
                 break;
             default:
-                // header("Location: ./index.php?route=menu");
+                header("Location: ./index.php?route=menu");
         }
     }
 }
 ?>
-<?php include './views/main.php';
-// unset($_SESSION['class']);
-?>
+<?php include './views/main.php';?>

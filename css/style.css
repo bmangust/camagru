@@ -189,6 +189,8 @@ footer {
 .menuItem {
   width: 60%;
   margin: 10px auto;
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 /* 
@@ -567,4 +569,28 @@ aside {
 
 .liked:hover {
   opacity: 70%;
+}
+
+.private {
+  position: absolute;
+  right: 40px;
+  bottom: 5px;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+}
+
+.remove {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+}
+
+.private:hover path,
+.remove:hover path {
+  opacity: 70%;
+  fill: #7e57c2;
 }

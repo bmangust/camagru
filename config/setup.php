@@ -266,10 +266,11 @@ function DBOselectUploads($params=null)
             die('Value is not set when filter uploads');
         }
         $value = $filter['value'];
-        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE {$table}.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE {$table}.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     } else {
-        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     }
+    // LOG_M($stmt->queryString);
     $stmt->execute();
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
@@ -285,9 +286,10 @@ function DBOselectAllUploads($user, $params=null)
     $orderby = $params['orderby'] ?? 'id';
     $order = $params['order'] ?? 'DESC';
     $stmt = $db->prepare(<<<EOL
-    SELECT us.name `user`, up.id, up.name, l.imgid, up.rating FROM `users` us 
+    SELECT us.name `user`, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
     JOIN `uploads` up ON us.id=up.userid 
-    LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id 
+    LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
+    WHERE (us.name<>'{$user}' AND up.isPrivate=0) OR us.name='{$user}'
     ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
     EOL);
     $stmt->execute();
@@ -308,7 +310,7 @@ function DBOinsertLike($user, $imgid)
 {
     $db = DBOconnect();
     $user = DBOselectUser($user);
-    $img = DBOselectUploads(['filter'=>['col'=>'id','value'=>$imgid]])[0];
+    // $img = DBOselectUploads(['filter'=>['col'=>'id','value'=>$imgid]])[0];
     if (isset($user['id'])) {
         $stmt = $db->prepare('INSERT INTO `likes` (`userid`, `imgid`) VALUES (?, ?)');
         try {
@@ -333,6 +335,20 @@ function DBOremoveLike($user, $imgid)
             // LOG_M('SQL Error: '.$e->getMessage());
             return false;
         }
+    }
+    return false;
+}
+
+function DBOupdatePrivacy($imgid, $isPrivate)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare("UPDATE `uploads` SET `isPrivate`='{$isPrivate}' WHERE `id`={$imgid}");
+    try {
+        $res = $stmt->execute([$isPrivate, $imgid]);
+        return $res;
+    } catch (Exception $e) {
+        // LOG_M('SQL Error: '.$e->getMessage());
+        return false;
     }
     return false;
 }

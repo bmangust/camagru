@@ -180,6 +180,24 @@ function updateLike($data)
     return $data;
 }
 
+function updatePrivacy($data)
+{
+    $inputJSON = file_get_contents('php://input');
+    $input = json_decode($inputJSON, TRUE);
+    if ($input['private'] === true) {
+        if (DBOupdatePrivacy($input['id'], true)) {
+            $data['success'] = true;
+            $data['data'] = 'private';
+        }
+    } else {
+        if (DBOupdatePrivacy($input['id'], false)) {
+            $data['success'] = true;
+            $data['data'] = 'public';
+        }
+    }
+    return $data;
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $url = explode('/', $_SERVER['REQUEST_URI']);
 $path = explode('?', $url[4])[0] ?? null;
@@ -198,6 +216,12 @@ switch ($method) {
         } else if ($path === 'size') {
             $data['success'] = true;
             $data['data'] = getGallerySize($_SESSION['user']);
+        } else if ($path === 'my') {
+            $offset = $_GET['offset'] ?? 0;
+            $limit = getGallerySize($_SESSION['user']);
+            $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['table'=>'us', 'value'=>$_SESSION['user']]];
+            $data['success'] = true;
+            $data['data'] = DBOselectUploads($params);
         }
         break;
     
@@ -207,14 +231,18 @@ switch ($method) {
         }
         break;
     
-    case 'PUT':            
+    case 'PUT':
         if ($path === 'like') {
             $data = updateLike($data);
+        } else if ($path === 'private') {
+            $data = updatePrivacy($data);
+        } else if ($path === 'public') {
+            $data = updatePrivacy($data);
         }
         break;
     
     case 'DELETE':
-        # code...
+        # code
         break;
     default: 
         $data['message'] = 'Method is not supported';
