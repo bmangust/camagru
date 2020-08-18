@@ -31,3 +31,26 @@ function post(path, params, method = "post") {
   document.body.appendChild(form);
   form.submit();
 }
+
+const htmlToElements = (html) => {
+  var template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.childNodes;
+};
+
+const htmlToElement = (html) => {
+  var template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.firstChild;
+};
+
+const getCookie = (name) => {
+  let matches = document.cookie.match(
+    new RegExp(
+      "(?:^|; )" +
+        name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
+        "=([^;]*)"
+    )
+  );
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+};

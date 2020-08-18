@@ -1,29 +1,5 @@
-const htmlToElements = (html) => {
-  var template = document.createElement("template");
-  template.innerHTML = html.trim();
-  return template.content.childNodes;
-};
-
-const htmlToElement = (html) => {
-  var template = document.createElement("template");
-  template.innerHTML = html.trim();
-  return template.content.firstChild;
-};
-
-function getCookie(name) {
-  let matches = document.cookie.match(
-    new RegExp(
-      "(?:^|; )" +
-        name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
-        "=([^;]*)"
-    )
-  );
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-
 const placeImages = (data, target) => {
   data.forEach((el, index) => {
-    // if (+data[index].isPrivate) return;
     const classes = data[index].imgid ? "like liked" : "like";
     const template = `
     <div class="imgWrapper">
@@ -40,6 +16,10 @@ const placeImages = (data, target) => {
     img.querySelector(".like").addEventListener("click", (e) => {
       e.preventDefault();
       like(e.target);
+    });
+    img.querySelector("a").addEventListener("click", (e) => {
+      //   e.preventDefault();
+      showFullImage(e);
     });
     target.appendChild(img);
   });
@@ -409,4 +389,70 @@ const sendImages = () => {
     snippet.value = JSON.stringify(snippetData);
     form.appendChild(snippet);
   });
+};
+
+const images = document.querySelectorAll(".imgWrapper a");
+
+const createLightbox = (data) => {
+  const classes = data.liked ? "like_lightbox liked" : "like";
+  const template = `<div class="lightbox" id="lightbox">
+    <div class="lightbox_close" id="lightbox_close">
+      <svg viewBox="0 0 512 512">
+        <path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717    L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859    c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287    l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285    L284.286,256.002z" fill="rgb(255,255,255)"/>
+        </svg>
+    </div>
+    <div class="lightbox_wrapper" id="lightbox_wrapper">
+      <div class="lightbox_main">
+        <img id="img_src" src="${data.imgSrc}"/>
+      </div>
+      <div class="lightbox_aside">
+        <div class="info">
+          <div class="info_author">
+            <span id="author_name">${data.authorName}</span>
+          </div>
+          <div class="info_likes">
+            <div class="${classes}"></div>
+            <span>${data.numberOfLikes}</span>
+          </div>
+        </div>
+        <div class="comments" id="comments"></div>
+        <div class="comments_controls">
+          <textarea name="comment" class="comment_input" id="comment_message" placeholder="Your comment"/></textarea>
+          <button class="button comment_submit" onclick="addComment()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  const lightbox = htmlToElement(template);
+
+  // TODO: add author profile page
+  // author.addEventListener("click", (e) => {
+  //    window.location.href = 'index.php?author=' + getCookie('author');
+  // });
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target.closest("#lightbox_wrapper")) {
+      return;
+    }
+    document.querySelector("body").removeChild(lightbox);
+  });
+
+  document.querySelector("body").append(lightbox);
+};
+
+const showFullImage = (e) => {
+  e.preventDefault();
+  let imgSrc;
+  if (e.target.localName === "img") {
+    imgSrc = e.target.closest("img").src;
+  } else {
+    imgSrc = e.target.parentElement.querySelector("img").src;
+  }
+  const data = {
+    imgSrc: imgSrc,
+    authorName: "author",
+    liked: true,
+    numberOfLikes: 4,
+  };
+  createLightbox(data);
 };

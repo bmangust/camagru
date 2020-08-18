@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./css/style.css" />
+    <script src="./js/common.js"></script>
     <style>
       * {
         margin: 0;
@@ -84,7 +85,7 @@
       </div>
       <input type="submit" value="done" />
     </form> -->
-    <div class="createView">
+    <!-- <div class="createView">
       <div class="editor">
         <div id="imgViewer"></div>
         <div class="controls">
@@ -107,7 +108,7 @@
       </div>
       <aside class="preview">
           <div class="gallery">
-              <!-- pagination gallery here -->
+              pagination gallery here
               <div class="imgWrapper"></div>
               <div class="imgWrapper"></div>
               <div class="imgWrapper"></div>
@@ -120,6 +121,169 @@
       </aside>
       <table>
         <tr><td></td></tr>
-      </table>
+      </table> -->
+    <main>
+      <div class="gallery" id="gallery">
+        <div class="imgWrapper">
+          <a href="index.php?img=admin_1597506565_default.jpg&amp;id=23"
+            ><img src="assets/uploads/admin_1597506565_default.jpg" />
+            <div class="info">
+              <div class="author">
+                <span class="author-name">admin</span>
+              </div>
+              <div class="like"></div>
+            </div>
+          </a>
+        </div>
+        <div class="imgWrapper">
+          <a href="index.php?img=admin_1597506537_Desert.jpg&amp;id=22"
+            ><img src="assets/uploads/admin_1597506537_Desert.jpg" />
+            <div class="info">
+              <div class="author">
+                <span class="author-name">admin</span>
+              </div>
+              <div class="like"></div>
+            </div>
+          </a>
+        </div>
+        <div class="imgWrapper">
+          <a href="index.php?img=admin_1597506524_Jellyfish.jpg&amp;id=21"
+            ><img src="assets/uploads/admin_1597506524_Jellyfish.jpg" />
+            <div class="info">
+              <div class="author">
+                <span class="author-name">admin</span>
+              </div>
+              <div class="like"></div>
+            </div>
+          </a>
+        </div>
+        <div class="imgWrapper">
+          <a href="index.php?img=mxphoto_1597506481_default.jpg&amp;id=20"
+            ><img src="assets/uploads/mxphoto_1597506481_default.jpg" />
+            <div class="info">
+              <div class="author">
+                <span class="author-name">mxphoto</span>
+              </div>
+              <div class="like"></div>
+            </div>
+          </a>
+        </div>
+        <div class="imgWrapper">
+          <a href="index.php?img=mxphoto_1597506469_Penguins.jpg&amp;id=19"
+            ><img src="assets/uploads/mxphoto_1597506469_Penguins.jpg" />
+            <div class="info">
+              <div class="author">
+                <span class="author-name">mxphoto</span>
+              </div>
+              <div class="like"></div>
+            </div>
+          </a>
+        </div>
+        <div class="imgWrapper">
+          <a href="index.php?img=mxphoto_1597506430_Hydrangeas.jpg&amp;id=18"
+            ><img src="assets/uploads/mxphoto_1597506430_Hydrangeas.jpg" />
+            <div class="info">
+              <div class="author">
+                <span class="author-name">mxphoto</span>
+              </div>
+              <div class="like"></div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <button id="more" class="button" onclick="moreImages()">More</button>
+    </main>
+    <script>
+      const images = document.querySelectorAll(".imgWrapper a");
+
+      const createLightbox = (data) => {
+        const classes = data.liked ? "like_lightbox liked" : "like";
+        const template = `<div class="lightbox" id="lightbox">
+          <div class="lightbox_close" id="lightbox_close">
+            <svg viewBox="0 0 512 512">
+              <path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717    L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859    c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287    l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285    L284.286,256.002z" fill="rgb(255,255,255)"/>
+              </svg>
+          </div>
+          <div class="lightbox_wrapper" id="lightbox_wrapper">
+            <div class="lightbox_main">
+              <img id="img_src" src="${data.imgSrc}"/>
+            </div>
+            <div class="lightbox_aside">
+              <div class="info">
+                <div class="info_author">
+                  <span id="author_name">${data.authorName}</span>
+                </div>
+                <div class="info_likes">
+                  <div class="${classes}"></div>
+                  <span>${data.numberOfLikes}</span>
+                </div>
+              </div>
+              <div class="comments" id="comments"></div>
+              <div class="comments_controls">
+                <textarea name="comment" class="comment_input" id="comment_message" placeholder="Your comment"/></textarea>
+                <button class="button comment_submit" onclick="addComment()">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+        const lightbox = htmlToElement(template);
+        const wrapper = lightbox.querySelector("lightbox");
+
+        // TODO: add author profile page
+        // author.addEventListener("click", (e) => {
+        //    window.location.href = 'index.php?author=' + getCookie('author');
+        // });
+
+        lightbox.addEventListener("click", (e) => {
+          if (e.target.closest("#lightbox_wrapper")) {
+            return;
+          }
+          document.querySelector("body").removeChild(lightbox);
+        });
+
+        document.querySelector("body").append(lightbox);
+      };
+
+      const addComment = () => {
+        let message = $("#comment_message").value;
+        const author = "mxphoto"; // getCookie('user');
+        const comments = $("#comments");
+        const template = `<div class="comment">
+  <div class="author">
+    <a id="author_profile" href="#">${author}</a>
+  </div>
+  <div class="comment_body">
+    <p>${message}</p>
+  </div>
+  </div>`;
+        const comment = htmlToElement(template);
+        comments.append(comment);
+        message = "";
+        // $("#comment_message").setAttribute("value", "");
+
+        // console.log(message);
+      };
+
+      console.dir(images);
+      images.forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          // console.dir(e.target);
+          let imgSrc;
+          if (e.target.localName === "img") {
+            imgSrc = e.target.closest("img").src;
+          } else {
+            imgSrc = e.target.parentElement.querySelector("img").src;
+          }
+          const data = {
+            imgSrc: imgSrc,
+            authorName: "author",
+            liked: true,
+            numberOfLikes: 4,
+          };
+          createLightbox(data);
+        })
+      );
+    </script>
   </body>
 </html>
