@@ -60,9 +60,10 @@ ul {
 }
 
 .button:hover,
-.button:active {
+.button:active,
+.button:focus {
   background-color: #2a2a2a;
-  border: 1px solid #6d6d6d;
+  border: 1px solid #7e57c2;
   color: #7e57c2;
   transition: 0.6s;
 }
@@ -111,24 +112,14 @@ footer {
 }
 
 .navItem:hover,
-.navItem:active {
+.navItem:active,
+.navItem:focus {
   border: 1px solid #a1a1a1;
 }
 
 .invalid {
   border: 1px solid #f00;
   background-color: #f5b5b5;
-}
-
-.accent {
-  color: #fb8a00;
-  border: 1px solid #fb8a00;
-}
-
-.accent:hover,
-.accent:active {
-  color: #fb8a00;
-  border: 1px solid #fb8a00;
 }
 
 .secondary {
@@ -231,7 +222,7 @@ textarea:focus,
 textarea:active,
 form input:focus,
 form input:active {
-  border: 1px solid #fb8a00;
+  border: 1px solid #7e57c2;
 }
 
 textarea::placeholder,
@@ -572,14 +563,6 @@ aside {
   opacity: 50%;
 }
 
-.liked {
-  background-image: url("../assets/png/heart_full.png");
-}
-
-.liked:hover {
-  opacity: 70%;
-}
-
 .private {
   position: absolute;
   right: 40px;
@@ -618,6 +601,7 @@ aside {
   top: 0;
   background-color: #000000aa;
   z-index: 20;
+  cursor: pointer;
 }
 
 .lightbox_close {
@@ -658,6 +642,8 @@ aside {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 30;
+  cursor: auto;
 }
 
 .lightbox_main img {
@@ -672,40 +658,83 @@ aside {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
   background-color: #2a2a2a;
+  cursor: normal;
 }
 
-.comments {
+.lightbox_info {
+  width: 50%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 20px;
+}
+
+.lightbox_info__author {
+  margin-right: 10px;
+}
+
+.lightbox_info__likes {
+  display: flex;
+  width: 40px;
+  justify-content: space-evenly;
+  align-items: flex-end;
+}
+
+.lightbox_comments {
   width: 90%;
   margin-top: 20px;
+  overflow: auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  flex: 4 1 400px;
 }
 
-.comment {
+.lightbox_like {
+  background: url("../assets/png/heart_empty.png") right bottom no-repeat;
+  background-size: 20px 20px;
+  width: 20px;
+  height: 20px;
+  z-index: 40;
+  display: inline-block;
+}
+
+.lightbox_like:hover {
+  background-image: url("../assets/png/heart_full.png");
+  opacity: 50%;
+}
+
+.liked {
+  background-image: url("../assets/png/heart_full.png");
+}
+
+.liked:hover {
+  opacity: 70%;
+}
+
+.lightbox_comment {
   padding: 5px;
   border-bottom: 1px solid #a1a1a1;
 }
 
-.comment .author {
+.lightbox_comment__author {
   color: #7e57c2;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.comment a {
+.lightbox_comment__author_profile {
   text-decoration: none;
   cursor: pointer;
 }
 
-.comment:after {
+.lightbox_comment:after {
   content: "";
   background-color: #a1a1a1;
 }
 
-.comments_controls {
+.lightbox_comments__controls {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -714,8 +743,9 @@ aside {
   margin: 10px auto;
 }
 
-.comment_input {
+.lightbox_comments__input {
   width: 100%;
+  min-height: 40px;
   box-sizing: border-box;
   text-align: left;
   resize: none;
@@ -727,7 +757,7 @@ aside {
   border: 1px solid #a1a1a1;
 }
 
-.comments_controls .button {
+.lightbox_comments__submit {
   max-width: 200px;
   min-width: 100px;
   padding: 5px 10px;

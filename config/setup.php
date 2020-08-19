@@ -317,11 +317,11 @@ function DBOinsertLike($user, $imgid)
 {
     $db = DBOconnect();
     $user = DBOselectUser($user);
-    // $img = DBOselectUploads(['filter'=>['col'=>'id','value'=>$imgid]])[0];
     if (isset($user['id'])) {
         $stmt = $db->prepare('INSERT INTO `likes` (`userid`, `imgid`) VALUES (?, ?)');
         try {
-            return $stmt->execute([$user['id'], $imgid]);
+            $res = $stmt->execute([$user['id'], $imgid]);
+            return $res;
         } catch (Exception $e) {
             // LOG_M('SQL Error: '.$e->getMessage());
             return false;

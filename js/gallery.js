@@ -2,24 +2,26 @@ const placeImages = (data, target) => {
   data.forEach((el, index) => {
     const classes = data[index].imgid ? "like liked" : "like";
     const template = `
-    <div class="imgWrapper">
-        <a href="index.php?img=${el.name}&id=${el.id}"><img src="assets/uploads/${el.name}">
+    <div class="imgWrapper" id="img_${el.id}">
+        <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">
                 <span class="author-name">${el.user}</span>
             </div>
             <div class="${classes}"></div>
         </div>
-        </a>
     </div>`;
     const img = htmlToElement(template);
     img.querySelector(".like").addEventListener("click", (e) => {
       e.preventDefault();
-      like(e.target);
+      like(e.target, el.id);
     });
-    img.querySelector("a").addEventListener("click", (e) => {
+    img.addEventListener("click", (e) => {
       //   e.preventDefault();
-      showFullImage(e);
+      if (e.target.classList.contains("like") || e.target.closest("author")) {
+        return;
+      }
+      showFullImage(e, el.id);
     });
     target.appendChild(img);
   });
@@ -28,8 +30,8 @@ const placeImages = (data, target) => {
 const placeImagesWithControls = (data, target) => {
   data.forEach((el, index) => {
     const template = `
-    <div class="imgWrapper">
-        <a href="index.php?img=${el.name}&id=${el.id}"><img src="assets/uploads/${el.name}">
+    <div class="imgWrapper" id="img_${el.id}">
+        <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">
                 <span class="author-name">${el.user}</span>
@@ -41,7 +43,6 @@ const placeImagesWithControls = (data, target) => {
                 </svg>
             </div>
         </div>
-        </a>
     </div>`;
     const img = htmlToElement(template);
     if (+data[index].isPrivate) {
@@ -61,19 +62,15 @@ const placeImagesWithControls = (data, target) => {
   });
 };
 
-const like = async (el) => {
+const like = async (el, id) => {
   const url = "api/image.php/like";
-  const img = el.closest("a");
-  const urlParams = new URLSearchParams(img.href.split("?")[1]);
-  const id = urlParams.get("id");
-  const name = urlParams.get("img");
   const params = {
     method: "PUT",
     headers: {
       "Content-Type": "application/json;charset=utf-8",
     },
   };
-  const body = { liked: false, id: id, name: name };
+  const body = { liked: false, id: id };
   let response;
   if (el.classList.contains("liked")) {
     params.body = JSON.stringify(body);
@@ -91,9 +88,19 @@ const like = async (el) => {
     log(txt);
     return;
   }
-  if (result.success && result.data === "Like added") el.classList.add("liked");
-  else if (result.success && result.data === "Like removed")
+  if (!result.success) return;
+  let galleryItem;
+  // check if like was pressed in lightbox
+  if (el.classList.contains("lightbox_like")) {
+    galleryItem = $(`#img_${id}`).querySelector(".like");
+  }
+  if (result.data === "Like added") {
+    el.classList.add("liked");
+    if (galleryItem) galleryItem.classList.add("liked");
+  } else {
     el.classList.remove("liked");
+    if (galleryItem) galleryItem.classList.remove("liked");
+  }
 };
 
 const showPrivateIcon = (el) => {
@@ -391,10 +398,8 @@ const sendImages = () => {
   });
 };
 
-const images = document.querySelectorAll(".imgWrapper a");
-
 const createLightbox = (data) => {
-  const classes = data.liked ? "like_lightbox liked" : "like";
+  const classes = data.liked ? "lightbox_like liked" : "lightbox_like";
   const template = `<div class="lightbox" id="lightbox">
     <div class="lightbox_close" id="lightbox_close">
       <svg viewBox="0 0 512 512">
@@ -403,22 +408,22 @@ const createLightbox = (data) => {
     </div>
     <div class="lightbox_wrapper" id="lightbox_wrapper">
       <div class="lightbox_main">
-        <img id="img_src" src="${data.imgSrc}"/>
+        <img id="lightbox_img" src="${data.imgSrc}"/>
       </div>
       <div class="lightbox_aside">
-        <div class="info">
-          <div class="info_author">
+        <div class="lightbox_info">
+          <div class="lightbox_info__author">
             <span id="author_name">${data.authorName}</span>
           </div>
-          <div class="info_likes">
+          <div class="lightbox_info__likes">
             <div class="${classes}"></div>
             <span>${data.numberOfLikes}</span>
           </div>
         </div>
-        <div class="comments" id="comments"></div>
-        <div class="comments_controls">
-          <textarea name="comment" class="comment_input" id="comment_message" placeholder="Your comment"/></textarea>
-          <button class="button comment_submit" onclick="addComment()">Send</button>
+        <div class="lightbox_comments" id="lightbox_comments"></div>
+        <div class="lightbox_comments__controls">
+          <textarea name="comment" class="lightbox_comments__input" id="comments_input" placeholder="Your comment"/></textarea>
+          <button class="button lightbox_comments__submit" onclick="addComment()">Send</button>
         </div>
       </div>
     </div>
@@ -430,6 +435,10 @@ const createLightbox = (data) => {
   //    window.location.href = 'index.php?author=' + getCookie('author');
   // });
 
+  lightbox.querySelector(".lightbox_like").addEventListener("click", (e) => {
+    e.preventDefault();
+    like(e.target, data.id);
+  });
   lightbox.addEventListener("click", (e) => {
     if (e.target.closest("#lightbox_wrapper")) {
       return;
@@ -440,19 +449,24 @@ const createLightbox = (data) => {
   document.querySelector("body").append(lightbox);
 };
 
-const showFullImage = (e) => {
+const showFullImage = (e, id) => {
   e.preventDefault();
-  let imgSrc;
+  let img;
   if (e.target.localName === "img") {
-    imgSrc = e.target.closest("img").src;
+    img = e.target.closest("img");
   } else {
-    imgSrc = e.target.parentElement.querySelector("img").src;
+    img = e.target.parentElement.querySelector("img");
   }
+  const liked = img.parentElement
+    .querySelector(".like")
+    .classList.contains("liked");
+  //   let numberOfLikes = fetch(numberOfLikes);
   const data = {
-    imgSrc: imgSrc,
+    imgSrc: img.src,
     authorName: "author",
-    liked: true,
+    liked: liked,
     numberOfLikes: 4,
+    id: id,
   };
   createLightbox(data);
 };
