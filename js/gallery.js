@@ -21,7 +21,8 @@ const placeImages = (data, target) => {
       if (e.target.classList.contains("like") || e.target.closest("author")) {
         return;
       }
-      showFullImage(e, el.id);
+      const params = { author: el.user, id: el.id };
+      showFullImage(e, params);
     });
     target.appendChild(img);
   });
@@ -408,7 +409,7 @@ const createLightbox = (data) => {
     </div>
     <div class="lightbox_wrapper" id="lightbox_wrapper">
       <div class="lightbox_main">
-        <img id="lightbox_img" src="${data.imgSrc}"/>
+        <img id="${data.id}" src="${data.imgSrc}"/>
       </div>
       <div class="lightbox_aside">
         <div class="lightbox_info">
@@ -423,7 +424,7 @@ const createLightbox = (data) => {
         <div class="lightbox_comments" id="lightbox_comments"></div>
         <div class="lightbox_comments__controls">
           <textarea name="comment" class="lightbox_comments__input" id="comments_input" placeholder="Your comment"/></textarea>
-          <button class="button lightbox_comments__submit" onclick="addComment()">Send</button>
+          <button class="button lightbox_comments__submit" onclick="addComment(${data.id})">Send</button>
         </div>
       </div>
     </div>
@@ -449,21 +450,61 @@ const createLightbox = (data) => {
   document.querySelector("body").append(lightbox);
 };
 
-const showFullImage = (e, id) => {
-  e.preventDefault();
-  let img;
-  if (e.target.localName === "img") {
-    img = e.target.closest("img");
-  } else {
-    img = e.target.parentElement.querySelector("img");
+const addComment = async (id) => {
+  const input = $("#comments_input");
+  const message = input.value;
+  if (message.length === 0) return;
+  const author = getCookie("user");
+  const comments = $("#lightbox_comments");
+  const template = `<div class="lightbox_comment">
+    <div class="lightbox_comment__author">
+        <a class="lightbox_comment__author_profile" id="comment__author_profile" href="#">${author}</a>
+    </div>
+    <div class="comment_body">
+        <p>${message}</p>
+    </div>
+</div>`;
+  const body = { message: message, author: author, imgid: id };
+  const params = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(body),
+  };
+  const response = await fetch("api/image.php/comment", params);
+  const txt = await response.text();
+  let json;
+  try {
+    json = JSON.parse(txt);
+    if (!json.success) {
+      showMessage({
+        text: "Your comment was not added due to database error",
+      });
+      return;
+    }
+    const comment = htmlToElement(template);
+    comments.append(comment);
+    $("#comments_input").value = "";
+  } catch (e) {
+    showMessage({
+      text: "Your comment was not added due to database error. " + txt,
+    });
   }
+};
+
+const showFullImage = (e, { author, id }) => {
+  e.preventDefault();
+  const img =
+    e.target.closest("img") ||
+    e.target.closest(".imgWrapper").querySelector("img");
   const liked = img.parentElement
     .querySelector(".like")
     .classList.contains("liked");
   //   let numberOfLikes = fetch(numberOfLikes);
   const data = {
     imgSrc: img.src,
-    authorName: "author",
+    authorName: author,
     liked: liked,
     numberOfLikes: 4,
     id: id,

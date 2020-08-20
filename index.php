@@ -12,10 +12,11 @@ LOG_M("session", $_SESSION);
 // LOG_M("post",$_POST);
 $_SERVER['header'] = "Welcome to CAMAGRU";
 if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && $_SESSION['is_auth'] !== FALSE) {
-    $_SERVER['header'] =$_SERVER['header'] . ", " . $_SESSION['user'];
+    $_SERVER['header'] = $_SERVER['header'] . ", " . $_SESSION['user'];
 }
 if (isset($_SESSION['user'])) {
     $user = DBOselectUser($_SESSION['user']);
+    setcookie('user', $_SESSION['user']);
 }
 
 if ($_GET) {

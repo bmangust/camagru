@@ -2,3 +2,4 @@ keys.php
 debug*
 *.log
 uploads/
+.ai

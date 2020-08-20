@@ -55,10 +55,6 @@ const addSnippetClickListener = () => {
   // double click to remove snippet from image
   function onMouseDoubleClick(event) {
     if (this.draggable == false) return;
-    console.log("double click");
-    console.log(event);
-    console.log(`pageOffset: ${pageXOffset} ${pageYOffset}`);
-
     // if clicked element is actually in viewer
     // then we should find it's index in snippets array
     // to place it back to the gallery of snippets
@@ -94,7 +90,6 @@ const addSnippetClickListener = () => {
           obj.adx = parent.left;
           obj.ady = parent.top;
           if (this.draggable == false) return;
-          // console.log(e);
 
           var rect = obj.getBoundingClientRect();
           obj.dx = e.clientX - rect.left;

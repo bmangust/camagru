@@ -211,8 +211,6 @@ function removePicture($data)
     return $data;
 }
 
-
-
 $method = $_SERVER['REQUEST_METHOD'];
 $url = explode('/', $_SERVER['REQUEST_URI']);
 $path = explode('?', $url[4])[0] ?? null;
@@ -230,10 +228,10 @@ switch ($method) {
             $data['data'] = DBOselectAllUploads($_SESSION['user'], $params);
         } else if ($path === 'size') {
             $data['success'] = true;
-            $data['data'] = getGallerySize($_SESSION['user']);
+            $data['data'] = DBOgetGallerySize($_SESSION['user']);
         } else if ($path === 'my') {
             $offset = $_GET['offset'] ?? 0;
-            $limit = getGallerySize($_SESSION['user']);
+            $limit = DBOgetGallerySize($_SESSION['user']);
             $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['table'=>'us', 'value'=>$_SESSION['user']]];
             $data['success'] = true;
             $data['data'] = DBOselectUploads($params);
@@ -241,8 +239,15 @@ switch ($method) {
         break;
     
     case 'POST':
-        if ($_FILES['file']) {
+        if (isset($_FILES['file'])) {
             uploadFile();
+        } else if ($path === 'comment') {
+            $inputJSON = file_get_contents('php://input');
+            $input = json_decode($inputJSON, TRUE);
+            if (DBOaddComment($input['message'], $input['author'], $input['imgid'])) {
+                $data['success'] = true;
+                $data['data'] = $input['message'];
+            }
         }
         break;
     

@@ -39,6 +39,7 @@ if ($_GET && isset($_GET['action'])) {
     if ($_GET['action'] == 'logout') {
         $_SESSION['user'] = false;
         $_SESSION['is_auth'] = false;
+        setcookie('user', '', time() - 3600);
         header("Location: ../index.php?route=menu");
     } else if ($_GET['action'] == 'profile') {
         header("Location: ../index.php?route=profile");

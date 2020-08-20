@@ -54,3 +54,15 @@ const getCookie = (name) => {
   );
   return matches ? decodeURIComponent(matches[1]) : undefined;
 };
+
+const showMessage = ({ text, error = true }) => {
+  const className = error ? "float error" : "float";
+  const template = `<div class="${className}">
+      <div>${text}</div>
+</div>`;
+  const message = htmlToElement(template);
+  $`main`.appendChild(message);
+  setTimeout(() => {
+    $("main").removeChild(message);
+  }, 10000);
+};

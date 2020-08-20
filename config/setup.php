@@ -48,6 +48,7 @@ function DBOcreateTableSnippets() {
         $db->query($createSQL);
     } catch (Exception $ex) {
         LOG_M('Create table snippets failed: ', $ex->getMessage());
+        die();
     }
 };
 
@@ -65,6 +66,7 @@ function DBOcreateTableUploads() {
         $db->query($createSQL);
     } catch (Exception $ex) {
         LOG_M('Create table uploads failed: ', $ex->getMessage());
+        die();
     }
 };
 
@@ -83,6 +85,25 @@ function DBOcreateTableLikes() {
         $db->query($uniqueSQL);
     } catch (Exception $ex) {
         LOG_M('Create table uploads failed: ', $ex->getMessage());
+        die();
+    }
+};
+
+function DBOcreateTableComments() {
+    $db = DBOconnect();
+    $createSQL = 'CREATE TABLE IF NOT EXISTS `comments` 
+        (`id` INT(5) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+        `message` VARCHAR(2048) NOT NULL,
+        `userid` INT(5) UNSIGNED NOT NULL,
+        `imgid` INT(10) UNSIGNED NOT NULL,
+        FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+        FOREIGN KEY (`imgid`) REFERENCES `uploads` (`id`) ON DELETE CASCADE
+        )';
+    try {
+        $db->query($createSQL);
+    } catch (Exception $ex) {
+        LOG_M('Create table comments failed: ', $ex->getMessage());
+        die();
     }
 };
 
@@ -304,7 +325,7 @@ function DBOselectAllUploads($user, $params=null)
     return $res;
 }
 
-function getGallerySize($user)
+function DBOgetGallerySize($user)
 {
     $db = DBOconnect();
     $stmt = $db->prepare("SELECT COUNT(id) FROM `uploads` WHERE `userid` in (SELECT `id` from `users` WHERE `name`='?') OR  `isPrivate`='false'");
@@ -374,11 +395,50 @@ function DBOselectLikes(array $imgs, $user)
     return $res;
 }
 
+function DBOaddComment($message, $author, $imgid)
+{
+    $db = DBOconnect();
+    $user = DBOselectUser($author);
+    if (isset($user['id'])) {
+        $stmt = $db->prepare('INSERT INTO `comments` (`message`, `userid`, `imgid`) VALUES (?, ?, ?)');
+        try {
+            $res = $stmt->execute([$message, $user['id'], $imgid]);
+            return $res;
+        } catch (Exception $e) {
+            // LOG_M('SQL Error: '.$e->getMessage());
+            return false;
+        }
+    }
+    return false;
+}
+
 function DBOdisconnect() {
     $db = &$GLOBALS['db'];
     $db = null;
 };
 
-DBOcreateTableUsers();
-DBOinsertSnippets();
+function DBOcountRows($table)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare("SELECT COUNT(`id`) FROM {$table}");
+    try {
+        $stmt->execute();
+        $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+        return $res[0];
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+function prepareDB()
+{
+    $db = DBOconnect();
+    if (!DBOcountRows('users')) DBOcreateTableUsers();
+    if (!DBOcountRows('snippets')) DBOcreateTableSnippets();
+    if (!DBOcountRows('uploads')) DBOcreateTableUploads();
+    if (!DBOcountRows('likes')) DBOcreateTableLikes();
+    if (!DBOcountRows('comments')) DBOcreateTableComments();
+}
+
+prepareDB();
 ?>
