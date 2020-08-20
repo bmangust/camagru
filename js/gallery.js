@@ -401,7 +401,7 @@ const sendImages = () => {
 
 const createLightbox = (data) => {
   const classes = data.liked ? "lightbox_like liked" : "lightbox_like";
-  const template = `<div class="lightbox" id="lightbox">
+  const template = `<div class="lightbox" id="lightbox_${data.id}">
     <div class="lightbox_close" id="lightbox_close">
       <svg viewBox="0 0 512 512">
         <path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717    L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859    c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287    l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285    L284.286,256.002z" fill="rgb(255,255,255)"/>
@@ -493,6 +493,23 @@ const addComment = async (id) => {
   }
 };
 
+const showLikes = async (id) => {
+  const response = await fetch(`api/image.php/getLikes?id=${id}`);
+  const txt = await response.text();
+  let numberOfLikes;
+  try {
+    numberOfLikes = JSON.parse(txt).data;
+  } catch (e) {
+    log(txt);
+  }
+  const lightbox = $(`#lightbox_${id}`);
+  //if user already closed lightbox, no update needed
+  if (!lightbox) return;
+  const likes = lightbox.querySelector(".lightbox_info__likes span");
+  if (likes && numberOfLikes !== undefined) likes.textContent = numberOfLikes;
+  else likes.textContent = 0;
+};
+
 const showFullImage = (e, { author, id }) => {
   e.preventDefault();
   const img =
@@ -506,8 +523,9 @@ const showFullImage = (e, { author, id }) => {
     imgSrc: img.src,
     authorName: author,
     liked: liked,
-    numberOfLikes: 4,
+    numberOfLikes: 0,
     id: id,
   };
   createLightbox(data);
+  showLikes(id);
 };

@@ -235,6 +235,13 @@ switch ($method) {
             $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['table'=>'us', 'value'=>$_SESSION['user']]];
             $data['success'] = true;
             $data['data'] = DBOselectUploads($params);
+        } else if ($path === 'getLikes') {
+            $imgid = $_GET['id'];
+            $data['success'] = true;
+            if (!$imgid) {
+                $data['data'] = 0;
+            }
+            $data['data'] = DBOgetNumberOfLikes($imgid);
         }
         break;
     

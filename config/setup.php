@@ -412,6 +412,16 @@ function DBOaddComment($message, $author, $imgid)
     return false;
 }
 
+function DBOgetNumberOfLikes($imgid)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare("SELECT COUNT(id) FROM likes WHERE imgid=?");
+    $stmt->execute([$imgid]);
+    $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    if (!$res) return 0;
+    return $res[0];
+}
+
 function DBOdisconnect() {
     $db = &$GLOBALS['db'];
     $db = null;
