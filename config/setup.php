@@ -412,6 +412,17 @@ function DBOaddComment($message, $author, $imgid)
     return false;
 }
 
+function DBOselectComments($imgid, $params=null)
+{
+    $db = DBOconnect();
+    $offset = $params['offset'] ?? 0;
+    $limit = $params['limit'] ?? 10;
+    $stmt = $db->prepare("SELECT c.message, u.name author FROM `comments` c JOIN `users` u on u.id = c.userid WHERE c.imgid=? LIMIT {$offset},{$limit}");
+    $stmt->execute([$imgid]);
+    $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $res;
+}
+
 function DBOgetNumberOfLikes($imgid)
 {
     $db = DBOconnect();

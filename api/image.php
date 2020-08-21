@@ -242,6 +242,13 @@ switch ($method) {
                 $data['data'] = 0;
             }
             $data['data'] = DBOgetNumberOfLikes($imgid);
+        } else if ($path === 'getComments') {
+            $imgid = $_GET['id'];
+            if (!$imgid) {
+                $data['data'] = '';
+            }
+            $data['data'] = DBOselectComments($imgid);
+            if ($data['data']) $data['success'] = true;
         }
         break;
     

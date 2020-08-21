@@ -510,6 +510,39 @@ const showLikes = async (id) => {
   else likes.textContent = 0;
 };
 
+const putComment = (comments, comment) => {
+  const message = comment.message;
+  const author = comment.author;
+  const template = `<div class="lightbox_comment">
+    <div class="lightbox_comment__author">
+        <a class="lightbox_comment__author_profile" id="comment__author_profile" href="#">${author}</a>
+    </div>
+    <div class="comment_body">
+        <p>${message}</p>
+    </div>
+</div>`;
+  const commentElement = htmlToElement(template);
+  comments.append(commentElement);
+};
+
+const showComments = async (id) => {
+  const response = await fetch(`api/image.php/getComments?id=${id}`);
+  const txt = await response.text();
+  let comments;
+  try {
+    comments = JSON.parse(txt).data;
+  } catch (e) {
+    log(txt);
+  }
+  const lightbox = $(`#lightbox_${id}`);
+  //if user already closed lightbox, no update needed
+  if (!lightbox) return;
+  const commentsElement = lightbox.querySelector("#lightbox_comments");
+  if (commentsElement && comments) {
+    comments.forEach((el) => putComment(commentsElement, el));
+  }
+};
+
 const showFullImage = (e, { author, id }) => {
   e.preventDefault();
   const img =
@@ -518,7 +551,6 @@ const showFullImage = (e, { author, id }) => {
   const liked = img.parentElement
     .querySelector(".like")
     .classList.contains("liked");
-  //   let numberOfLikes = fetch(numberOfLikes);
   const data = {
     imgSrc: img.src,
     authorName: author,
@@ -527,5 +559,6 @@ const showFullImage = (e, { author, id }) => {
     id: id,
   };
   createLightbox(data);
+  showComments(id);
   showLikes(id);
 };
