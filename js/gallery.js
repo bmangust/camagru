@@ -447,6 +447,13 @@ const createLightbox = (data) => {
     document.querySelector("body").removeChild(lightbox);
   });
 
+  document.onkeydown = (e) => {
+    if (e.key === "Esc" || e.key === "Escape") {
+      document.querySelector("body").removeChild(lightbox);
+      document.onkeydown = null;
+    }
+  };
+
   document.querySelector("body").append(lightbox);
 };
 
