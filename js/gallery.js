@@ -1,16 +1,15 @@
 const placeImages = (data, target) => {
   data.forEach((el, index) => {
     const classes = data[index].imgid ? "like liked" : "like";
-    const template = `
-    <div class="imgWrapper" id="img_${el.id}">
-        <img src="assets/uploads/${el.name}">
-        <div class="info">
-            <div class="author">
-                <span class="author-name">${el.user}</span>
-            </div>
-            <div class="${classes}"></div>
-        </div>
-    </div>`;
+    const template = `<div class="imgWrapper" id="img_${el.id}">
+  <img src="assets/uploads/${el.name}">
+  <div class="info">
+      <div class="author">
+          <span class="author-name">${el.user}</span>
+      </div>
+      <div class="${classes}"></div>
+  </div>
+</div>`;
     const img = htmlToElement(template);
     img.querySelector(".like").addEventListener("click", (e) => {
       e.preventDefault();
@@ -97,10 +96,18 @@ const like = async (el, id) => {
   }
   if (result.data === "Like added") {
     el.classList.add("liked");
-    if (galleryItem) galleryItem.classList.add("liked");
+    if (galleryItem) {
+      galleryItem.classList.add("liked");
+      const likes = +$(".lightbox_info__likes span").innerHTML.trim();
+      $(".lightbox_info__likes span").innerHTML = likes + 1;
+    }
   } else {
     el.classList.remove("liked");
-    if (galleryItem) galleryItem.classList.remove("liked");
+    if (galleryItem) {
+      galleryItem.classList.remove("liked");
+      const likes = +$(".lightbox_info__likes span").innerHTML.trim();
+      $(".lightbox_info__likes span").innerHTML = likes - 1;
+    }
   }
 };
 
