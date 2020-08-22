@@ -16,7 +16,6 @@ const placeImages = (data, target) => {
       like(e.target, el.id);
     });
     img.addEventListener("click", (e) => {
-      //   e.preventDefault();
       if (e.target.classList.contains("like") || e.target.closest("author")) {
         return;
       }
@@ -29,8 +28,7 @@ const placeImages = (data, target) => {
 
 const placeImagesWithControls = (data, target) => {
   data.forEach((el, index) => {
-    const template = `
-    <div class="imgWrapper" id="img_${el.id}">
+    const template = `<div class="imgWrapper" id="img_${el.id}">
         <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">

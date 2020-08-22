@@ -25,7 +25,7 @@ h1 {
 
 body {
   background-color: #1a1a1a;
-  min-width: 400px;
+  /* min-width: 400px; */
 }
 
 main {
@@ -57,6 +57,7 @@ ul {
   border-radius: 5px;
   border: 1px solid #a1a1a1;
   background-color: #1a1a1a;
+  cursor: pointer;
 }
 
 .button:hover,
@@ -243,7 +244,8 @@ form input::placeholder {
 @media screen and (max-width: 500px) {
   form,
   .section_form {
-    width: 400px;
+    /* width: 400px; */
+    min-width: 300px;
     padding: 0;
   }
 }
@@ -280,7 +282,6 @@ form input::placeholder {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   width: 65%;
   margin: 10px;
   min-width: 430px;
@@ -291,10 +292,15 @@ form input::placeholder {
   justify-content: center;
 }
 
+.controls form {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .controls_button {
   min-width: 100px;
   width: 240px;
-  padding: 5px;
+  padding: 10px 30px;
   color: white;
   background-color: #1a1a1a;
   border: 1px solid #4527a0;
@@ -302,6 +308,7 @@ form input::placeholder {
   margin: 5px;
   text-transform: uppercase;
   outline: none;
+  cursor: pointer;
 }
 
 .controls_button:hover,
@@ -367,6 +374,7 @@ form input::placeholder {
   display: flex;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .file_name {
@@ -379,7 +387,7 @@ form input::placeholder {
   margin-right: 5px;
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 900px) {
   .createView {
     display: flex;
     flex-direction: column;
@@ -400,6 +408,11 @@ form input::placeholder {
     width: 100%;
     text-align: center;
   }
+
+  .editor {
+    width: 100%;
+    min-width: 300px;
+  }
 }
 
 /* 
@@ -414,7 +427,7 @@ form input::placeholder {
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
 }
 
@@ -437,6 +450,7 @@ aside {
   margin: 10px;
   padding: 10px;
   position: relative;
+  cursor: pointer;
 }
 
 .gallery_controls {
@@ -587,6 +601,17 @@ aside {
   fill: #7e57c2;
 }
 
+@media screen and (max-width: 600px) {
+  .gallery {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .gallery .imgWrapper {
+    width: 90%;
+  }
+}
+
 /* 
 =================
     LIGHTBOX
@@ -688,7 +713,8 @@ aside {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  flex: 4 1 400px;
+  flex: 4 1 0px;
+  overflow: auto;
 }
 
 .lightbox_like {
@@ -763,4 +789,50 @@ aside {
   padding: 5px 10px;
   font-size: 0.8rem;
   box-sizing: border-box;
+}
+
+@media screen and (max-width: 600px) {
+  .nav {
+    padding: 0;
+  }
+
+  .lightbox_wrapper {
+    flex-direction: column;
+    height: 90%;
+    margin: 5vh auto;
+    z-index: 30;
+  }
+
+  .lightbox_close svg {
+    opacity: 100;
+  }
+
+  .lightbox_aside {
+    width: 100%;
+  }
+
+  .lightbox_main {
+    width: 100%;
+    max-height: 100%;
+  }
+
+  .lightbox_main img {
+    max-width: 90%;
+    max-height: 90%;
+  }
+
+  .lightbox_info {
+    margin: 5px;
+  }
+}
+
+.webcam {
+  width: 100%;
+}
+
+canvas,
+video {
+  width: 480px;
+  height: 360px;
+  border: 1px solid red;
 }
