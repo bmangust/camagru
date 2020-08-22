@@ -61,8 +61,12 @@ if ($_GET) {
                 $_SERVER['header'] = "Let's create some stuff!";
                 $main = './views/create.php';
                 break;
+            case 'settings':
+                $_SERVER['header'] = $_SESSION['user']."'s settings";
+                $main = './views/settings.php';
+                break;
             case 'profile':
-                $_SERVER['header'] = $_SESSION['user']."'s profile";
+                $_SERVER['header'] = $_GET['user']."'s profile";
                 $main = './views/profile.php';
                 break;
             case 'gallery':

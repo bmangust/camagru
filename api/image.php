@@ -235,6 +235,18 @@ switch ($method) {
             $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['table'=>'us', 'value'=>$_SESSION['user']]];
             $data['success'] = true;
             $data['data'] = DBOselectUploads($params);
+        } else if ($path === 'user') {
+            $user = $_GET['user'] ?? false;
+            if (!$user) {
+                $data['success'] = false;
+                $data['data'] = "User not found";
+                break;
+            }
+            $offset = $_GET['offset'] ?? 0;
+            $limit = DBOgetGallerySize($user);
+            $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['value'=>$user]];
+            $data['success'] = true;
+            $data['data'] = DBOselectAllUploads($user, $params);
         } else if ($path === 'getLikes') {
             $imgid = $_GET['id'];
             $data['success'] = true;

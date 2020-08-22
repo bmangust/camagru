@@ -41,8 +41,6 @@ if ($_GET && isset($_GET['action'])) {
         $_SESSION['is_auth'] = false;
         setcookie('user', '', time() - 3600);
         header("Location: ../index.php?route=menu");
-    } else if ($_GET['action'] == 'profile') {
-        header("Location: ../index.php?route=profile");
     } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_PASS']) {
         header("Location: ../index.php?route=restore");
     } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_EMAIL']) {

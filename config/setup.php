@@ -307,20 +307,36 @@ function DBOselectUploads($params=null)
 function DBOselectAllUploads($user, $params=null)
 {
     $db = DBOconnect();
-    // LOG_M('params', $params);
     $offset = $params['offset'] ?? 0;
     $limit = $params['limit'] ?? 20;
     $filter = $params['filter'] ?? null;
     $orderby = $params['orderby'] ?? 'id';
     $order = $params['order'] ?? 'DESC';
-    $stmt = $db->prepare(<<<EOL
-    SELECT us.name `user`, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
-    JOIN `uploads` up ON us.id=up.userid 
-    LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
-    WHERE (us.name<>'{$user}' AND up.isPrivate=0) OR us.name='{$user}'
-    ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
-    EOL);
-    $stmt->execute();
+    if ($filter) {
+        $table = $filter['table'] ?? 'us';
+        $col = $filter['col'] ?? 'name';
+        if (!isset($filter['value'])) {
+            die('Value is not set when filter uploads');
+        }
+        $value = $filter['value'];
+        $stmt = $db->prepare(<<<EOL
+        SELECT us.name `user`, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
+        JOIN `uploads` up ON us.id=up.userid 
+        LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
+        WHERE ${table}.{$col}=? AND up.isPrivate=0
+        ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
+        EOL);
+        $stmt->execute([$value]);
+    } else {
+        $stmt = $db->prepare(<<<EOL
+        SELECT us.name `user`, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
+        JOIN `uploads` up ON us.id=up.userid 
+        LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
+        WHERE (us.name<>'{$user}' AND up.isPrivate=0) OR us.name='{$user}'
+        ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
+        EOL);
+        $stmt->execute();
+    }
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
 }

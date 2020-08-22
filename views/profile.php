@@ -1,21 +1,12 @@
-<?php
-if ($_SESSION['is_auth'] == FALSE) {
-    header("Location: ./index.php?route=menu");
-}?>
-<ul>
-        <li>
-            <button class="button menuItem" onclick="showGallery()">Show my gallery</button>
-        </li>
-        <li>
-            <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_PASS']?>">change password</a>
-        </li>
-        <li>
-            <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_EMAIL']?>">change email</a>
-        </li>
-        <li>
-            <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_USERNAME']?>">change username</a>
-        </li>
-        <li>
-            <a class="button menuItem" onclick="confirmDelete()" href="#">delete account</a>
-        </li>
-</ul>
+<div class="profile">
+  <div class="profile__aside">
+    <div class="profile__avatar"></div>
+    <div class="profile__info">
+        <p>Some info about user</p>
+    </div>
+    <button class="button" onclick="messageUser()">DM user</button>
+  </div>
+  <div class="profile__gallery">
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>

@@ -1,11 +1,17 @@
 const placeImages = (data, target) => {
+  if (typeof data === "string") {
+    const template = `<div>${data}</div>`;
+    const element = htmlToElement(template);
+    target.appendChild(element);
+    return;
+  }
   data.forEach((el, index) => {
     const classes = data[index].imgid ? "like liked" : "like";
     const template = `<div class="imgWrapper" id="img_${el.id}">
   <img src="assets/uploads/${el.name}">
   <div class="info">
       <div class="author">
-          <span class="author-name">${el.user}</span>
+        <a class="author-name" href="${baseURL}?route=profile&user=${el.user}">${el.user}</a>
       </div>
       <div class="${classes}"></div>
   </div>
@@ -16,11 +22,14 @@ const placeImages = (data, target) => {
       like(e.target, el.id);
     });
     img.addEventListener("click", (e) => {
-      if (e.target.classList.contains("like") || e.target.closest("author")) {
+      if (e.target.classList.contains("like")) {
         return;
+      } else if (e.target.closest(".author")) {
+        window.location.href = e.target.href;
+      } else {
+        const params = { author: el.user, id: el.id };
+        showFullImage(e, params);
       }
-      const params = { author: el.user, id: el.id };
-      showFullImage(e, params);
     });
     target.appendChild(img);
   });
@@ -32,7 +41,7 @@ const placeImagesWithControls = (data, target) => {
         <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">
-                <span class="author-name">${el.user}</span>
+              <a class="author-name" href="${baseURL}?route=profile&user=${el.user}">${el.user}</a>
             </div>
             <div class="private"><svg><path/></svg></div>
             <div class="remove">
@@ -205,6 +214,17 @@ const getGallerySize = async () => {
   return +resp.data;
 };
 
+const fetchResult = async (url) => {
+  let response = await fetch(url);
+  const txt = await response.text();
+  try {
+    return JSON.parse(txt);
+  } catch (e) {
+    log(txt);
+    return null;
+  }
+};
+
 let offset = 0;
 let limit = 6;
 let gallerySize;
@@ -212,11 +232,16 @@ getGallerySize().then((val) => (gallerySize = val));
 let currentPage = 1;
 
 const loadImages = async () => {
-  const url = new URL("api/image.php/more", baseURL);
-  const params = { offset: offset, limit: limit };
+  const urlParams = new URLSearchParams(window.location.search);
+  const user = urlParams.get("user");
+  const route = urlParams.get("route");
+  let url = new URL("api/image.php/more", baseURL);
+  if (route === "profile" && user) {
+    url = new URL(`api/image.php/user`, baseURL);
+  }
+  const params = { offset: offset, limit: limit, user: user };
   url.search = new URLSearchParams(params);
-  let response = await fetch(url);
-  let imgs = await response.json();
+  let imgs = await fetchResult(url).then((res) => res || { data: "no images" });
   if (limit >= gallerySize) {
     let params = new URL(document.location).searchParams;
     let route = params.get("route");
@@ -527,7 +552,7 @@ const putComment = (comments, comment) => {
   const author = comment.author;
   const template = `<div class="lightbox_comment">
     <div class="lightbox_comment__author">
-        <a class="lightbox_comment__author_profile" id="comment__author_profile" href="#">${author}</a>
+        <a class="lightbox_comment__author_profile" href="${baseURL}?route=profile&user=${author}">${author}</a>
     </div>
     <div class="comment_body">
         <p>${message}</p>
