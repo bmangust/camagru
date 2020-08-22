@@ -46,7 +46,7 @@ class User {
                 
                 $res = json_decode(curl_exec ($ch), true);
                 curl_close ($ch);
-                LOG_M($res);
+                // LOG_M($res);
                 return $res['success'];
         }
         catch(Exception $ex){

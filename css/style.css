@@ -665,7 +665,7 @@ aside {
 }
 
 .lightbox_main {
-  flex-grow: 3;
+  flex: 3 1 60%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -680,7 +680,7 @@ aside {
 }
 
 .lightbox_aside {
-  flex-grow: 2;
+  flex: 2 1 40%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -748,6 +748,7 @@ aside {
 .lightbox_comment {
   padding: 5px;
   border-bottom: 1px solid #a1a1a1;
+  text-align: left;
 }
 
 .lightbox_comment__author {
@@ -851,6 +852,10 @@ aside {
 
 .profile__gallery {
   flex-grow: 3;
+}
+
+.fullImage .lightbox_wrapper {
+  margin: 0 auto;
 }
 
 @media screen and (max-width: 600px) {

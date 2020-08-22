@@ -166,6 +166,24 @@ function DBOselectUser($user) {
     return $res;
 };
 
+function DBOselectImgAuthor($imgid)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare('SELECT us.`name`, `email` FROM `uploads` up JOIN `users` us ON up.userid=us.id WHERE up.id=?');
+    $stmt->execute([$imgid]);
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $res;
+}
+
+function DBOgetImageInfo($imgid)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare('SELECT message, us.name author, up.name imgSrc, up.imgId id, up.imgAuthor imgAuthor FROM `comments` c LEFT JOIN `users` us ON c.userid = us.id LEFT JOIN (SELECT upl.id imgId, users.name imgAuthor, upl.name name FROM `uploads` upl JOIN `users` ON users.id = upl.userid WHERE upl.id=?) up ON c.imgid=up.imgId WHERE up.imgId=?');
+    $stmt->execute([$imgid, $imgid]);
+    $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $res;
+}
+
 function DBOsetUserCode($code, $user) {
     $db = DBOconnect();
     $stmt = $db->prepare('UPDATE `users` SET restoreCode=? WHERE `name`=? OR `email`=?');
@@ -397,16 +415,28 @@ function DBOupdatePrivacy($imgid, $isPrivate)
     return false;
 }
 
-function DBOselectLikes(array $imgs, $user)
+/**
+ * DEPRECATED
+ */
+// function DBOselectLikes(array $imgs, $user)
+// {
+//     $db = DBOconnect();
+//     $images = [];
+//     foreach ($imgs as $item => $row) {
+//         $images[] = $row['id'];
+//     }
+//     $images = implode(',', $images);
+//     $stmt = $db->prepare("SELECT imgid FROM likes WHERE userid in (SELECT id from users WHERE name='{$user}') AND imgid IN ({$images})");
+//     $stmt->execute();
+//     $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+//     return $res;
+// }
+
+function DBOselectLikes($img, $user)
 {
     $db = DBOconnect();
-    $images = [];
-    foreach ($imgs as $item => $row) {
-        $images[] = $row['id'];
-    }
-    $images = implode(',', $images);
-    $stmt = $db->prepare("SELECT imgid FROM likes WHERE userid in (SELECT id from users WHERE name='{$user}') AND imgid IN ({$images})");
-    $stmt->execute();
+    $stmt = $db->prepare("SELECT imgid FROM likes WHERE userid in (SELECT id from users WHERE name=?) AND imgid=?");
+    $stmt->execute([$user, $img]);
     $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     return $res;
 }

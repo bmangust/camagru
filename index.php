@@ -73,6 +73,10 @@ if ($_GET) {
                 $_SERVER['header'] = "Gallery";
                 $main = './views/gallery.php';
                 break;
+            case 'image':
+                $_SERVER['header'] = "View image";
+                $main = './views/image.php';
+                break;
             case 'main':
                 $main = './views/main.php';
                 break;

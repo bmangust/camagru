@@ -11,7 +11,7 @@ const placeImages = (data, target) => {
   <img src="assets/uploads/${el.name}">
   <div class="info">
       <div class="author">
-        <a class="author-name" href="${baseURL}?route=profile&user=${el.user}">${el.user}</a>
+        <a class="author-name" href="${baseURL}index.php?route=profile&user=${el.user}">${el.user}</a>
       </div>
       <div class="${classes}"></div>
   </div>
@@ -41,7 +41,7 @@ const placeImagesWithControls = (data, target) => {
         <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">
-              <a class="author-name" href="${baseURL}?route=profile&user=${el.user}">${el.user}</a>
+              <a class="author-name" href="${baseURL}index.php?route=profile&user=${el.user}">${el.user}</a>
             </div>
             <div class="private"><svg><path/></svg></div>
             <div class="remove">
@@ -552,7 +552,7 @@ const putComment = (comments, comment) => {
   const author = comment.author;
   const template = `<div class="lightbox_comment">
     <div class="lightbox_comment__author">
-        <a class="lightbox_comment__author_profile" href="${baseURL}?route=profile&user=${author}">${author}</a>
+        <a class="lightbox_comment__author_profile" href="${baseURL}index.php?route=profile&user=${author}">${author}</a>
     </div>
     <div class="comment_body">
         <p>${message}</p>

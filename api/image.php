@@ -1,5 +1,6 @@
 <?php
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'config', 'setup.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'User.class.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 session_start();
 $username = $_SESSION['user'];
@@ -271,8 +272,16 @@ switch ($method) {
             $inputJSON = file_get_contents('php://input');
             $input = json_decode($inputJSON, TRUE);
             if (DBOaddComment($input['message'], $input['author'], $input['imgid'])) {
-                $data['success'] = true;
-                $data['data'] = $input['message'];
+                $user = DBOselectImgAuthor($input['imgid']);
+                if ($user) {
+                    $data['success'] = true;
+                    $data['data'] = $input['message'];
+                    $message['title'] = 'New comment on your photo!';
+                    $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it here: http://localhost/camagru/index.php?route=image&id={$input['imgid']}";
+                    User::sendEmail($user['email'], $message);
+                } else {
+                    $data['data'] = $user;
+                }
             }
         }
         break;
