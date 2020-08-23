@@ -95,7 +95,10 @@ const like = async (el, id) => {
     log(txt);
     return;
   }
-  if (!result.success) return;
+  if (!result.success) {
+    showMessage({ text: result.data });
+    return;
+  }
   let galleryItem;
   // check if like was pressed in lightbox
   if (el.classList.contains("lightbox_like")) {
@@ -476,6 +479,12 @@ const createLightbox = (data) => {
     e.preventDefault();
     like(e.target, data.id);
   });
+  lightbox.querySelector("#comments_input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.shiftKey) {
+      addComment(data.id);
+      e.preventDefault();
+    }
+  });
   lightbox.addEventListener("click", (e) => {
     if (e.target.closest("#lightbox_wrapper")) {
       return;
@@ -521,9 +530,7 @@ const addComment = async (id) => {
   try {
     json = JSON.parse(txt);
     if (!json.success) {
-      showMessage({
-        text: "Your comment was not added due to database error",
-      });
+      showMessage({ text: json.data });
       return;
     }
     const comment = htmlToElement(template);

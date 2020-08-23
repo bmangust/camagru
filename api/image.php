@@ -182,7 +182,9 @@ function updateLike($data)
 {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE);
-    if ($input['liked'] === true) {
+    if ($_SESSION['user'] === false || $_SESSION['is_auth'] === false) {
+        $data['data'] = 'Please log in to like and add comments';
+    } else if ($input['liked'] === true) {
         if (DBOinsertLike($_SESSION['user'], $input['id'])) {
             $data['success'] = true;
             $data['data'] = 'Like added';
@@ -222,6 +224,25 @@ function removePicture($data)
         if (DBOremovePicture($input['id'])) {
             $data['success'] = true;
             $data['data'] = 'removed';
+        }
+    }
+    return $data;
+}
+
+function addComment($data)
+{
+    $inputJSON = file_get_contents('php://input');
+    $input = json_decode($inputJSON, TRUE);
+    if ($_SESSION['user'] === false || $_SESSION['is_auth'] === false) {
+        $data['data'] = 'Please log in to like and add comments';
+    } else if (DBOaddComment($input['message'], $input['author'], $input['imgid'])) {
+        $user = DBOselectImgAuthor($input['imgid']);
+        if ($user) {
+            $data['success'] = true;
+            $data['data'] = $input['message'];
+            $message['title'] = 'New comment on your photo!';
+            $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it here: http://localhost/camagru/index.php?route=image&id={$input['imgid']}";
+            User::sendEmail($user['email'], $message);
         }
     }
     return $data;
@@ -284,20 +305,7 @@ switch ($method) {
         if (isset($_FILES['file'])) {
             uploadFile();
         } else if ($path === 'comment') {
-            $inputJSON = file_get_contents('php://input');
-            $input = json_decode($inputJSON, TRUE);
-            if (DBOaddComment($input['message'], $input['author'], $input['imgid'])) {
-                $user = DBOselectImgAuthor($input['imgid']);
-                if ($user) {
-                    $data['success'] = true;
-                    $data['data'] = $input['message'];
-                    $message['title'] = 'New comment on your photo!';
-                    $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it here: http://localhost/camagru/index.php?route=image&id={$input['imgid']}";
-                    User::sendEmail($user['email'], $message);
-                } else {
-                    $data['data'] = $user;
-                }
-            }
+            $data = addComment($data);
         }
         break;
     

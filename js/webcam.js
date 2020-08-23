@@ -51,6 +51,7 @@ const runWebcam = () => {
       );
     })
     .catch((err) => {
+      showMessage({ text: "camera is not avalible" });
       replaceVideoWithImage();
     });
 };
@@ -60,6 +61,8 @@ const replaceVideoWithImage = (img = null) => {
   if (video.parentNode === viewer) {
     viewer.removeChild(video);
   }
+  // if there is already one image appended
+  if (viewer.querySelector("img")) return;
   if (!img) {
     img = document.createElement("img");
     img.classList.add("base");
@@ -91,7 +94,7 @@ const captureImage = () => {
     showMessage({ text: "camera is not avalible" });
     return;
   } else if (!isCameraWorking) initWebcam();
-  if (video.parentNode !== viewer) replaceImageWithVideo();
+  if (video && video.parentNode !== viewer) replaceImageWithVideo();
   const input = $(".input-file");
   // if user tried to upload file firs and then capture
   if (input.files.length > 0) input.value = "";
