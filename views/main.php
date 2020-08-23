@@ -6,6 +6,7 @@
     <link href="./css/style.css" rel="stylesheet">
     <script src="./js/common.js"></script>
     <script src="./js/formValdation.js"></script>
+    <script src="./js/webcam.js"></script>
     <script src="./js/buttons.js"></script>
     <script src="./js/gallery.js"></script>
     <script src="./js/listeners.js"></script>

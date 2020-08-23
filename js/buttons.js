@@ -141,11 +141,11 @@ const addSnippetClickListener = () => {
 };
 
 const resetSnippets = () => {
-  const viewer = $("#imgViewer .base");
+  const viewer = $("#imgViewer");
   const snippets = $$`#imgViewer .snippet`;
   snippets.forEach((el) => {
     const snippetPlaceholder = $(".snippets").children[el.index];
-    const elem = viewer.parentElement.removeChild(el);
+    const elem = viewer.removeChild(el);
     el.dx = null;
     el.dy = null;
     elem.setAttribute("draggable", false);
@@ -154,7 +154,16 @@ const resetSnippets = () => {
 };
 
 const clearViewer = () => {
-  const viewer = $("#imgViewer .base");
+  if (isCameraAvalible) {
+    if (video.parentNode === viewer) return;
+    // show camera here
+    const captureButton = $("#capture");
+    replaceImageWithVideo();
+    captureButton.value = "Capture";
+    runWebcam();
+    captureButton.onclick = captureImage;
+  }
+  const img = $("#imgViewer .base") || $("#video");
   const $label = $(".file_label");
   const iconPath = $(".icon path");
   const colorWhite = "#fff";
@@ -163,7 +172,7 @@ const clearViewer = () => {
   iconPath.setAttribute("d", upload);
   iconPath.setAttribute("fill", colorWhite);
   $label.querySelector(".file_name").innerHTML = "Upload file";
-  viewer.setAttribute("src", "./assets/bg.jpg");
+  img.setAttribute("src", "./assets/bg.jpg");
 };
 
 const clearEdit = () => {
@@ -173,23 +182,27 @@ const clearEdit = () => {
 
 const addUploadListener = () => {
   const input = $(".input-file");
-  const viewer = $("#imgViewer .base");
-  const colorGreen = "#5aac7b";
-  const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
-  const iconPath = $(".icon path");
   if (input) {
-    input.addEventListener("change", (element) => {
+    input.addEventListener("change", (event) => {
       const $label = $(".file_label");
+      const video = $("#video");
+      if (video) {
+        replaceVideoWithImage();
+      }
+      const colorGreen = "#5aac7b";
+      const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
+      const iconPath = $(".icon path");
+      const img = $("#imgViewer .base");
       var fileName = "";
-      if (element.target.value) {
-        fileName = element.target.value.split("\\").pop();
+      if (event.target.value) {
+        fileName = event.target.value.split("\\").pop();
       }
       if (fileName) {
         iconPath.setAttribute("d", tick);
         iconPath.setAttribute("fill", colorGreen);
         $label.querySelector(".file_name").innerHTML = fileName;
-        viewer.src = URL.createObjectURL(element.target.files[0]);
-        viewer.onload = () => URL.revokeObjectURL(viewer.src);
+        img.src = URL.createObjectURL(event.target.files[0]);
+        img.onload = () => URL.revokeObjectURL(img.src);
       } else {
         clearViewer();
       }

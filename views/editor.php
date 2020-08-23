@@ -1,9 +1,12 @@
 <div class="editor">
-    <div id="imgViewer" class="droppable">
-        <img class="base" src="./assets/bg.jpg"/>
+    <div autoplay="true" id="imgViewer" class="droppable">
+        <video autoplay="true" id="video">
+            <img class="base" src="./assets/bg.jpg"/>
+        </video>
+        <canvas></canvas>
     </div>
     <div class="controls">
-        <form action="api/image.php" method="post" enctype="multipart/form-data" class="controls_form">
+        <form action="api/image.php" method="post" enctype="multipart/form-data" class="controls_form" onsubmit="return sendImages()">
             <input type="hidden" name="MAX_FILE_SIZE" value="1000000" />
             <input type="file" name="file" id="file" class="input-file">
             <label for="file" class="controls_button button_file file_label">
@@ -13,9 +16,9 @@
                 <span class="file_name">Upload file</span>
             </label>
             
-            <input type="button" class="controls_button" onclick="captureImage()" value="Capture"/>
+            <input type="button" class="controls_button" onclick="captureImage()" id="capture" value="Capture"/>
             <input type="button" class="controls_button" onclick="clearEdit()" value="Reset"/>
-            <input type="submit" class="controls_button" onclick="sendImages()" value="Send"/>
+            <input type="submit" class="controls_button" value="Send"/>
         </form>
         <?php include 'snippets.php'; ?>
     </div>

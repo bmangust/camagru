@@ -75,6 +75,10 @@
         width: 10px;
         height: 10px;
       }
+
+      video {
+        background: url("./assets/bg.jpg") center/contain border-box no-repeat;
+      }
     </style>
     <title>Camagru</title>
   </head>
@@ -192,40 +196,95 @@
         </div>
       </div>
       <button id="more" class="button" onclick="moreImages()">More</button>
+      <div class="webcam">
+        <video autoplay="true" id="video"></video>
+        <canvas></canvas>
+        <button class="button" onclick="takePicture()">Take photo</button>
+        <button class="button" onclick="clearPhoto()">Clear photo</button>
+      </div>
     </main>
     <script>
+      const video = document.querySelector("#video");
+      const cameraWidth = 480;
+      const cameraHeight = 320;
+      const canvas = $("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.setAttribute("width", cameraWidth);
+      canvas.setAttribute("height", cameraHeight);
+
+      const initWebcam = () => {
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then(function (stream) {
+              video.srcObject = stream;
+            })
+            .catch(function (err0r) {
+              console.log("Something went wrong!");
+            });
+        }
+      };
+
+      initWebcam();
+      const takePicture = () => {
+        ctx.drawImage(video, 0, 0, cameraWidth, cameraHeight);
+        const data = canvas.toDataURL("image/png");
+        const img = document.createElement("img");
+        img.src = data;
+        $(".webcam").appendChild(img);
+        // console.log(data);
+        // photo.setAttribute('src', data);
+        // stop();
+      };
+
+      const clearPhoto = () => {
+        ctx.fillStyle = "#1a1a1a";
+        ctx.fillRect(0, 0, cameraWidth, cameraHeight);
+      };
+
+      function stop(e) {
+        var stream = video.srcObject;
+        var tracks = stream.getTracks();
+
+        for (var i = 0; i < tracks.length; i++) {
+          var track = tracks[i];
+          track.stop();
+        }
+        video.srcObject = null;
+      }
+
       const images = document.querySelectorAll(".imgWrapper a");
 
       const createLightbox = (data) => {
         const classes = data.liked ? "like_lightbox liked" : "like";
         const template = `<div class="lightbox" id="lightbox">
-          <div class="lightbox_close" id="lightbox_close">
-            <svg viewBox="0 0 512 512">
-              <path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717    L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859    c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287    l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285    L284.286,256.002z" fill="rgb(255,255,255)"/>
-              </svg>
-          </div>
-          <div class="lightbox_wrapper" id="lightbox_wrapper">
-            <div class="lightbox_main">
-              <img id="img_src" src="${data.imgSrc}"/>
-            </div>
-            <div class="lightbox_aside">
-              <div class="info">
-                <div class="info_author">
-                  <span id="author_name">${data.authorName}</span>
+              <div class="lightbox_close" id="lightbox_close">
+                <svg viewBox="0 0 512 512">
+                  <path d="M284.286,256.002L506.143,34.144c7.811-7.811,7.811-20.475,0-28.285c-7.811-7.81-20.475-7.811-28.285,0L256,227.717    L34.143,5.859c-7.811-7.811-20.475-7.811-28.285,0c-7.81,7.811-7.811,20.475,0,28.285l221.857,221.857L5.858,477.859    c-7.811,7.811-7.811,20.475,0,28.285c3.905,3.905,9.024,5.857,14.143,5.857c5.119,0,10.237-1.952,14.143-5.857L256,284.287    l221.857,221.857c3.905,3.905,9.024,5.857,14.143,5.857s10.237-1.952,14.143-5.857c7.811-7.811,7.811-20.475,0-28.285    L284.286,256.002z" fill="rgb(255,255,255)"/>
+                  </svg>
+              </div>
+              <div class="lightbox_wrapper" id="lightbox_wrapper">
+                <div class="lightbox_main">
+                  <img id="img_src" src="${data.imgSrc}"/>
                 </div>
-                <div class="info_likes">
-                  <div class="${classes}"></div>
-                  <span>${data.numberOfLikes}</span>
+                <div class="lightbox_aside">
+                  <div class="info">
+                    <div class="info_author">
+                      <span id="author_name">${data.authorName}</span>
+                    </div>
+                    <div class="info_likes">
+                      <div class="${classes}"></div>
+                      <span>${data.numberOfLikes}</span>
+                    </div>
+                  </div>
+                  <div class="comments" id="comments"></div>
+                  <div class="comments_controls">
+                    <textarea name="comment" class="comment_input" id="comment_message" placeholder="Your comment"/></textarea>
+                    <button class="button comment_submit" onclick="addComment()">Send</button>
+                  </div>
                 </div>
               </div>
-              <div class="comments" id="comments"></div>
-              <div class="comments_controls">
-                <textarea name="comment" class="comment_input" id="comment_message" placeholder="Your comment"/></textarea>
-                <button class="button comment_submit" onclick="addComment()">Send</button>
-              </div>
-            </div>
-          </div>
-        </div>`;
+            </div>`;
         const lightbox = htmlToElement(template);
         const wrapper = lightbox.querySelector("lightbox");
 
@@ -249,13 +308,13 @@
         const author = "mxphoto"; // getCookie('user');
         const comments = $("#comments");
         const template = `<div class="comment">
-  <div class="author">
-    <a id="author_profile" href="#">${author}</a>
-  </div>
-  <div class="comment_body">
-    <p>${message}</p>
-  </div>
-  </div>`;
+      <div class="author">
+        <a id="author_profile" href="#">${author}</a>
+      </div>
+      <div class="comment_body">
+        <p>${message}</p>
+      </div>
+      </div>`;
         const comment = htmlToElement(template);
         comments.append(comment);
         message = "";
@@ -264,7 +323,6 @@
         // console.log(message);
       };
 
-      console.dir(images);
       images.forEach((el) =>
         el.addEventListener("click", (e) => {
           e.preventDefault();

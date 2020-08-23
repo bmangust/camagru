@@ -294,11 +294,12 @@ form input::placeholder {
 .controls form {
   flex-direction: row;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .controls_button {
   min-width: 100px;
-  width: 240px;
+  width: 230px;
   padding: 10px 30px;
   color: white;
   background-color: #1a1a1a;
@@ -308,6 +309,7 @@ form input::placeholder {
   text-transform: uppercase;
   outline: none;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .controls_button:hover,
@@ -386,7 +388,7 @@ form input::placeholder {
   margin-right: 5px;
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 750px) {
   .createView {
     display: flex;
     flex-direction: column;
@@ -864,13 +866,15 @@ aside {
   }
 }
 
-.webcam {
-  width: 100%;
+canvas {
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  width: 480px;
+  height: 320px;
 }
 
-canvas,
 video {
-  width: 480px;
-  height: 360px;
-  border: 1px solid red;
+  width: 100%;
+  /* background: url("../assets/bg.jpg") center/contain border-box no-repeat; */
 }

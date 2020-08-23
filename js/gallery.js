@@ -140,11 +140,11 @@ const showPublicIcon = (el) => {
 
 const updatePrivacy = async (el) => {
   const url = "api/image.php/private";
-  const img = el.closest("a");
   const private = el.closest(".private");
-  const urlParams = new URLSearchParams(img.href.split("?")[1]);
-  const id = urlParams.get("id");
-  const name = urlParams.get("img");
+  const imgWrapper = el.closest(".imgWrapper");
+  const img = imgWrapper.querySelector("img");
+  const id = imgWrapper.id.split("_")[1];
+  const name = img.src.split("/").pop();
   const params = {
     method: "PUT",
     headers: {
@@ -162,7 +162,6 @@ const updatePrivacy = async (el) => {
     response = await fetch(url, params);
   }
   const txt = await response.text();
-  log(txt);
   let result;
   try {
     result = JSON.parse(txt);
@@ -179,11 +178,10 @@ const updatePrivacy = async (el) => {
 
 const removeImage = async (el) => {
   const url = "api/image.php/remove";
-  const img = el.closest("a");
   const imgWrapper = el.closest(".imgWrapper");
-  const urlParams = new URLSearchParams(img.href.split("?")[1]);
-  const id = urlParams.get("id");
-  const name = urlParams.get("img");
+  const img = imgWrapper.querySelector("img");
+  const id = imgWrapper.id.split("_")[1];
+  const name = img.src.split("/").pop();
   const params = {
     method: "DELETE",
     headers: {
@@ -402,13 +400,25 @@ const lastPage = async () => {
 };
 
 const sendImages = () => {
-  // const input = $(".input-file");
+  const input = $(".input-file");
   const form = $`.controls_form`;
   const snippets = $$`#imgViewer .snippet`;
   const img = $`#imgViewer .base`;
-  // if (input.files.length === 0 && input.lastFile) {
-  //   input.files.push(input.lastFile);
-  // }
+  if (video.parentNode === viewer) {
+    showMessage({ text: "Take or upload picture first" });
+    return false;
+  }
+  if (input.files.length === 0 && !img.src.includes("/assets/bg.jpg")) {
+    const captureData = {
+      src: img.src,
+      name: "capture.png",
+    };
+    const capture = document.createElement("input");
+    capture.type = "hidden";
+    capture.name = "capture";
+    capture.value = JSON.stringify(captureData);
+    form.appendChild(capture);
+  }
   snippets.forEach((el) => {
     const snippetData = {
       path: el.src.substring(el.src.indexOf("assets")),
@@ -427,6 +437,7 @@ const sendImages = () => {
     snippet.value = JSON.stringify(snippetData);
     form.appendChild(snippet);
   });
+  return true;
 };
 
 const createLightbox = (data) => {
@@ -460,11 +471,6 @@ const createLightbox = (data) => {
     </div>
   </div>`;
   const lightbox = htmlToElement(template);
-
-  // TODO: add author profile page
-  // author.addEventListener("click", (e) => {
-  //    window.location.href = 'index.php?author=' + getCookie('author');
-  // });
 
   lightbox.querySelector(".lightbox_like").addEventListener("click", (e) => {
     e.preventDefault();
