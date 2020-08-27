@@ -233,6 +233,8 @@ getGallerySize().then((val) => (gallerySize = val));
 let currentPage = 1;
 
 const loadImages = async () => {
+  const gallery = $(".gallery");
+  if (gallery.parentNode.classList.contains("noDisplay")) return;
   const urlParams = new URLSearchParams(window.location.search);
   const user = urlParams.get("user");
   const route = urlParams.get("route");
@@ -253,11 +255,10 @@ const loadImages = async () => {
       $`#more`.setAttribute("disabled", true);
     }
   }
-  const gallery = $(".gallery");
   placeImages(imgs.data, gallery);
 };
 
-const showGallery = async () => {
+const loadGallery = async (target) => {
   const url = new URL("api/image.php/my", baseURL);
   const params = { offset: 0 };
   url.search = new URLSearchParams(params);
@@ -272,10 +273,14 @@ const showGallery = async () => {
   }
   const gallery = document.createElement("div");
   gallery.classList.add("gallery");
-  let target = $`main`;
   target.innerHTML = "";
   placeImagesWithControls(imgs.data, gallery);
   target.appendChild(gallery);
+};
+
+const showGallery = async () => {
+  let target = $`main`;
+  loadGallery(target);
 };
 
 const moreImages = async () => {

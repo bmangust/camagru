@@ -156,6 +156,10 @@ footer {
   animation: message 3s ease-in-out 2s infinite normal forwards;
 }
 
+.noDisplay {
+  display: none;
+}
+
 @keyframes message {
   0% {
     left: -40px;
@@ -201,16 +205,24 @@ form {
   align-items: center;
 }
 
-input {
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="submit"],
+input[type="button"] {
   display: inline-block;
   outline: none;
   text-decoration: none;
-  color: #000;
   padding: 10px 20px;
   width: 60%;
   margin: 10px auto;
   text-align: center;
   border-radius: 5px;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  color: #000;
   border: 1px solid #a1a1a1;
 }
 
@@ -298,23 +310,17 @@ form input::placeholder {
 }
 
 .controls_button {
-  min-width: 100px;
-  width: 230px;
-  padding: 10px 30px;
-  color: white;
-  background-color: #1a1a1a;
+  width: 230px !important;
   border: 1px solid #4527a0;
-  border-radius: 5px;
-  margin: 5px;
-  text-transform: uppercase;
-  outline: none;
-  cursor: pointer;
+  margin: 5px !important;
   box-sizing: border-box;
 }
 
 .controls_button:hover,
-.controls_button:active {
+.controls_button:active,
+.controls_button:focus {
   background-color: #444;
+  color: #fff;
 }
 
 .snippets {
@@ -340,7 +346,7 @@ form input::placeholder {
   overflow: hidden;
 }
 
-.preview .info {
+.sidebar .info {
   display: none;
 }
 
@@ -367,7 +373,7 @@ form input::placeholder {
 
 .input-file + .file_label {
   margin: 5px;
-  width: 230px;
+  width: 60%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -376,10 +382,6 @@ form input::placeholder {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-}
-
-.file_name {
-  font-size: 0.8rem;
 }
 
 .icon {
@@ -405,7 +407,7 @@ form input::placeholder {
     min-width: 250px;
   }
 
-  .preview {
+  .sidebar {
     width: 100%;
     text-align: center;
   }
@@ -432,16 +434,63 @@ form input::placeholder {
   align-items: center;
 }
 
+.sidebar__gallery {
+  position: fixed;
+  width: 400px;
+  right: -500px;
+  background-color: #1a1a1a;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.sidebar {
+  width: 35%;
+}
+
+.sidebar__switcher {
+  min-width: 0;
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  width: 20px;
+  padding: 10px;
+  border: 1px solid #4527a0;
+  cursor: pointer;
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  position: fixed;
+  right: 0;
+  top: 40%;
+}
+
+.sidebar__switcher:hover,
+.sidebar__switcher:active,
+.sidebar__switcher:focus,
+.sidebar__closer:hover,
+.sidebar__closer:active,
+.sidebar__closer:focus {
+  background-color: #444;
+}
+
+.sidebar__closer {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar__closer svg {
+  width: 20px;
+}
+
 .author-name {
   text-decoration: none;
 }
 
 .author-name:hover {
   color: #7e57c2;
-}
-
-aside {
-  width: 35%;
 }
 
 .gallery_button {

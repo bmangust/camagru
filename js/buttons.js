@@ -210,6 +210,18 @@ const addUploadListener = () => {
   }
 };
 
+const toggleGallery = () => {
+  const gallery = $(".gallery");
+  if (gallery.parentNode.classList.contains("noDisplay")) {
+    gallery.parentNode.classList.remove("noDisplay");
+    setTimeout(() => (gallery.parentNode.style.right = "0px"), 100);
+    if (gallery.children.length === 0) loadImages();
+  } else {
+    gallery.parentNode.style.right = "-500px";
+    setTimeout(() => gallery.parentNode.classList.add("noDisplay"), 100);
+  }
+};
+
 // add email and submit form
 const sendRestoreEmail = () => {
   const formRestore = $("#restorePassword");

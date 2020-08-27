@@ -50,5 +50,5 @@ EOL;
 }
 ?>
 <?=@$gallery_header?>
-<div class="gallery" id="gallery"><?=@$imgs?></div>
+<div class="gallery" id="gallery"></div>
 <?=$buttons?>

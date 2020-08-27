@@ -1,8 +1,6 @@
 let cameraWidth = 480;
 let cameraHeight = 320;
 let video;
-// let video = document.createElement("video");
-// let img = document.createElement("img");
 let canvas;
 let ctx;
 let isCameraWorking = false;
@@ -51,7 +49,7 @@ const runWebcam = () => {
       );
     })
     .catch((err) => {
-      showMessage({ text: "camera is not avalible" });
+      showMessage({ text: "camera is not avalible", error: false });
       replaceVideoWithImage();
     });
 };
