@@ -2,6 +2,7 @@
 require_once 'keys.php';
 require_once 'database.php';
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'Logger.class.php'));
 $db;
 
 function DBOconnect() {
@@ -13,7 +14,7 @@ function DBOconnect() {
         $db->query('CREATE DATABASE IF NOT EXISTS akraig_camagru');
         $db->exec('USE akraig_camagru');
     } catch (PDOException $ex) {
-        LOG_M('Connection failed: ', $ex->getMessage());
+        Logger::Elog(__FUNCTION__, __LINE__, $ex->getMessage());
         die();
     }
     return $db;
@@ -32,7 +33,7 @@ function DBOcreateTableUsers() {
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table users failed: ', $ex->getMessage());
+        Logger::Elog(__FUNCTION__, __LINE__, $ex->getMessage());
         die();
     }
 };
@@ -47,7 +48,7 @@ function DBOcreateTableSnippets() {
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table snippets failed: ', $ex->getMessage());
+        Logger::Elog(__FUNCTION__, __LINE__, $ex->getMessage());
         die();
     }
 };
@@ -65,7 +66,7 @@ function DBOcreateTableUploads() {
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table uploads failed: ', $ex->getMessage());
+        Logger::Elog(__FUNCTION__, __LINE__, $ex->getMessage());
         die();
     }
 };
@@ -84,7 +85,7 @@ function DBOcreateTableLikes() {
         $db->query($createSQL);
         $db->query($uniqueSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table uploads failed: ', $ex->getMessage());
+        Logger::Elog(__FUNCTION__, __LINE__, $ex->getMessage());
         die();
     }
 };
@@ -102,7 +103,7 @@ function DBOcreateTableComments() {
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
-        LOG_M('Create table comments failed: ', $ex->getMessage());
+        Logger::Elog(__FUNCTION__, __LINE__, $ex->getMessage());
         die();
     }
 };
@@ -125,7 +126,7 @@ function DBOinsertSnippets() {
         try {
             $stmt->execute($value);
         } catch(Exception $ex){
-            // LOG_M($ex->getMessage());
+            Logger::Elog (__FUNCTION__, __LINE__, $ex->getMessage());
             return false;
         }
     }
@@ -139,6 +140,7 @@ function DBOselectSnippet($s) {
     } else if (isset($s['name'])) {
         $stmt = $db->prepare('SELECT * FROM `snippets` WHERE `name`=?');
         $stmt->execute([$s['name']]);
+        Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     }
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     return $res;
@@ -155,6 +157,7 @@ function DBOselectUsers() {
     $db = DBOconnect();
     $stmt = $db->prepare('SELECT `name` FROM `users`');
     $stmt->execute();
+    Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 };
 
@@ -162,7 +165,9 @@ function DBOselectUser($user) {
     $db = DBOconnect();
     $stmt = $db->prepare('SELECT * FROM `users` WHERE `name`=? OR `email`=?');
     $stmt->execute([$user, $user]);
+    Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    Logger::Tlog (__FUNCTION__, __LINE__, $res);
     return $res;
 };
 
@@ -171,6 +176,7 @@ function DBOselectImgAuthor($imgid)
     $db = DBOconnect();
     $stmt = $db->prepare('SELECT us.`name`, `email` FROM `uploads` up JOIN `users` us ON up.userid=us.id WHERE up.id=?');
     $stmt->execute([$imgid]);
+    Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
     return $res;
 }
@@ -180,6 +186,8 @@ function DBOgetImageInfo($imgid)
     $db = DBOconnect();
     $stmt = $db->prepare('SELECT message, us.name author, up.name imgSrc, up.imgId id, up.imgAuthor imgAuthor FROM `comments` c LEFT JOIN `users` us ON c.userid = us.id LEFT JOIN (SELECT upl.id imgId, users.name imgAuthor, upl.name name FROM `uploads` upl JOIN `users` ON users.id = upl.userid WHERE upl.id=?) up ON c.imgid=up.imgId WHERE up.imgId=?');
     $stmt->execute([$imgid, $imgid]);
+    Logger::Tlog ("DBOgetImageInfo");
+    Logger::Tlog ($stmt);
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
 }
@@ -206,7 +214,7 @@ function DBOupdateEmail($email, $newEmail) {
         $stmt = $db->prepare("UPDATE `users` SET `email`=? WHERE `email`=?");
         return $stmt->execute([$newEmail, $email]);
     } catch(Exception $ex){
-        LOG_M($ex->getMessage());
+        Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
         return false;
     }
 };
@@ -221,7 +229,7 @@ function DBOupdateUsername($email, $newUsername) {
         $stmt = $db->prepare("UPDATE `users` SET `name`=? WHERE `email`=?");
         return $stmt->execute([$newUsername, $email]);
     } catch(Exception $ex){
-        LOG_M($ex->getMessage());
+        Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
         return false;
     }
 };
@@ -242,12 +250,6 @@ function DBOgetUserEmail($user) {
     }
     return false;
 };
-
-function DBOdeleteUserPictures($username)
-{
-    // prepare and delete all the user pictures
-    return true;
-}
 
 function DBOdeleteAccount($username)
 {
@@ -273,7 +275,7 @@ function DBOinsertUpload($name, $user)
         try {
             return $stmt->execute([$name, $user['id']]);
         } catch (Exception $e) {
-            LOG_M('SQL Error: '.$e->getMessage());
+            Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
             return false;
         }
     }
@@ -305,6 +307,7 @@ function DBOselectUploads($params=null)
     $filter = $params['filter'] ?? null;
     $orderby = $params['orderby'] ?? 'id';
     $order = $params['order'] ?? 'DESC';
+    Logger::Tlog (__FUNCTION__, __LINE__, $params);
     if ($filter) {
         $table = $filter['table'] ?? 'up';
         $col = $filter['col'] ?? 'name';
@@ -316,8 +319,8 @@ function DBOselectUploads($params=null)
     } else {
         $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     }
-    // LOG_M($stmt->queryString);
     $stmt->execute();
+    Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
 }
@@ -330,6 +333,7 @@ function DBOselectAllUploads($user, $params=null)
     $filter = $params['filter'] ?? null;
     $orderby = $params['orderby'] ?? 'id';
     $order = $params['order'] ?? 'DESC';
+    Logger::Tlog (__FUNCTION__, __LINE__, $params);
     if ($filter) {
         $table = $filter['table'] ?? 'us';
         $col = $filter['col'] ?? 'name';
@@ -355,6 +359,7 @@ function DBOselectAllUploads($user, $params=null)
         EOL);
         $stmt->execute();
     }
+    Logger::Tlog (__FUNCTION__, __LINE__, __LINE__, $stmt);
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
 }
@@ -364,6 +369,7 @@ function DBOgetGallerySize($user)
     $db = DBOconnect();
     $stmt = $db->prepare("SELECT COUNT(id) FROM `uploads` WHERE `userid` in (SELECT `id` from `users` WHERE `name`='?') OR  `isPrivate`='false'");
     $stmt->execute([$user]);
+    Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     $res = $stmt->fetch(PDO::FETCH_COLUMN, 0);
     return $res;
 }
@@ -378,7 +384,7 @@ function DBOinsertLike($user, $imgid)
             $res = $stmt->execute([$user['id'], $imgid]);
             return $res;
         } catch (Exception $e) {
-            // LOG_M('SQL Error: '.$e->getMessage());
+            Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
             return false;
         }
     }
@@ -392,9 +398,11 @@ function DBOremoveLike($user, $imgid)
     if (isset($user['id'])) {
         $stmt = $db->prepare('DELETE FROM `likes` WHERE `userid`=? AND `imgid` =?');
         try {
-            return $stmt->execute([$user['id'], $imgid]);
+            $res =  $stmt->execute([$user['id'], $imgid]);
+            Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
+            return $res;
         } catch (Exception $e) {
-            // LOG_M('SQL Error: '.$e->getMessage());
+            Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
             return false;
         }
     }
@@ -407,30 +415,14 @@ function DBOupdatePrivacy($imgid, $isPrivate)
     $stmt = $db->prepare("UPDATE `uploads` SET `isPrivate`='{$isPrivate}' WHERE `id`={$imgid}");
     try {
         $res = $stmt->execute([$isPrivate, $imgid]);
+        Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
         return $res;
     } catch (Exception $e) {
-        // LOG_M('SQL Error: '.$e->getMessage());
+        Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
         return false;
     }
     return false;
 }
-
-/**
- * DEPRECATED
- */
-// function DBOselectLikes(array $imgs, $user)
-// {
-//     $db = DBOconnect();
-//     $images = [];
-//     foreach ($imgs as $item => $row) {
-//         $images[] = $row['id'];
-//     }
-//     $images = implode(',', $images);
-//     $stmt = $db->prepare("SELECT imgid FROM likes WHERE userid in (SELECT id from users WHERE name='{$user}') AND imgid IN ({$images})");
-//     $stmt->execute();
-//     $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-//     return $res;
-// }
 
 function DBOselectLikes($img, $user)
 {
@@ -449,9 +441,10 @@ function DBOaddComment($message, $author, $imgid)
         $stmt = $db->prepare('INSERT INTO `comments` (`message`, `userid`, `imgid`) VALUES (?, ?, ?)');
         try {
             $res = $stmt->execute([$message, $user['id'], $imgid]);
+            Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
             return $res;
         } catch (Exception $e) {
-            // LOG_M('SQL Error: '.$e->getMessage());
+            Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
             return false;
         }
     }
@@ -474,6 +467,7 @@ function DBOgetNumberOfLikes($imgid)
     $db = DBOconnect();
     $stmt = $db->prepare("SELECT COUNT(id) FROM likes WHERE imgid=?");
     $stmt->execute([$imgid]);
+    Logger::Tlog (__FUNCTION__, __LINE__, $stmt);
     $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     if (!$res) return 0;
     return $res[0];
@@ -493,6 +487,7 @@ function DBOcountRows($table)
         $res = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
         return $res[0];
     } catch (Exception $e) {
+        Logger::Elog (__FUNCTION__, __LINE__, $e->getMessage());
         return false;
     }
 }

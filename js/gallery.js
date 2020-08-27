@@ -228,8 +228,7 @@ const fetchResult = async (url) => {
 
 let offset = 0;
 let limit = 6;
-let gallerySize;
-getGallerySize().then((val) => (gallerySize = val));
+let gallerySize = 0;
 let currentPage = 1;
 
 const loadImages = async () => {
@@ -438,6 +437,7 @@ const sendImages = () => {
       height: el.offsetHeight,
       drawerWidth: img.offsetWidth,
       drawerHeight: img.offsetHeight,
+      opacity: el.style.opacity,
     };
     const snippet = document.createElement("input");
     snippet.type = "hidden";

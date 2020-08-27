@@ -51,6 +51,7 @@ const addSnippetClickListener = () => {
       event.target.setAttribute("draggable", true);
       viewer.appendChild(event.target);
     }
+    activeSnippet = this;
   }
   // double click to remove snippet from image
   function onMouseDoubleClick(event) {
@@ -64,13 +65,14 @@ const addSnippetClickListener = () => {
     this.dy = null;
     elem.setAttribute("draggable", false);
     snippetPlaceholder.appendChild(elem);
+    activeSnippet = null;
   }
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && dragged) {
       document.removeEventListener("mousemove", onMouseMoveEvent);
-      dragged.style.opacity = "";
       dragged.onmouseup = null;
       dragged = null;
+      activeSnippet = null;
     }
   });
 
@@ -86,15 +88,16 @@ const addSnippetClickListener = () => {
 
       function set_drag_drop(obj) {
         obj.onmousedown = function (e) {
+          if (this.draggable == false) return;
           const parent = viewer.getBoundingClientRect();
           obj.adx = parent.left;
           obj.ady = parent.top;
-          if (this.draggable == false) return;
 
           var rect = obj.getBoundingClientRect();
           obj.dx = e.clientX - rect.left;
           obj.dy = e.clientY - rect.top;
           dragged = this;
+          activeSnippet = this;
 
           document.onmousemove = onMouseMoveEvent;
         };
@@ -220,6 +223,48 @@ const toggleGallery = () => {
     gallery.parentNode.style.right = "-500px";
     setTimeout(() => gallery.parentNode.classList.add("noDisplay"), 100);
   }
+};
+
+const initControls = () => {
+  // const rotSlider = $("#rotation");
+  // const rotValue = $("#rotationValue");
+  // const scaleSlider = $("#scale");
+  // const scaleValue = $("#scaleValue");
+  const opacitySlider = $("#opacity");
+  const opacityValue = $("#opacityValue");
+
+  // let transform = { rotateZ: 0, scale: 1 };
+
+  // function setTransform({
+  //   rotateZ = transform.rotateZ,
+  //   scale = transform.scale,
+  // }) {
+  //   transform = { rotateZ: rotateZ, scale: scale };
+  //   trString = `rotateZ(${transform.rotateZ}deg) scale(${transform.scale})`;
+  //   activeSnippet.style.transform = trString;
+  //   activeSnippet.style.webkitTransform = trString;
+  // }
+
+  // rotSlider.addEventListener("input", (e) => {
+  //   const value = e.target.value;
+  //   rotValue.innerHTML = value;
+
+  //   setTransform({ rotateZ: value });
+  // });
+
+  // scaleSlider.addEventListener("input", (e) => {
+  //   const value = e.target.value / 100;
+  //   scaleValue.innerHTML = value;
+
+  //   setTransform({ scale: value });
+  // });
+
+  opacitySlider.addEventListener("input", (e) => {
+    const value = e.target.value / 100;
+    opacityValue.innerHTML = value;
+
+    activeSnippet.style.opacity = value;
+  });
 };
 
 // add email and submit form

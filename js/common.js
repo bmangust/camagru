@@ -5,6 +5,7 @@ const baseURL = "http://localhost/camagru/";
 const log = (...messages) => {
   if (logEnable) messages.forEach((message) => console.log(message));
 };
+let activeSnippet = null;
 
 /**
  * sends a request to the specified url from a form. this will change the window location.

@@ -49,7 +49,7 @@ const runWebcam = () => {
       );
     })
     .catch((err) => {
-      showMessage({ text: "camera is not avalible", error: false });
+      // showMessage({ text: "camera is not avalible", error: false });
       replaceVideoWithImage();
     });
 };
