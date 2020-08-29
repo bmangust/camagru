@@ -13,5 +13,7 @@ window.onload = () => {
   } else if (window.location.href.includes("route=gallery")) {
     getGallerySize().then((val) => (gallerySize = val));
     loadImages();
+  } else if (window.location.href.includes("route=profile")) {
+    loadImages();
   }
 };

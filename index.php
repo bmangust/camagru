@@ -2,14 +2,13 @@
 session_start();
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'config', 'setup.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'api', 'globals.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'classes', 'Logger.class.php'));
 require_once 'log.php';
 $header = './views/header.php';
 $main = './views/menu.php';
 $footer = './views/footer.php';
 $error = null;
 
-LOG_M("session", $_SESSION);
-// LOG_M("post",$_POST);
 $_SERVER['header'] = "Welcome to CAMAGRU";
 if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && $_SESSION['is_auth'] !== FALSE) {
     $_SERVER['header'] = $_SERVER['header'] . ", " . $_SESSION['user'];
@@ -18,6 +17,7 @@ if (isset($_SESSION['user'])) {
     $user = DBOselectUser($_SESSION['user']);
     setcookie('user', $_SESSION['user']);
 }
+Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user]);
 
 if ($_GET) {
     if (isset($_SESSION['msg'])) {

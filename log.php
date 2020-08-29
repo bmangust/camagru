@@ -5,20 +5,21 @@ function LOG_ARRAY($array) {
     if (!$array) {
         return "NULL";
     };
-    $text = '';
+    $text = '[';
     foreach ($array as $k=>$v) {
         if (is_array($v)) {
             $text .= LOG_MESSAGE("\t".$k);
             $text .= LOG_ARRAY($v);
         } else if (is_bool($v) && $v)
-            $text .= "\t{$k}: TRUE\n";
+            $text .= "\t{$k}: TRUE, ";
         else if (is_bool($v) && !$v)
-            $text .= "\t{$k}: FALSE\n";
+            $text .= "\t{$k}: FALSE, ";
         else if ($v === '')
-            $text .= "\t{$k}: ''\n";
+            $text .= "\t{$k}: '',";
         else 
-            $text .= "\t{$k}: {$v}\n";
+            $text .= "\t{$k}: {$v},";
     } 
+    $text .= "]";
     return $text;
 }
 
@@ -29,15 +30,13 @@ function LOG_MESSAGE(...$args)
     if ($enable_debug) {
         foreach($args as $arg) {
             if (is_string($arg) || is_numeric($arg))
-                $text .= "<b>{$arg}</b><br>";
+                $text .= $arg;
             else if (is_bool($arg) && !$arg)
-                $text .= "<pre>\tFALSE\n</pre>";
+                $text .= "FALSE";
             else if (is_bool($arg) && $arg)
-                $text .= "<pre>\tTRUE\n</pre>";
+                $text .= "TRUE";
             else {
-                $text .= '<pre>';
                 $text .= LOG_ARRAY($arg);
-                $text .= '</pre>';
             }
         }
     }

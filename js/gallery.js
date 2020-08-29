@@ -231,6 +231,12 @@ let limit = 6;
 let gallerySize = 0;
 let currentPage = 1;
 
+/**
+ * Loads common gallery.
+ * If route=profile - loads only puctures of that user
+ * @param {HTMLElement} target - element where to place gallery
+ */
+
 const loadImages = async () => {
   const gallery = $(".gallery");
   if (gallery.parentNode.classList.contains("noDisplay")) return;
@@ -256,6 +262,11 @@ const loadImages = async () => {
   }
   placeImages(imgs.data, gallery);
 };
+
+/**
+ * Loads gallery in profile with controls to hide or delete pictures
+ * @param {HTMLElement} target - element where to place gallery
+ */
 
 const loadGallery = async (target) => {
   const url = new URL("api/image.php/my", baseURL);
