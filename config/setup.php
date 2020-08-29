@@ -29,7 +29,8 @@ function DBOcreateTableUsers() {
         `password` VARCHAR(128) NOT NULL,
         `verified` BOOLEAN DEFAULT FALSE,
         `restoreCode` VARCHAR(10),
-        `isAdmin` BOOLEAN DEFAULT FALSE)';
+        `isAdmin` BOOLEAN DEFAULT FALSE,
+        `notificationsEnable` BOOLEAN DEFAULT TRUE)';
     try {
         $db->query($createSQL);
     } catch (Exception $ex) {
@@ -165,10 +166,8 @@ function DBOselectUser($user) {
     $db = DBOconnect();
     $stmt = $db->prepare('SELECT * FROM `users` WHERE `name`=? OR `email`=?');
     $stmt->execute([$user, $user]);
-    // print_r($stmt);
     Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
-    // print_r($res);
     Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $res]);
     return $res;
 };
@@ -176,7 +175,7 @@ function DBOselectUser($user) {
 function DBOselectImgAuthor($imgid)
 {
     $db = DBOconnect();
-    $stmt = $db->prepare('SELECT us.`name`, `email` FROM `uploads` up JOIN `users` us ON up.userid=us.id WHERE up.id=?');
+    $stmt = $db->prepare('SELECT us.`name`, `email`, `notificationsEnable` FROM `uploads` up JOIN `users` us ON up.userid=us.id WHERE up.id=?');
     $stmt->execute([$imgid]);
     Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
     $res = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -188,8 +187,7 @@ function DBOgetImageInfo($imgid)
     $db = DBOconnect();
     $stmt = $db->prepare('SELECT message, us.name author, up.name imgSrc, up.imgId id, up.imgAuthor imgAuthor FROM `comments` c LEFT JOIN `users` us ON c.userid = us.id LEFT JOIN (SELECT upl.id imgId, users.name imgAuthor, upl.name name FROM `uploads` upl JOIN `users` ON users.id = upl.userid WHERE upl.id=?) up ON c.imgid=up.imgId WHERE up.imgId=?');
     $stmt->execute([$imgid, $imgid]);
-    Logger::Tlog ("DBOgetImageInfo");
-    Logger::Tlog ($stmt);
+    Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
     $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $res;
 }
@@ -418,6 +416,22 @@ function DBOupdatePrivacy($imgid, $isPrivate)
     try {
         $res = $stmt->execute([$isPrivate, $imgid]);
         Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
+        return $res;
+    } catch (Exception $e) {
+        Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
+        return false;
+    }
+    return false;
+}
+
+function DBOchangeNotifications($user, $value)
+{
+    $db = DBOconnect();
+    $stmt = $db->prepare("UPDATE `users` SET `notificationsEnable`=? WHERE name=?");
+    try {
+        $res = $stmt->execute([$value, $user]);
+        Logger::Ilog (['function' => __FUNCTION__, 'line' => __LINE__, 'descr' => 'statement', 'message' => $stmt]);
+        Logger::Ilog (['function' => __FUNCTION__, 'line' => __LINE__, 'descr' => 'result', 'message' => $res]);
         return $res;
     } catch (Exception $e) {
         Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);

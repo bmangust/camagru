@@ -15,5 +15,7 @@ window.onload = () => {
     loadImages();
   } else if (window.location.href.includes("route=profile")) {
     loadImages();
+  } else if (window.location.href.includes("route=settings")) {
+    selectNotifications();
   }
 };

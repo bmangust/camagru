@@ -13,7 +13,7 @@
             <li>
                 <a class="button navItem" href="./api/users.php?action=logout">logout</a>
             </li>
-        <?php if ($user['is_admin']) { ?>
+        <?php if ($user['isAdmin']) { ?>
             <li>
                 <a class="button navItem" href="./index.php?route=admin_panel">Administration</a>
             </li>

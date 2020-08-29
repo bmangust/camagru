@@ -1,15 +1,14 @@
 <?php
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'User.class.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'Logger.class.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'globals.php'));
 session_start();
-
-// log POST request to file
-function logToFile($var) {
-    file_put_contents( 'debug' . time() . '.log', var_export($var, true) );
-}
+$method = $_SERVER['REQUEST_METHOD'];
+$url = explode('/', $_SERVER['REQUEST_URI']);
+$path = explode('?', @$url[4])[0] ?? null;
 
 if ($_POST && (isset($_POST['submit']) || isset($_POST['action']))) {
-    LOG_M("post",$_POST);
+    Logger::Dlog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'POST', 'message' => $_POST]);
     $email = $_POST['email'] ? strtolower($_POST['email']) : "";
     if ($_POST['submit'] === 'Register') {
         User::registerUser($_POST['username'], $email, $_POST['password']);
@@ -29,7 +28,7 @@ if ($_POST && (isset($_POST['submit']) || isset($_POST['action']))) {
 }
 
 if ($_GET && isset($_GET['action'])) {
-    LOG_M("get", $_GET);
+    Logger::Dlog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'GET', 'message' => $_GET]);
     $user = null;
     if (isset($_GET['email'])) {
         $user = DBOselectUser($_GET['email']);
@@ -47,6 +46,12 @@ if ($_GET && isset($_GET['action'])) {
         header("Location: ../index.php?route=update_email");
     } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_USERNAME']) {
         header("Location: ../index.php?route=update_username");
+    } else if ($_GET['action'] === 'selectNotifications') {
+        $res = DBOselectUser($_SESSION['user']);
+        if (!$res) $data = ['success' => false, 'message' => 'Database error'];
+        $data = ['success' => true, 'value' => $res['notificationsEnable']];
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode($data);
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_RESTORE'] && $_GET['code'] === $user['restoreCode']) {
         header("Location: ../index.php?route=restore&email={$user['email']}");
     } else if ($user && $_GET['email'] === $user['email'] && $_GET['action'] === $GLOBALS['ACTION_ACTIVATE'] && $_GET['code'] === $user['restoreCode']) {
@@ -63,5 +68,14 @@ if ($_GET && isset($_GET['action'])) {
             $_SESSION['msg'][] = 'Please follow the link in your email';
         }
         header("Location: ../index.php?route=menu");
+    }
+} else if ($method == 'POST') {
+    $inputJSON = file_get_contents('php://input');
+    $input = json_decode($inputJSON, TRUE);
+    if ($input['action'] == 'Change notifications') {
+        header('Content-Type: application/json; charset=UTF-8');
+        $res = User::changeNotifications($_SESSION['user'], $input['value']);
+        Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'changeNotifications', 'message' => $res]);
+        echo json_encode($res);
     }
 }

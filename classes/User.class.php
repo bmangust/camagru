@@ -217,4 +217,12 @@ class User {
             header("Location: ../index.php?route=menu");
         }
     }
+
+    public static function changeNotifications($username, $value)
+    {
+        if (!DBOchangeNotifications($username, $value)) {
+            return ['success' => false, 'data' => 'Database error'];
+        }
+        return ['success' => true, 'data' => 'Notification sessings were updated'];
+    }
 }

@@ -4,6 +4,10 @@ if ($_SESSION['is_auth'] == FALSE) {
 }?>
 <ul>
         <li>
+            <input id="notificationsSwitcher" name="notificationsSwitcher" type="checkbox" onchange="updateNotifications(this)"/>
+            <label for="notificationsSwitcher">Enable email notificatons</label>
+        </li>
+        <li>
             <button class="button menuItem" onclick="changeUserAvatar()">Change my avatar</button>
         </li>
         <li>

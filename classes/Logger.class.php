@@ -1,6 +1,6 @@
 <?php
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
-$currentLevel = 'INFO';
+$currentLevel = 'TRACE';
 $logPath = join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'logs', '']);
 date_default_timezone_set('Europe/Moscow');
 

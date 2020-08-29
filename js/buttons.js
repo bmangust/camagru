@@ -21,6 +21,45 @@ const confirmDelete = () => {
   }
 };
 
+const updateNotifications = async (el) => {
+  const body = { action: "Change notifications", value: el.checked };
+  const params = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    body: JSON.stringify(body),
+  };
+  const response = await fetch("api/users.php", params);
+  const txt = await response.text();
+  let json;
+  try {
+    json = JSON.parse(txt);
+    json.success
+      ? showMessage({ text: json.data, error: false })
+      : showMessage({ text: json.data });
+  } catch (e) {
+    showMessage({
+      text: "Your settings were not updated due to database error. " + txt,
+    });
+  }
+};
+
+const selectNotifications = async () => {
+  const response = await fetch("api/users.php?action=selectNotifications");
+  const txt = await response.text();
+  let json;
+  try {
+    json = JSON.parse(txt);
+    if (!json.success) return;
+    $("#notificationsSwitcher").checked = json.value === "1" ? true : false;
+  } catch (e) {
+    showMessage({
+      text: "Your settings were not updated due to database error. " + txt,
+    });
+  }
+};
+
 const addSnippetClickListener = () => {
   const snippets = $$(".snippet");
   const viewer = $("#imgViewer");

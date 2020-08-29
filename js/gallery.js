@@ -180,6 +180,7 @@ const updatePrivacy = async (el) => {
 };
 
 const removeImage = async (el) => {
+  if (!confirm("Do you really want to delete this?")) return;
   const url = "api/image.php/remove";
   const imgWrapper = el.closest(".imgWrapper");
   const img = imgWrapper.querySelector("img");

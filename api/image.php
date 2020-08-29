@@ -190,7 +190,7 @@ function uploadFile() {
 function updateLike($data)
 {
     $inputJSON = file_get_contents('php://input');
-    $input = json_decode($inputJSON, TRUE);
+    $input = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($_SESSION['user'] === false || $_SESSION['is_auth'] === false) {
         $data['data'] = 'Please log in to like and add comments';
@@ -211,7 +211,7 @@ function updateLike($data)
 function updatePrivacy($data)
 {
     $inputJSON = file_get_contents('php://input');
-    $input = json_decode($inputJSON, TRUE);
+    $input = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($input['private'] === true) {
         if (DBOupdatePrivacy($input['id'], true)) {
@@ -230,7 +230,7 @@ function updatePrivacy($data)
 function removePicture($data)
 {
     $inputJSON = file_get_contents('php://input');
-    $input = json_decode($inputJSON, TRUE);
+    $input = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($input['remove'] === true) {
         if (DBOremovePicture($input['id'])) {
@@ -244,20 +244,23 @@ function removePicture($data)
 function addComment($data)
 {
     $inputJSON = file_get_contents('php://input');
-    $input = json_decode($inputJSON, TRUE);
+    $input = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($_SESSION['user'] === false || $_SESSION['is_auth'] === false) {
         $data['data'] = 'Please log in to like and add comments';
     } else if (DBOaddComment($input['message'], $input['author'], $input['imgid'])) {
         $user = DBOselectImgAuthor($input['imgid']);
-        if ($user) {
-            $data['success'] = true;
-            $data['data'] = $input['message'];
-            Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $data['data']]);
-            $message['title'] = 'New comment on your photo!';
-            $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it here: http://localhost/camagru/index.php?route=image&id={$input['imgid']}";
-            User::sendEmail($user['email'], $message);
-        }
+        if (!$user) return $data;
+
+        $data['success'] = true;
+        $data['data'] = $input['message'];
+        Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $data['data']]);
+
+        if (!$user['notificationsEnable']) return $data;
+        $message['title'] = 'New comment on your photo!';
+        $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it here: http://localhost/camagru/index.php?route=image&id={$input['imgid']}";
+        User::sendEmail($user['email'], $message);
+
     }
     return $data;
 }
