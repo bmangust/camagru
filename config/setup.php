@@ -221,19 +221,51 @@ function DBOupdateEmail($email, $newEmail) {
     }
 };
 
-function DBOupdateUsername($email, $newUsername) {
+function DBOupdateUsername($name, $newUsername) {
     $db = DBOconnect();
     $user = DBOselectUser($newUsername);
     if (isset($user['email'])) {
-        return false;
+        return 'Username already exists';
     }
     try {
-        $stmt = $db->prepare("UPDATE `users` SET `name`=? WHERE `email`=?");
-        return $stmt->execute([$newUsername, $email]);
+        $stmt = $db->prepare("UPDATE `users` SET `name`=? WHERE `name`=?");
+        return $stmt->execute([$newUsername, $name]) ?
+                'Username updated' :
+                'Database error';
+    } catch(Exception $e){
+        Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
+        return 'Database error';
+    }
+};
+
+function DBOupdateInfo($name, $newInfo) {
+    $db = DBOconnect();
+    try {
+        $stmt = $db->prepare("UPDATE `users` SET `info`=? WHERE `name`=?");
+        return $stmt->execute([$newInfo, $name]);
     } catch(Exception $e){
         Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         return false;
     }
+};
+
+function DBOupdateProfileInfo($name, $data) {
+    $res = ['success' => true, 'data' => ''];
+    $usernameUpdated = false;
+    // if newUsername === '' - this means user left his old username
+    // needed this, because DB does'n allow duplicate usernames
+    if ($data['newUsername'] !== '') {
+        $message = DBOupdateUsername($name, $data['newUsername']);
+        $res['success'] = $message === 'Username updated';
+        $res['message'] = $message;
+        $usernameUpdated = $res['success'];
+    }
+    if ($res['success'] && DBOupdateInfo($name, $data['newInfo'])) {
+        $res['message'] = $usernameUpdated ? 'Username and info updated' : 'Info updated';
+        $res['success'] = true;
+    }
+    Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $res]);
+    return $res;
 };
 
 function DBOupdateAvatar($username) {

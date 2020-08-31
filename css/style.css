@@ -17,6 +17,11 @@
 h1 {
   margin: 1rem 0;
   text-align: center;
+  cursor: default;
+}
+
+p {
+  cursor: default;
 }
 
 .uppercase {
@@ -988,6 +993,13 @@ video {
 .settings {
   display: flex;
   flex-direction: row;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.settings__info {
+  max-width: 270px;
+  cursor: default;
 }
 
 .settings__avatar {
@@ -1012,6 +1024,16 @@ video {
   border-radius: 5px;
   font-size: 0.8rem;
   background-color: #1a1a1a;
+  cursor: pointer;
+}
+
+.settings__upload-button > * {
+  cursor: inherit;
+}
+
+.settings__username,
+.settings__profile-info {
+  margin: 10px;
 }
 
 .settings__avatar .icon {
@@ -1029,4 +1051,28 @@ video {
 
 .settings__controls {
   width: 100%;
+}
+
+.settings__info-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.settings__edit-button {
+  min-width: 100px;
+  max-width: 150px;
+  margin: 10px;
+}
+
+.edit {
+  padding: 10px;
+  border: 1px solid #2a2a2a;
+  cursor: text;
+}
+
+@media screen and (max-width: 800px) {
+  .settings {
+    flex-direction: column;
+    /* min-width: 400px; */
+  }
 }

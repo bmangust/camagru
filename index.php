@@ -66,7 +66,7 @@ if ($_GET) {
                 $main = './views/settings.php';
                 break;
             case 'profile':
-                $_SERVER['header'] = $_GET['user']."'s profile";
+                $_SERVER['header'] = $_GET['user']."'s public gallery";
                 $main = './views/profile.php';
                 break;
             case 'gallery':

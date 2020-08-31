@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./css/style.css" />
     <script src="./js/common.js"></script>
-    <style>
+    <!-- <style>
       * {
         margin: 0;
         padding: 0;
@@ -16,7 +16,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        /* height: 100vh; */
       }
 
       form {
@@ -79,7 +79,7 @@
       video {
         background: url("./assets/bg.jpg") center/contain border-box no-repeat;
       }
-    </style>
+    </style> -->
     <title>Camagru</title>
   </head>
   <body>
@@ -194,6 +194,22 @@
             </div>
           </a>
         </div>
+      </div>
+      <div class="settings__info-controls">
+        <button
+          id="cancel"
+          class="button settings__edit-button"
+          onclick="cancelInfo()"
+        >
+          Cancel
+        </button>
+        <button
+          id="save"
+          class="button settings__edit-button"
+          onclick="saveInfo()"
+        >
+          Save
+        </button>
       </div>
       <button id="more" class="button" onclick="moreImages()">More</button>
       <div class="webcam">

@@ -1,7 +1,8 @@
 <?php
-$avatar = $user['avatar'] ? $user['avatar'].'.png' : 'default.png';
+$user_profile = DBOselectUser($_GET['user']);
+$avatar = $user_profile['avatar'] ? $user_profile['avatar'].'.png' : 'default.png';
 $avatar_path = join(DIRECTORY_SEPARATOR, ['assets', 'avatars', $avatar]);
-$user_info = $user['info'] ?? 'No info';
+$user_info = $user_profile['info'] ?? 'No info';
 ?>
 
 <div class="profile">
@@ -10,7 +11,6 @@ $user_info = $user['info'] ?? 'No info';
       <img id="avatar" src="<?=$avatar_path?>" alt="<?=$_SESSION['user']?> avatar"/>
     </div>
     <div class="profile__info"><p><?=$user_info?></p></div>
-    <!-- <button class="button" onclick="messageUser()">DM user</button> -->
   </div>
   <div class="profile__gallery">
     <div class="gallery" id="gallery"></div>

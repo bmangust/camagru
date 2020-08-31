@@ -72,10 +72,17 @@ if ($_GET && isset($_GET['action'])) {
 } else if ($method == 'POST') {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE);
+    Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'input', 'message' => $input]);
     if ($input['action'] == 'Change notifications') {
-        header('Content-Type: application/json; charset=UTF-8');
         $res = User::changeNotifications($_SESSION['user'], $input['value']);
-        Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'changeNotifications', 'message' => $res]);
-        echo json_encode($res);
+    } else if ($input['action'] == 'Update info') {
+        $res = User::updateInfo($_SESSION['user'], $input['data']);
+        if ($res['success'] && $input['data']['newUsername'] !== '') {
+            $_SESSION['user'] = $input['data']['newUsername'];
+        }
     }
+    Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'changeNotifications', 'message' => $res]);
+
+    header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode($res);
 }

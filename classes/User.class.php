@@ -225,4 +225,9 @@ class User {
         }
         return ['success' => true, 'data' => 'Notification sessings were updated'];
     }
+
+    public static function updateInfo($username, $data)
+    {
+        return DBOupdateProfileInfo($username, $data);
+    }
 }

@@ -278,7 +278,7 @@ const addChangeAvatarListener = () => {
       const txt = await response.text();
       try {
         result = JSON.parse(txt);
-        showMessage({ text: result.mesasge, error: !result.success });
+        showMessage({ text: result.message, error: !result.success });
       } catch (e) {
         log(txt);
       }
@@ -356,18 +356,96 @@ const sendRestoreEmail = () => {
   }
 };
 
-const changeUserInfo = () => {
-  /*
-  1.  User selects 'SETTINGS'. On the left side I must show his avatar, username and info (if any)
-      Below is the button 'EDIT'
-      Upload avatar button may be shown on hover over avatar.
-  2.  User clicks 'EDIT': let user enter some info, change style of name, info
-  3.  user presses 'Save' or 'Cancel'
-  4.  SAVE: save it to the database
-  5.  if ok - remove input field
+const editProfile = (e) => {
+  const username = $(".settings__username");
+  const info = $(".settings__profile-info");
+  const template = `<div class="settings__info-controls">
+    <button id="cancel" class="button settings__edit-button">Cancel</button>
+    <button id="save" class="button settings__edit-button">Save</button>
+  </div>`;
+  const editButton = e.target;
+  const controls = htmlToElement(template);
+  editButton.parentNode.insertBefore(controls, editButton);
+  editButton.classList.add("noDisplay");
+  const initialUserInfo = {
+    username: username.textContent,
+    info: info.textContent,
+  };
 
-  4.  CANCEL: remove form, do nothing with database
+  const cancelInfo = () => {
+    [username, info].forEach((el) => {
+      el.innerHTML =
+        el === username ? initialUserInfo.username : initialUserInfo.info;
+      el.classList.remove("edit");
+      el.removeAttribute("contenteditable");
+    });
 
-  4. read from database when user profile loads
-  */
+    controls.remove();
+    editButton.classList.remove("noDisplay");
+  };
+
+  const saveInfo = async () => {
+    [username, info].forEach((el) => {
+      el.classList.remove("edit");
+      el.removeAttribute("contenteditable");
+    });
+    controls.remove();
+    editButton.classList.remove("noDisplay");
+    const body = {
+      action: "Update info",
+      data: {
+        newUsername:
+          initialUserInfo.username === username.textContent
+            ? ""
+            : username.textContent,
+        newInfo:
+          info.textContent.trim().length === 0 ? "No info" : info.textContent,
+      },
+    };
+    if (username.textContent.search(/[^a-zA-Z0-9_]/) !== -1) {
+      showMessage({
+        text: "Wrong username, only letters, numbers and underscore allowed",
+      });
+      return;
+    }
+    const params = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+      },
+      body: JSON.stringify(body),
+    };
+    let response = await fetch("api/users.php", params);
+    const txt = await response.text();
+    try {
+      const result = JSON.parse(txt);
+      log(result);
+      showMessage({ text: result.message, error: !result.success });
+      if (!result.success) {
+        username.textContent = initialUserInfo.username;
+        info.textContent = initialUserInfo.info;
+      } else {
+        const h1 = $("h1");
+        h1.textContent = h1.textContent.replace(
+          initialUserInfo.username,
+          username.textContent
+        );
+      }
+    } catch (e) {
+      log(txt);
+      return;
+    }
+  };
+
+  [username, info].forEach((el) => {
+    el.setAttribute("contenteditable", true);
+    el.classList.add("edit");
+    el === username
+      ? (initialUserInfo.username = username.innerHTML)
+      : (initialUserInfo.info = info.innerHTML);
+  });
+  controls
+    .querySelector("#cancel")
+    .addEventListener("click", () => cancelInfo());
+  controls.querySelector("#save").addEventListener("click", () => saveInfo());
 };
