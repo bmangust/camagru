@@ -94,7 +94,7 @@ const captureImage = () => {
   } else if (!isCameraWorking) initWebcam();
   if (video && video.parentNode !== viewer) replaceImageWithVideo();
   const input = $(".input-file");
-  // if user tried to upload file firs and then capture
+  // if user tried to upload file first and then capture
   if (input.files.length > 0) input.value = "";
   ctx.drawImage(video, 0, 0, cameraWidth, cameraHeight);
   const data = canvas.toDataURL("image/png");

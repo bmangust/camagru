@@ -25,7 +25,9 @@ h1 {
 
 body {
   background-color: #1a1a1a;
-  /* min-width: 400px; */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 main {
@@ -105,6 +107,7 @@ footer {
 .navItem {
   min-width: 30px;
   max-width: 100px;
+  width: unset;
   padding: 10px;
   margin: 5px;
   font-size: 0.7rem;
@@ -157,7 +160,7 @@ footer {
 }
 
 .noDisplay {
-  display: none;
+  display: none !important;
 }
 
 @keyframes message {
@@ -348,6 +351,10 @@ form input::placeholder {
   overflow: hidden;
 }
 
+.sidebar {
+  width: 35%;
+}
+
 .sidebar .info {
   display: none;
 }
@@ -461,10 +468,6 @@ form input::placeholder {
   border-radius: 5px;
 }
 
-.sidebar {
-  width: 35%;
-}
-
 .sidebar__switcher {
   min-width: 0;
   writing-mode: vertical-lr;
@@ -505,14 +508,6 @@ form input::placeholder {
 
 .switcher__icon {
   display: none;
-}
-
-.author-name {
-  text-decoration: none;
-}
-
-.author-name:hover {
-  color: #7e57c2;
 }
 
 .gallery_button {
@@ -612,6 +607,16 @@ form input::placeholder {
   height: auto;
 }
 
+.author__name {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.author__name:hover {
+  color: #7e57c2;
+}
+
 .imgWrapper .info {
   position: absolute;
   bottom: -30px;
@@ -635,6 +640,14 @@ form input::placeholder {
 .author {
   font-size: inherit;
   margin-left: 5px;
+}
+
+.author img {
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 5px;
 }
 
 .like {
@@ -690,22 +703,6 @@ form input::placeholder {
   .switcher__icon {
     display: block;
   }
-  /* 
-  .sidebar__switcher {
-    min-width: 0;
-    width: 30px;
-    padding: 12px;
-    border: 1px solid #fff;
-    cursor: pointer;
-    border-radius: 50%;
-    position: fixed;
-    top: unset;
-    right: 5%;
-    bottom: 5%;
-    height: 30px;
-    margin: 2px;
-    background-color: #1a1a1a;
-  } */
 
   .sidebar__switcher {
     right: -100px;
@@ -778,7 +775,6 @@ form input::placeholder {
 
 .lightbox_aside {
   flex: 2 1 40%;
-  /* height: 100%; */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -849,12 +845,12 @@ form input::placeholder {
 }
 
 .lightbox_comment__author {
-  color: #7e57c2;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
 .lightbox_comment__author_profile {
+  color: #7e57c2;
   text-decoration: none;
   cursor: pointer;
 }
@@ -973,6 +969,64 @@ canvas {
   height: 320px;
 }
 
+.relative {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
 video {
+  width: 100%;
+}
+
+/* 
+=================
+    SETTINGS
+=================
+*/
+
+.settings {
+  display: flex;
+  flex-direction: row;
+}
+
+.settings__avatar {
+  position: relative;
+}
+
+.profile__avatar img,
+.settings__avatar img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.settings__upload-button {
+  opacity: 0;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  background-color: #1a1a1a;
+}
+
+.settings__avatar .icon {
+  width: 10px;
+  height: 10px;
+}
+
+.settings__upload-button:hover {
+  background-color: #2a2a2a;
+}
+
+.settings__avatar:hover > .settings__upload-button {
+  opacity: 1;
+}
+
+.settings__controls {
   width: 100%;
 }

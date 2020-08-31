@@ -224,32 +224,66 @@ const clearEdit = () => {
 
 const addUploadListener = () => {
   const input = $(".input-file");
-  if (input) {
-    input.addEventListener("change", (event) => {
-      const $label = $(".file_label");
-      const video = $("#video");
-      if (video) {
-        replaceVideoWithImage();
+  input.addEventListener("change", (event) => {
+    const $label = $(".file_label");
+    const video = $("#video");
+    if (video) {
+      replaceVideoWithImage();
+    }
+    const colorGreen = "#5aac7b";
+    const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
+    const iconPath = $(".icon path");
+    const img = $("#imgViewer .base");
+    var fileName = "";
+    if (event.target.value) {
+      fileName = event.target.value.split("\\").pop();
+    }
+    if (fileName) {
+      iconPath.setAttribute("d", tick);
+      iconPath.setAttribute("fill", colorGreen);
+      $label.querySelector(".file_name").innerHTML = fileName;
+      img.src = URL.createObjectURL(event.target.files[0]);
+      img.onload = () => URL.revokeObjectURL(img.src);
+    } else {
+      clearViewer();
+    }
+  });
+};
+
+const addChangeAvatarListener = () => {
+  const input = $("#file");
+  input.addEventListener("change", (e) => {
+    if (e.target.files.length < 1) return;
+    if (e.target.files[0].size > 1000000)
+      return showMessage({ text: "Your file is too large", error: false });
+    const file = URL.createObjectURL(e.target.files[0]);
+    const img = $("#avatar");
+    img.src = file;
+    const image = {
+      name: e.target.files[0].name,
+      type: e.target.files[0].type.split("/")[1],
+      src: null,
+    };
+    img.onload = async () => {
+      URL.revokeObjectURL(e.target.files[0]);
+      image.src = imageToBase64(img);
+      const params = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify(image),
+      };
+      const response = await fetch("api/image.php/avatar", params);
+      const txt = await response.text();
+      try {
+        result = JSON.parse(txt);
+        showMessage({ text: result.mesasge, error: !result.success });
+      } catch (e) {
+        log(txt);
       }
-      const colorGreen = "#5aac7b";
-      const tick = "M27 4l-15 15-7-7-5 5 12 12 20-20z";
-      const iconPath = $(".icon path");
-      const img = $("#imgViewer .base");
-      var fileName = "";
-      if (event.target.value) {
-        fileName = event.target.value.split("\\").pop();
-      }
-      if (fileName) {
-        iconPath.setAttribute("d", tick);
-        iconPath.setAttribute("fill", colorGreen);
-        $label.querySelector(".file_name").innerHTML = fileName;
-        img.src = URL.createObjectURL(event.target.files[0]);
-        img.onload = () => URL.revokeObjectURL(img.src);
-      } else {
-        clearViewer();
-      }
-    });
-  }
+    };
+  });
 };
 
 const toggleGallery = () => {
@@ -302,6 +336,7 @@ const initControls = () => {
     const value = e.target.value / 100;
     opacityValue.innerHTML = value;
 
+    if (!activeSnippet) return;
     activeSnippet.style.opacity = value;
   });
 };
@@ -319,4 +354,20 @@ const sendRestoreEmail = () => {
       formRestore.appendChild(email);
     });
   }
+};
+
+const changeUserInfo = () => {
+  /*
+  1.  User selects 'SETTINGS'. On the left side I must show his avatar, username and info (if any)
+      Below is the button 'EDIT'
+      Upload avatar button may be shown on hover over avatar.
+  2.  User clicks 'EDIT': let user enter some info, change style of name, info
+  3.  user presses 'Save' or 'Cancel'
+  4.  SAVE: save it to the database
+  5.  if ok - remove input field
+
+  4.  CANCEL: remove form, do nothing with database
+
+  4. read from database when user profile loads
+  */
 };

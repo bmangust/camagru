@@ -67,3 +67,29 @@ const showMessage = ({ text, error = true }) => {
     $("main").removeChild(message);
   }, 10000);
 };
+
+const imageToBase64 = (img) => {
+  const canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext("2d");
+  const size = {
+    width: img.naturalWidth,
+    height: img.naturalHeight,
+  };
+  size.size = Math.min(size.width, size.height);
+  size.sx = Math.abs(size.size - size.width) / 2;
+  size.sy = Math.abs(size.size - size.height) / 2;
+  ctx.drawImage(
+    img,
+    size.sx,
+    size.sy,
+    size.size,
+    size.size,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+  return canvas.toDataURL("image/png");
+};

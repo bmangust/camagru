@@ -1,10 +1,10 @@
 window.onload = () => {
   sendRestoreEmail();
-  addUploadListener();
   addSnippetClickListener();
   if (window.location.href.includes("route=create")) {
     initWebcam();
     initControls();
+    addUploadListener();
     getGallerySize().then((val) => (gallerySize = val));
     const gallerySwither = $$(".gallerySwither");
     gallerySwither.forEach((el) =>
@@ -17,5 +17,6 @@ window.onload = () => {
     loadImages();
   } else if (window.location.href.includes("route=settings")) {
     selectNotifications();
+    addChangeAvatarListener();
   }
 };

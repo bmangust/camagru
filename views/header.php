@@ -6,23 +6,18 @@
         <li>
             <a class="button navItem" href="./index.php?route=gallery">gallery</a>
         </li>
-        <?php if(isset($_SESSION['user']) && $_SESSION['is_auth'] === true) { ?>
+        <?php if(isset($_SESSION['user']) && $_SESSION['is_auth'] === true): ?>
             <li>
                 <a class="button navItem" href="./index.php?route=settings">settings</a>
             </li>
             <li>
                 <a class="button navItem" href="./api/users.php?action=logout">logout</a>
             </li>
-        <?php if ($user['isAdmin']) { ?>
-            <li>
-                <a class="button navItem" href="./index.php?route=admin_panel">Administration</a>
-            </li>
-           <?php }
-         } else { ?>
+        <?php else: ?>
             <li>
                 <a class="button navItem" href="./index.php?route=login">login</a>
             </li>
-        <?php } ?>
+        <?php endif ?>
     </ul>
 </nav>
 <h1>

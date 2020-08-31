@@ -11,7 +11,10 @@ const placeImages = (data, target) => {
   <img src="assets/uploads/${el.name}">
   <div class="info">
       <div class="author">
-        <a class="author-name" href="${baseURL}index.php?route=profile&user=${el.user}">${el.user}</a>
+        <a class="author__name" href="${baseURL}index.php?route=profile&user=${el.user}">
+          <img src="assets/avatars/${el.avatar}.png" class="author__avatar"/>
+          ${el.user}
+        </a>
       </div>
       <div class="${classes}"></div>
   </div>
@@ -41,7 +44,10 @@ const placeImagesWithControls = (data, target) => {
         <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">
-              <a class="author-name" href="${baseURL}index.php?route=profile&user=${el.user}">${el.user}</a>
+            <a class="author__name" href="${baseURL}index.php?route=profile&user=${el.user}">
+              <img src="assets/avatars/${el.avatar}.png" class="author__avatar"/>
+              ${el.user}
+            </a>
             </div>
             <div class="private"><svg><path/></svg></div>
             <div class="remove">
@@ -282,9 +288,27 @@ const loadGallery = async (target) => {
     log(txt);
     return;
   }
-  const gallery = document.createElement("div");
+  let gallery = document.createElement("div");
   gallery.classList.add("gallery");
-  target.innerHTML = "";
+  target.childNodes.forEach((el) => {
+    if (el.classList) el.classList.add("noDisplay");
+  });
+  if (window.location.href.includes("settings")) {
+    let backButton = document.createElement("button");
+    backButton.classList.add("button");
+    backButton.textContent = "Back to settings";
+    backButton.onclick = () => {
+      target.removeChild(gallery);
+      gallery = null;
+      target.childNodes.forEach((el) => {
+        if (el.classList) el.classList.remove("noDisplay");
+      });
+      target.removeChild(backButton);
+      backButton = null;
+    };
+    target.append(backButton);
+  }
+  // target.innerHTML = "";
   placeImagesWithControls(imgs.data, gallery);
   target.appendChild(gallery);
 };

@@ -131,7 +131,6 @@ function uploadFile() {
             }
         }
     } else if (isset($_POST['capture'])) {
-        Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => 'Got captured image']);
         Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $_POST['capture']]);
         $target_dir = "../assets/uploads/";
         $target_name = "{$username}_".time()."_capture.jpg";
@@ -265,6 +264,42 @@ function addComment($data)
     return $data;
 }
 
+function changeAvatar($data)
+{
+    $inputJSON = file_get_contents('php://input');
+    $avatar = json_decode($inputJSON, true);
+    Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $avatar]);
+    global $username;
+    $user = DBOselectUser($username);
+    $target_dir = join(DIRECTORY_SEPARATOR, ["..", "assets", "avatars", ""]);
+    $target_name = "{$user['id']}.png";
+    $target_file = $target_dir.$target_name;
+    
+    $bg = imagecreatefrompng($avatar['src']);
+    if (!$bg) {
+        $data['message'] = 'Avatar was not saved';
+        return $data;
+    }
+    $width = imagesx( $bg );
+    $height = imagesy( $bg );
+    $size = min($height, $width);
+    $dest = imagecreatetruecolor(200, 200);
+
+    imagealphablending($dest, false);
+    imagesavealpha($dest,true);
+    if (!imagecopyresampled($dest, $bg, 0, 0, 0, 0, 200, 200, $size, $size) || 
+        !imagepng($dest, $target_file) || 
+        !DBOupdateAvatar($_SESSION['user'])
+    ) $data['message'] = 'Avatar was not saved';
+    else {
+        $data['success'] = true;
+        $data['message'] = 'Avatar saved';
+    }
+    imagedestroy($dest);
+    imagedestroy($bg);
+    return $data;
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $url = explode('/', $_SERVER['REQUEST_URI']);
 $path = explode('?', @$url[4])[0] ?? null;
@@ -326,21 +361,23 @@ switch ($method) {
         break;
     
     case 'POST':
-        Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'POST', 'message' => $_POST]);
+        Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'POST', 'message' => $_POST]);
         if (isset($_FILES['file'])) {
             Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'FILES', 'message' => $_FILES]);
+            // if ($path === 'avatar') $data = changeAvatar($data);
+            // else uploadFile();
             uploadFile();
         } else if ($path === 'comment') {
             $data = addComment($data);
+        } else if ($path === 'avatar') {
+            $data = changeAvatar($data);
         }
         break;
     
     case 'PUT':
         if ($path === 'like') {
             $data = updateLike($data);
-        } else if ($path === 'private') {
-            $data = updatePrivacy($data);
-        } else if ($path === 'public') {
+        } else if ($path === 'private' || $path === 'public') {
             $data = updatePrivacy($data);
         }
         break;

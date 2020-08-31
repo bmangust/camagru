@@ -13,8 +13,8 @@ function DBOconnect() {
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $db->query('CREATE DATABASE IF NOT EXISTS akraig_camagru');
         $db->exec('USE akraig_camagru');
-    } catch (PDOException $ex) {
-        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+    } catch (PDOException $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
     }
     return $db;
@@ -30,11 +30,13 @@ function DBOcreateTableUsers() {
         `verified` BOOLEAN DEFAULT FALSE,
         `restoreCode` VARCHAR(10),
         `isAdmin` BOOLEAN DEFAULT FALSE,
-        `notificationsEnable` BOOLEAN DEFAULT TRUE)';
+        `notificationsEnable` BOOLEAN DEFAULT TRUE,
+        `info` VARCHAR(2048) DEFAULT NULL,
+        `avatar` INT(5) UNSIGNED DEFAULT NULL)';
     try {
         $db->query($createSQL);
-    } catch (Exception $ex) {
-        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+    } catch (Exception $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
     }
 };
@@ -48,8 +50,8 @@ function DBOcreateTableSnippets() {
         `height` INT(5) NOT NULL)';
     try {
         $db->query($createSQL);
-    } catch (Exception $ex) {
-        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+    } catch (Exception $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
     }
 };
@@ -66,8 +68,8 @@ function DBOcreateTableUploads() {
         )';
     try {
         $db->query($createSQL);
-    } catch (Exception $ex) {
-        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+    } catch (Exception $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
     }
 };
@@ -85,8 +87,8 @@ function DBOcreateTableLikes() {
     try {
         $db->query($createSQL);
         $db->query($uniqueSQL);
-    } catch (Exception $ex) {
-        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+    } catch (Exception $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
     }
 };
@@ -103,8 +105,8 @@ function DBOcreateTableComments() {
         )';
     try {
         $db->query($createSQL);
-    } catch (Exception $ex) {
-        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+    } catch (Exception $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
     }
 };
@@ -126,8 +128,8 @@ function DBOinsertSnippets() {
     foreach ($values as $value) {
         try {
             $stmt->execute($value);
-        } catch(Exception $ex){
-            Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
+        } catch(Exception $e){
+            Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
             return false;
         }
     }
@@ -213,7 +215,7 @@ function DBOupdateEmail($email, $newEmail) {
     try {
         $stmt = $db->prepare("UPDATE `users` SET `email`=? WHERE `email`=?");
         return $stmt->execute([$newEmail, $email]);
-    } catch(Exception $ex){
+    } catch(Exception $e){
         Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         return false;
     }
@@ -228,7 +230,18 @@ function DBOupdateUsername($email, $newUsername) {
     try {
         $stmt = $db->prepare("UPDATE `users` SET `name`=? WHERE `email`=?");
         return $stmt->execute([$newUsername, $email]);
-    } catch(Exception $ex){
+    } catch(Exception $e){
+        Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
+        return false;
+    }
+};
+
+function DBOupdateAvatar($username) {
+    $db = DBOconnect();
+    try {
+        $stmt = $db->prepare("UPDATE `users` SET `avatar`=`users`.id WHERE `name`=?");
+        return $stmt->execute([$username]);
+    } catch(Exception $e){
         Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         return false;
     }
@@ -315,9 +328,9 @@ function DBOselectUploads($params=null)
             die('Value is not set when filter uploads');
         }
         $value = $filter['value'];
-        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE {$table}.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+        $stmt = $db->prepare("SELECT us.name `user`, us.avatar, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid WHERE {$table}.{$col}='{$value}' ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     } else {
-        $stmt = $db->prepare("SELECT us.name `user`, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
+        $stmt = $db->prepare("SELECT us.name `user`, us.avatar, up.id, up.name, up.rating, up.isPrivate FROM `users` us JOIN `uploads` up ON us.id=up.userid ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}");
     }
     $stmt->execute();
     Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
@@ -342,7 +355,7 @@ function DBOselectAllUploads($user, $params=null)
         }
         $value = $filter['value'];
         $stmt = $db->prepare(<<<EOL
-        SELECT us.name `user`, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
+        SELECT us.name `user`, us.avatar, us.avatar, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
         JOIN `uploads` up ON us.id=up.userid 
         LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
         WHERE ${table}.{$col}=? AND up.isPrivate=0
@@ -351,7 +364,7 @@ function DBOselectAllUploads($user, $params=null)
         $stmt->execute([$value]);
     } else {
         $stmt = $db->prepare(<<<EOL
-        SELECT us.name `user`, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
+        SELECT us.name `user`, us.avatar, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
         JOIN `uploads` up ON us.id=up.userid 
         LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
         WHERE (us.name<>'{$user}' AND up.isPrivate=0) OR us.name='{$user}'
