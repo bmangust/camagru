@@ -341,20 +341,13 @@ const initControls = () => {
   });
 };
 
-// add email and submit form
-const sendRestoreEmail = () => {
-  const formRestore = $("#restorePassword");
-  if (formRestore) {
-    formRestore.addEventListener("submit", (e) => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const email = document.createElement("input");
-      email.type = "hidden";
-      email.name = "email";
-      email.value = urlParams.get("email");
-      formRestore.appendChild(email);
-    });
-  }
-};
+function burgerClickListener() {
+  const menu = this.parentNode.querySelector(".nav");
+  menu.style.right = menu.style.right === "0px" ? "-100vw" : "0px";
+  menu.addEventListener("click", (e) => {
+    if (e.target === menu) menu.style.right = "-100vw";
+  });
+}
 
 const editProfile = (e) => {
   const username = $(".settings__username");
