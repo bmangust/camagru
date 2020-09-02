@@ -299,7 +299,6 @@ function DBOgetUserEmail($user) {
 function DBOdeleteAccount($username)
 {
     $db = DBOconnect();
-    DBOdeleteUserPictures($username);
     $stmt = $db->prepare('DELETE FROM `users` WHERE `name`=?');
     return $stmt->execute([$username]);
 }

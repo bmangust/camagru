@@ -4,7 +4,7 @@ require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'User.cla
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'Logger.class.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 session_start();
-$username = $_SESSION['user'];
+Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
 
 // LOG_M("files", $_FILES);
 // LOG_M("post", $_POST);
@@ -82,11 +82,10 @@ function addSnippet($snippetData, $target_file)
 }
 
 function uploadFile() {
-    global $username;
     if ($_FILES["file"]["error"] == UPLOAD_ERR_OK) {
         $target_dir = "../assets/uploads/";
         $name = strlen($_FILES["file"]["name"]) > 50 ? 'capture' : $_FILES["file"]["name"];
-        $target_name = "{$username}_".time()."_".basename($name);
+        $target_name = "{$_SESSION['user']}_".time()."_".basename($name);
         $target_file = "{$target_dir}".$target_name;
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
@@ -133,7 +132,7 @@ function uploadFile() {
     } else if (isset($_POST['capture'])) {
         Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $_POST['capture']]);
         $target_dir = "../assets/uploads/";
-        $target_name = "{$username}_".time()."_capture.jpg";
+        $target_name = "{$_SESSION['user']}_".time()."_capture.jpg";
         $target_file = "{$target_dir}".$target_name;
         $capture = json_decode($_POST['capture']);
         $bg = imagecreatefrompng($capture->src);
@@ -150,7 +149,7 @@ function uploadFile() {
         Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => 'No image was sent, but some snippets were. Take them']);
         // upload default image only if some snippets were added
         $target_dir = "../assets/uploads/";
-        $target_name = "{$username}_".time()."_default.jpg";
+        $target_name = "{$_SESSION['user']}_".time()."_default.jpg";
         $target_file = "{$target_dir}".$target_name;
         $file = "../assets/bg.jpg";
         $bg = imagecreatefromjpeg($file);
@@ -269,8 +268,7 @@ function changeAvatar($data)
     $inputJSON = file_get_contents('php://input');
     $avatar = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $avatar]);
-    global $username;
-    $user = DBOselectUser($username);
+    $user = DBOselectUser($_SESSION['user']);
     $target_dir = join(DIRECTORY_SEPARATOR, ["..", "assets", "avatars", ""]);
     $target_name = "{$user['id']}.png";
     $target_file = $target_dir.$target_name;

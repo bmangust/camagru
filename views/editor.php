@@ -38,7 +38,13 @@
             
             <input type="button" class="button controls_button" onclick="captureImage()" id="capture" value="Capture"/>
             <input type="button" class="button controls_button" onclick="clearEdit()" value="Reset"/>
+            <?php if (isset($user) && $user['verified']) { ?>
             <input type="submit" class="button controls_button" value="Send"/>
+            <?php } else {
+                $_SERVER['class'] = 'error';
+                $_SERVER['msg'][] = 'Email is not confirmed, do it before use';
+                include 'error.php';
+            }?>
         </form>
     </div>
 </aside>

@@ -9,6 +9,10 @@ $path = explode('?', @$url[4])[0] ?? null;
 
 if ($_POST && (isset($_POST['submit']) || isset($_POST['action']))) {
     Logger::Dlog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'POST', 'message' => $_POST]);
+    if (@$_POST['action'] === 'Delete account') {
+        User::deleteAccount($_SESSION['user']);
+        return;
+    }
     $email = $_POST['email'] ? strtolower($_POST['email']) : "";
     if ($_POST['submit'] === 'Register') {
         User::registerUser($_POST['username'], $email, $_POST['password']);
@@ -22,8 +26,6 @@ if ($_POST && (isset($_POST['submit']) || isset($_POST['action']))) {
         User::updateEmail($email, $_POST['newEmail']);
     } else if ($_POST['submit'] === 'Update username') {
         User::updateUsername($email, $_POST['username']);
-    } else if ($_POST['action'] === 'Delete account') {
-        User::deleteAccount($_SESSION['user']);
     }
 }
 

@@ -3,7 +3,6 @@ if (isset($_SESSION['is_auth']) && $_SESSION['is_auth'] != FALSE) {
     header("Location: ./index.php?route=menu");
 }?>
 <form name="login" id="login" action="api/users.php" onsubmit="return validateLoginForm()" method="post">
-    <!-- <input type="text" name="username" value=<?=$_SESSION['user'] ?? ""?> id="username" placeholder="Your username, please" /> -->
     <input type="text" name="username" value="" id="username" placeholder="Your username, please" />
     <input type="password" name="password" value="" id="password" placeholder="And a password" />
     <input class="button accent" type="submit" name="submit" value="Login" />

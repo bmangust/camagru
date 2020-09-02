@@ -218,8 +218,14 @@ const removeImage = async (el) => {
 const getGallerySize = async () => {
   const url = new URL("api/image.php/size", baseURL);
   let response = await fetch(url);
-  let resp = await response.json();
-  return +resp.data;
+  const txt = await response.text();
+  try {
+    const resp = JSON.parse(txt);
+    return +resp.data;
+  } catch (e) {
+    log(txt);
+    return null;
+  }
 };
 
 const fetchResult = async (url) => {

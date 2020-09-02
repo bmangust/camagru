@@ -17,7 +17,8 @@ if (isset($_SESSION['user'])) {
     $user = DBOselectUser($_SESSION['user']);
     setcookie('user', $_SESSION['user']);
 }
-Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user]);
+Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user ?? null]);
+Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
 
 if ($_GET) {
     if (isset($_SESSION['msg'])) {

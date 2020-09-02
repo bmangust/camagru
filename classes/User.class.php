@@ -63,7 +63,7 @@ class User {
             $email = strtolower($_POST['email']);
             $pwd = hash('whirlpool', $_POST['password']);
             if(!DBOinsertUser($_POST['username'], $email, $pwd)) {
-                unset($_SESSION['user']);
+                $_SESSION['user'] = FALSE;
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'This username has already been taken';
                 header("Location: ../index.php?route=register");
@@ -75,7 +75,7 @@ class User {
             $message['body'] = "Activate account link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}";
             DBOsetUserCode($code, $_POST['username'], $email);
             if (!User::sendEmail($email, $message)) {
-                unset($_SESSION['user']);
+                $_SESSION['user'] = FALSE;
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Server error, please try again';
                 header("Location: ../index.php?route=register");
@@ -84,7 +84,7 @@ class User {
             $_SESSION['msg'][] = 'Check your email';
             header("Location: ../index.php?route=login");
         } else {
-            unset($_SESSION['user']);
+            $_SESSION['user'] = FALSE;
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'This email has already been taken';
             header("Location: ../index.php?route=register");
@@ -95,7 +95,7 @@ class User {
     {
         if (User::authorize($username, $password)) {
             if (!User::checkUserVerification($username)) {
-                unset($_SESSION['user']);
+                $_SESSION['user'] = FALSE;
                 $_SESSION['is_auth'] = false;
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Email is not confirmed';
@@ -105,7 +105,7 @@ class User {
             $_SESSION['is_auth'] = true;
             header("Location: ../index.php?route=menu");
         } else {
-            unset($_SESSION['user']);
+            $_SESSION['user'] = FALSE;
             $_SESSION['is_auth'] = false;
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = 'Username or password in wrong';
@@ -125,7 +125,7 @@ class User {
             $message['body'] = "Restore password link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}";
             DBOsetUserCode($code, $user['name'], $email);
             if (!User::sendEmail($email, $message)) {
-                unset($_SESSION['user']);
+                $_SESSION['user'] = FALSE;
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Server error, please try again';
                 header("Location: ../index.php?route=forgot");
