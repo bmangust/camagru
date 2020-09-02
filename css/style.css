@@ -1,4 +1,49 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap"); */
+@font-face {
+  font-family: "Montserrat";
+  src: local("Montserrat Hairline"), local("Montserrat-Hairline"),
+    url("../assets/fonts/montserrathairline.woff2") format("woff2"),
+    url("../assets/fonts/montserrathairline.woff") format("woff"),
+    url("../assets/fonts/montserrathairline.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: local("Montserrat Light"), local("Montserrat-Light"),
+    url("../assets/fonts/montserratlight.woff2") format("woff2"),
+    url("../assets/fonts/montserratlight.woff") format("woff"),
+    url("../assets/fonts/montserratlight.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: local("Montserrat"), local("Montserrat-Regular"),
+    url("../assets/fonts/montserrat.woff2") format("woff2"),
+    url("../assets/fonts/montserrat.woff") format("woff"),
+    url("../assets/fonts/montserrat.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: local("Montserrat Bold"), local("Montserrat-Bold"),
+    url("../assets/fonts/montserratbold.woff2") format("woff2"),
+    url("../assets/fonts/montserratbold.woff") format("woff"),
+    url("../assets/fonts/montserratbold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: local("Montserrat Black"), local("Montserrat-Black"),
+    url("../assets/fonts/montserratblack.woff2") format("woff2"),
+    url("../assets/fonts/montserratblack.woff") format("woff"),
+    url("../assets/fonts/montserratblack.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+}
 
 /* 
 =================
@@ -10,14 +55,16 @@
   margin: 0;
   padding: 0;
   font-family: "Montserrat", "Helvetica", sans-serif;
+  font-weight: 300;
   color: #fafafa;
-  transition: 0.3s;
+  transition: 0.3s ease-in-out;
 }
 
 h1 {
-  margin: 1rem 0;
+  margin: 1rem auto;
   text-align: center;
   cursor: default;
+  width: 90%;
 }
 
 p {
@@ -103,13 +150,18 @@ footer {
   font-size: 0.9rem;
 }
 
+nav {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .nav {
   flex-direction: row;
   justify-content: flex-end;
   padding: 10px 20px;
 }
 
-.navItem {
+.nav__item {
   min-width: 30px;
   max-width: 100px;
   width: unset;
@@ -119,9 +171,9 @@ footer {
   border: 1px solid transparent;
 }
 
-.navItem:hover,
-.navItem:active,
-.navItem:focus {
+.nav__item:hover,
+.nav__item:active,
+.nav__item:focus {
   border: 1px solid #a1a1a1;
 }
 
@@ -150,6 +202,7 @@ footer {
   z-index: 1000;
   background-color: #7e57c2;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .float::after {
@@ -168,6 +221,46 @@ footer {
   display: none !important;
 }
 
+.nav__burger {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  background-color: #1a1a1a;
+  border-radius: 5px;
+  margin: 10px;
+  z-index: 200;
+}
+
+.hamburger {
+  position: absolute;
+  width: 35px;
+  height: 3px;
+  background: white;
+  top: 24px;
+  left: 10px;
+}
+
+.hamburger:before {
+  content: "";
+  width: 35px;
+  height: 3px;
+  background: white;
+  position: absolute;
+  top: -10px;
+}
+
+.hamburger:after {
+  content: "";
+  width: 35px;
+  height: 3px;
+  background: white;
+  position: absolute;
+  top: 10px;
+}
+
 @keyframes message {
   0% {
     left: -40px;
@@ -181,6 +274,58 @@ footer {
 }
 .error {
   background-color: #b00020;
+}
+
+@media screen and (max-width: 600px) {
+  .float {
+    width: 100vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  footer {
+    padding: 20px;
+    text-align: left;
+  }
+
+  nav > .nav__burger {
+    display: block;
+  }
+
+  .nav {
+    flex-direction: column;
+    position: fixed;
+    right: -100vw;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 200px;
+    z-index: 100;
+  }
+
+  .nav__item {
+    width: 700px;
+    padding: 15px 30px;
+  }
+
+  .nav li {
+    margin: 10px;
+  }
+
+  .nav li:last-child {
+    margin-bottom: 80px;
+  }
+
+  .nav__item:hover,
+  .nav__item:active,
+  .nav__item:focus {
+    border: 1px solid transparent;
+  }
 }
 
 /* 
@@ -291,6 +436,7 @@ form input::placeholder {
   position: absolute;
   top: 0;
   left: 0;
+  cursor: move;
 }
 
 .createView {
@@ -406,14 +552,15 @@ form input::placeholder {
 
 .controls__element {
   width: 230px;
-  margin: 30px auto;
+  margin: 10px auto;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .controls__element > * {
-  margin-left: 10px;
+  margin: 10px;
 }
 
 @media screen and (max-width: 750px) {
@@ -765,11 +912,10 @@ form input::placeholder {
 }
 
 .lightbox_main {
-  flex: 3 1 60%;
+  width: 60%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 30;
   cursor: auto;
 }
 
@@ -779,7 +925,7 @@ form input::placeholder {
 }
 
 .lightbox_aside {
-  flex: 2 1 40%;
+  width: 40%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -813,12 +959,12 @@ form input::placeholder {
 
 .lightbox_comments {
   width: 90%;
+  /* max-width: 400px; */
   overflow: auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
-  overflow: auto;
 }
 
 .lightbox_like {
@@ -888,6 +1034,14 @@ form input::placeholder {
   border: 1px solid #a1a1a1;
 }
 
+.comment_body {
+  max-width: 100%;
+  max-height: 40%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
 .lightbox_comments__submit {
   max-width: 200px;
   min-width: 100px;
@@ -904,6 +1058,7 @@ form input::placeholder {
   .lightbox_wrapper {
     flex-direction: column;
     height: 90%;
+    width: 85%;
     margin: 5vh auto;
     z-index: 30;
   }
@@ -914,18 +1069,20 @@ form input::placeholder {
 
   .lightbox_aside {
     width: 100%;
-    flex-basis: 1;
+    height: 60%;
+    flex-grow: 2;
   }
 
   .lightbox_main {
     flex-basis: 0;
     width: 100%;
-    max-height: 100%;
+    height: 40%;
   }
 
   .lightbox_main img {
     max-width: 90%;
     max-height: 90%;
+    width: unset;
   }
 
   .lightbox_info {
@@ -1000,6 +1157,7 @@ video {
 .settings__info {
   max-width: 270px;
   cursor: default;
+  margin: 0 auto;
 }
 
 .settings__avatar {
@@ -1034,6 +1192,10 @@ video {
 .settings__username,
 .settings__profile-info {
   margin: 10px;
+}
+
+.settings__profile-info {
+  font-weight: 100;
 }
 
 .settings__avatar .icon {
