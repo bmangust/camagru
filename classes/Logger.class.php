@@ -1,7 +1,7 @@
 <?php
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 $currentLevel = 'TRACE';
-$logPath = join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'logs', '']);
+$logPath = join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'logs']);
 date_default_timezone_set('Europe/Moscow');
 
 class Logger {
@@ -11,7 +11,13 @@ class Logger {
     {
         global $currentLevel;
         global $logPath;
-        $filename = $logPath."log".date("Y-m-d").".log";
+        if (!is_dir($logPath)) {
+            if (@!mkdir($logPath)) {
+                echo "<h1>Permission denied, can't create logs directory '$logPath'</h1>";
+                return;
+            }
+        }
+        $filename = $logPath.DIRECTORY_SEPARATOR."log".date("Y-m-d").".log";
         if (Logger::$logLevels[$loglevel] >= Logger::$logLevels[$currentLevel]) {
             $function = @$data['function'] ?? __FUNCTION__;
             $line = @$data['line'] ?? 'unknouwn line';

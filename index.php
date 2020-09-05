@@ -3,14 +3,13 @@ session_start();
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'config', 'setup.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'api', 'globals.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, 'classes', 'Logger.class.php'));
-require_once 'log.php';
 $header = './views/header.php';
 $main = './views/menu.php';
 $footer = './views/footer.php';
 $error = null;
 
 $_SERVER['header'] = "Welcome to CAMAGRU";
-if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && $_SESSION['is_auth'] !== FALSE) {
+if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && isset($_SESSION['is_auth']) && $_SESSION['is_auth'] !== FALSE) {
     $_SERVER['header'] = $_SERVER['header'] . ", " . $_SESSION['user'];
 }
 if (isset($_SESSION['user'])) {

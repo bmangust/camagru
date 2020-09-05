@@ -72,7 +72,7 @@ class User {
             $code = bin2hex($bytes);
             $message = [];
             $message['title'] = "Activate account";
-            $message['body'] = "Activate account link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}";
+            $message['body'] = "Activate account using this <a href=\"http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}\">link</a>";
             DBOsetUserCode($code, $_POST['username'], $email);
             if (!User::sendEmail($email, $message)) {
                 $_SESSION['user'] = FALSE;

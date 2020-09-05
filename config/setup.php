@@ -86,10 +86,14 @@ function DBOcreateTableLikes() {
     $uniqueSQL = 'ALTER TABLE likes ADD CONSTRAINT UNIQUE_userid_imgid UNIQUE CLUSTERED ( userid, imgid )';
     try {
         $db->query($createSQL);
-        $db->query($uniqueSQL);
     } catch (Exception $e) {
         Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
         die();
+    }
+    try {
+        $db->query($uniqueSQL);
+    } catch (Exception $e) {
+        Logger::Elog(['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
     }
 };
 
@@ -556,7 +560,10 @@ function prepareDB()
 {
     $db = DBOconnect();
     if (!DBOcountRows('users')) DBOcreateTableUsers();
-    if (!DBOcountRows('snippets')) DBOcreateTableSnippets();
+    if (!DBOcountRows('snippets')) {
+        DBOcreateTableSnippets();
+        DBOinsertSnippets();
+    }
     if (!DBOcountRows('uploads')) DBOcreateTableUploads();
     if (!DBOcountRows('likes')) DBOcreateTableLikes();
     if (!DBOcountRows('comments')) DBOcreateTableComments();

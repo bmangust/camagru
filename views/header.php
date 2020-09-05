@@ -9,7 +9,7 @@
         <li>
             <a class="button nav__item" href="./index.php?route=gallery">gallery</a>
         </li>
-        <?php if(isset($_SESSION['user']) && $_SESSION['is_auth'] === true): ?>
+        <?php if(isset($_SESSION['user']) && isset($_SESSION['is_auth']) && $_SESSION['is_auth'] === true): ?>
             <li>
                 <a class="button nav__item" href="./index.php?route=settings">settings</a>
             </li>
