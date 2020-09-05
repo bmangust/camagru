@@ -209,8 +209,7 @@ const clearViewer = () => {
   const $label = $(".file_label");
   const iconPath = $(".icon path");
   const colorWhite = "#fff";
-  const upload =
-    "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
+  const upload = "M15 22h-15v8h30v-8h-15zM28 26h-4v-2h4v2zM7 10l8-8 8 8h-5v10h-6v-10z";
   iconPath.setAttribute("d", upload);
   iconPath.setAttribute("fill", colorWhite);
   $label.querySelector(".file_name").innerHTML = "Upload file";
@@ -241,7 +240,7 @@ const addUploadListener = () => {
     if (fileName) {
       iconPath.setAttribute("d", tick);
       iconPath.setAttribute("fill", colorGreen);
-      $label.querySelector(".file_name").innerHTML = fileName;
+      $label.querySelector(".file_name").innerHTML = 'uploaded';
       img.src = URL.createObjectURL(event.target.files[0]);
       img.onload = () => URL.revokeObjectURL(img.src);
     } else {
@@ -353,9 +352,9 @@ const editProfile = (e) => {
   const username = $(".settings__username");
   const info = $(".settings__profile-info");
   const template = `<div class="settings__info-controls">
-    <button id="cancel" class="button settings__edit-button">Cancel</button>
-    <button id="save" class="button settings__edit-button">Save</button>
-  </div>`;
+  <button id="cancel" class="button settings__edit-button">Cancel</button>
+  <button id="save" class="button settings__edit-button">Save</button>
+</div>`;
   const editButton = e.target;
   const controls = htmlToElement(template);
   editButton.parentNode.insertBefore(controls, editButton);

@@ -19,11 +19,11 @@ class Logger {
         }
         $filename = $logPath.DIRECTORY_SEPARATOR."log".date("Y-m-d").".log";
         if (Logger::$logLevels[$loglevel] >= Logger::$logLevels[$currentLevel]) {
-            $function = @$data['function'] ?? __FUNCTION__;
+            $function = strlen(@$data['function']) === 0 ? 'no_function' : @$data['function'];
             $line = @$data['line'] ?? 'unknouwn line';
             $message = @$data['message'] ?? print_r($data, true);
             $descr = $data['descr'] ?? 'descr';
-            $m = print_r($message, true);   //transform arrays and objects into strings
+            $m = print_r($message, true);
             $l = print_r($loglevel, true);
             $formattedMessage = date("Y-m-d H:i:s") . "\t{$l}\t{$function}:{$line}\t{$descr}:{$m}\n";
             file_put_contents($filename, $formattedMessage, FILE_APPEND);

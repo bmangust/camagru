@@ -1,6 +1,6 @@
 <?php
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'config', 'setup.php'));
-require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
+require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'Logger.class.php'));
 
 class User {
     // check if user entered valid password
@@ -46,11 +46,10 @@ class User {
                 
                 $res = json_decode(curl_exec ($ch), true);
                 curl_close ($ch);
-                // LOG_M($res);
                 return $res['success'];
         }
         catch(Exception $ex){
-            LOG_M($ex->getMessage());
+            Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
             return false;
         }
     }
@@ -116,7 +115,7 @@ class User {
     public static function restorePassword($email)
     {
         $user = DBOselectUser($email);
-        LOG_M('user', $user);
+        Logger::Dlog (['function' => __FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user]);
         if ($user) {
             $bytes = random_bytes(5);
             $code = bin2hex($bytes);
@@ -143,7 +142,7 @@ class User {
     public static function savePassword($email, $password)
     {
         $user = DBOselectUser($email);
-        LOG_M('user', $user);
+        Logger::Dlog (['function' => __FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user]);
         if ($user) {
             DBOupdatePassword($user['email'], hash('whirlpool', $password));
             $_SESSION['msg'][] = 'Your new password saved';

@@ -2,7 +2,6 @@
     $img = DBOgetImageInfo($_GET['id']);
     $numberOfLikes = DBOgetNumberOfLikes($_GET['id']);
     $likes = DBOselectLikes($_GET['id'], $_SESSION['user']);
-    // print_r($likes);
     $classes = $likes ? "lightbox_like liked" : "lightbox_like";
     $comments = '';
     foreach ($img as $index => $comment) {

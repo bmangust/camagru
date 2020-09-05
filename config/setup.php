@@ -1,7 +1,6 @@
 <?php
 require_once 'keys.php';
 require_once 'database.php';
-require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'Logger.class.php'));
 $db;
 
@@ -61,7 +60,7 @@ function DBOcreateTableUploads() {
     $createSQL = 'CREATE TABLE IF NOT EXISTS `uploads` 
         (`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `userid` INT(5) UNSIGNED,
-        `name` VARCHAR(50) NOT NULL,
+        `name` VARCHAR(100) NOT NULL,
         `rating` INT(1) UNSIGNED DEFAULT 0,
         `isPrivate` BOOLEAN DEFAULT FALSE,
         FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -318,8 +317,10 @@ function DBOinsertUpload($name, $user)
 {
     $db = DBOconnect();
     $user = DBOselectUser($user);
+    Logger::Ilog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => 'name: ' . $name . ', user: ' . $user]);
     if (isset($user['id'])) {
         $stmt = $db->prepare('INSERT INTO `uploads` (`name`, `userid`) VALUES (?, ?)');
+        Logger::Ilog (['function' => __FUNCTION__, 'line' => __LINE__, 'descr' => 'statement', 'message' => $stmt]);
         try {
             return $stmt->execute([$name, $user['id']]);
         } catch (Exception $e) {
@@ -349,7 +350,6 @@ function DBOinsertUpload($name, $user)
 function DBOselectUploads($params=null)
 {
     $db = DBOconnect();
-    // LOG_M('params', $params);
     $offset = $params['offset'] ?? 0;
     $limit = $params['limit'] ?? 20;
     $filter = $params['filter'] ?? null;
@@ -390,21 +390,21 @@ function DBOselectAllUploads($user, $params=null)
         }
         $value = $filter['value'];
         $stmt = $db->prepare(<<<EOL
-        SELECT us.name `user`, us.avatar, us.avatar, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
-        JOIN `uploads` up ON us.id=up.userid 
-        LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
-        WHERE ${table}.{$col}=? AND up.isPrivate=0
-        ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
-        EOL);
+SELECT us.name `user`, us.avatar, us.avatar, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
+JOIN `uploads` up ON us.id=up.userid 
+LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
+WHERE ${table}.{$col}=? AND up.isPrivate=0
+ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
+EOL);
         $stmt->execute([$value]);
     } else {
         $stmt = $db->prepare(<<<EOL
-        SELECT us.name `user`, us.avatar, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
-        JOIN `uploads` up ON us.id=up.userid 
-        LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
-        WHERE (us.name<>'{$user}' AND up.isPrivate=0) OR us.name='{$user}'
-        ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
-        EOL);
+SELECT us.name `user`, us.avatar, up.id, up.name, l.imgid, up.rating, up.isPrivate FROM `users` us 
+JOIN `uploads` up ON us.id=up.userid 
+LEFT JOIN (SELECT * FROM `likes` WHERE userid in (SELECT `id` from `users` WHERE `name`='{$user}')) l ON l.imgid=up.id
+WHERE (us.name<>'{$user}' AND up.isPrivate=0) OR us.name='{$user}'
+ORDER BY up.{$orderby} {$order} LIMIT {$offset}, {$limit}
+EOL);
         $stmt->execute();
     }
     Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);

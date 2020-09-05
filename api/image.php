@@ -2,16 +2,13 @@
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'config', 'setup.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'User.class.php'));
 require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'classes', 'Logger.class.php'));
-require_once join(DIRECTORY_SEPARATOR, array(__DIR__, '..', 'log.php'));
 session_start();
-Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
-
-// LOG_M("files", $_FILES);
-// LOG_M("post", $_POST);
+Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
 
 function addSnippet($snippetData, $target_file)
 {
     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+    Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'imageFileType', 'message' => $imageFileType]);
     switch($imageFileType) {
         case 'png':
             $dest = imagecreatefrompng($target_file);
@@ -68,7 +65,9 @@ function addSnippet($snippetData, $target_file)
 
     imagealphablending($src, false);
     imagesavealpha($src,true);
+    // $opacity = $snippetData->opacity ?? 0;
     $transparency = 1 - floatval($snippetData->opacity);
+    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "transparency: " . $transparency]);
     if ($transparency > 0) {
         imagefilter($src, IMG_FILTER_COLORIZE, 0, 0, 0, 127 * $transparency);
     }
@@ -82,18 +81,30 @@ function addSnippet($snippetData, $target_file)
 }
 
 function uploadFile() {
+    $target_dir = join(DIRECTORY_SEPARATOR, [__DIR__, '..', "assets", "uploads"]);
+    if (!is_dir($target_dir)) {
+        Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "target dir: " . $target_dir . " does not exists" .PHP_EOL]);
+        if (!mkdir($target_dir)) {
+            Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "cannot create dir: " . $target_dir . PHP_EOL]);
+            $_SESSION['class'] = 'error';
+            $_SESSION['msg'][] = "Cannot create uploads directory";
+            header("Location: ../index.php?route=create");
+            return false;
+            // die();
+        }
+    }
     if ($_FILES["file"]["error"] == UPLOAD_ERR_OK) {
-        $target_dir = "../assets/uploads/";
-        $name = strlen($_FILES["file"]["name"]) > 50 ? 'capture' : $_FILES["file"]["name"];
+        $target_dir = join(DIRECTORY_SEPARATOR, [__DIR__, '..', "assets", "uploads"]);
+        $name = strlen($_FILES["file"]["name"]) > 50 ? 'capture' : str_replace(" ", "_", $_FILES["file"]["name"]);
         $target_name = "{$_SESSION['user']}_".time()."_".basename($name);
-        $target_file = "{$target_dir}".$target_name;
+        $target_file = "{$target_dir}".DIRECTORY_SEPARATOR.$target_name;
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
         // Check if image file is a actual image or fake image
-        if($_POST) {
+        if($uploadOk && $_POST) {
             $check = mime_content_type($_FILES["file"]["tmp_name"]);
             if(strstr($check, "image") !== false) {
-                Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => "File is an image - " . $check .PHP_EOL]);
+                Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "File is an image - " . $check .PHP_EOL]);
                 $uploadOk = 1;
             } else {
                 $_SESSION['msg'][] = "File is not an image";
@@ -130,10 +141,9 @@ function uploadFile() {
             }
         }
     } else if (isset($_POST['capture'])) {
-        Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $_POST['capture']]);
-        $target_dir = "../assets/uploads/";
+        Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $_POST['capture']]);
         $target_name = "{$_SESSION['user']}_".time()."_capture.jpg";
-        $target_file = "{$target_dir}".$target_name;
+        $target_file = $target_dir.DIRECTORY_SEPARATOR.$target_name;
         $capture = json_decode($_POST['capture']);
         $bg = imagecreatefrompng($capture->src);
         $width = imagesx( $bg );
@@ -146,11 +156,10 @@ function uploadFile() {
         imagedestroy($bg);
 
     } else if (isset($_POST['snippet'])) {
-        Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => 'No image was sent, but some snippets were. Take them']);
+        Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => 'No image was sent, but some snippets were. Take them']);
         // upload default image only if some snippets were added
-        $target_dir = "../assets/uploads/";
         $target_name = "{$_SESSION['user']}_".time()."_default.jpg";
-        $target_file = "{$target_dir}".$target_name;
+        $target_file = $target_dir.DIRECTORY_SEPARATOR.$target_name;
         $file = "../assets/bg.jpg";
         $bg = imagecreatefromjpeg($file);
         $width = imagesx( $bg );
@@ -168,9 +177,9 @@ function uploadFile() {
         header("Location: ../index.php?route=create");
     }
     if (isset($_POST['snippet'])) {
-        Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $_POST['snippets']]);
         foreach($_POST['snippet'] as $snippet) {
             $s = json_decode($snippet);
+            Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "snippet: " . print_r($s, true) . ", target_file: " . $target_file . PHP_EOL]);
             addSnippet($s, $target_file);
         }
     }
@@ -189,7 +198,7 @@ function updateLike($data)
 {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, true);
-    Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
+    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($_SESSION['user'] === false || $_SESSION['is_auth'] === false) {
         $data['data'] = 'Please log in to like and add comments';
     } else if ($input['liked'] === true) {
@@ -210,7 +219,7 @@ function updatePrivacy($data)
 {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, true);
-    Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
+    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($input['private'] === true) {
         if (DBOupdatePrivacy($input['id'], true)) {
             $data['success'] = true;
@@ -229,7 +238,7 @@ function removePicture($data)
 {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, true);
-    Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
+    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($input['remove'] === true) {
         if (DBOremovePicture($input['id'])) {
             $data['success'] = true;
@@ -243,7 +252,7 @@ function addComment($data)
 {
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, true);
-    Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
+    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($_SESSION['user'] === false || $_SESSION['is_auth'] === false) {
         $data['data'] = 'Please log in to like and add comments';
     } else if (DBOaddComment($input['message'], $input['author'], $input['imgid'])) {
@@ -252,7 +261,7 @@ function addComment($data)
 
         $data['success'] = true;
         $data['data'] = $input['message'];
-        Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $data['data']]);
+        Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $data['data']]);
 
         if (!$user['notificationsEnable']) return $data;
         $message['title'] = 'New comment on your photo!';
@@ -267,7 +276,7 @@ function changeAvatar($data)
 {
     $inputJSON = file_get_contents('php://input');
     $avatar = json_decode($inputJSON, true);
-    Logger::Ilog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'message' => $avatar]);
+    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $avatar]);
     $user = DBOselectUser($_SESSION['user']);
     $target_dir = join(DIRECTORY_SEPARATOR, ["..", "assets", "avatars", ""]);
     $target_name = "{$user['id']}.png";
@@ -306,7 +315,7 @@ $data = ['success' => false];
 
 switch ($method) {
     case 'GET':
-        Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'GET', 'message' => $_GET]);
+        Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'GET', 'message' => $_GET]);
         if ($path === 'more') {
             $limit = $_GET['limit'] ?? 2;
             $offset = $_GET['offset'] ?? 0;
@@ -314,18 +323,18 @@ switch ($method) {
             $data['success'] = true;
             $data['message'] = "limit: $limit, offset: $offset, url: {$_SERVER['REQUEST_URI']}";
             $data['data'] = DBOselectAllUploads($_SESSION['user'], $params);
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'More uploads', 'message' => $data['data']]);
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'More uploads', 'message' => $data['data']]);
         } else if ($path === 'size') {
             $data['success'] = true;
             $data['data'] = DBOgetGallerySize($_SESSION['user']);
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'GallerySize', 'message' => $data['data']]);
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'GallerySize', 'message' => $data['data']]);
         } else if ($path === 'my') {
             $offset = $_GET['offset'] ?? 0;
             $limit = DBOgetGallerySize($_SESSION['user']);
             $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['table'=>'us', 'value'=>$_SESSION['user']]];
             $data['success'] = true;
             $data['data'] = DBOselectUploads($params);
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'My uploads', 'message' => $data['data']]);
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'My uploads', 'message' => $data['data']]);
         } else if ($path === 'user') {
             $user = $_GET['user'] ?? false;
             if (!$user) {
@@ -338,7 +347,7 @@ switch ($method) {
             $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['value'=>$user]];
             $data['success'] = true;
             $data['data'] = DBOselectAllUploads($user, $params);
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> "profile gallery", 'message' => $data['data']]);
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> "profile gallery", 'message' => $data['data']]);
         } else if ($path === 'getLikes') {
             $imgid = $_GET['id'];
             $data['success'] = true;
@@ -346,14 +355,14 @@ switch ($method) {
                 $data['data'] = 0;
             }
             $data['data'] = DBOgetNumberOfLikes($imgid);
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'Number of likes', 'message' => $data['data']]);
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'Number of likes', 'message' => $data['data']]);
         } else if ($path === 'getComments') {
             $imgid = $_GET['id'];
             if (!$imgid) {
                 $data['data'] = '';
             }
             $data['data'] = DBOselectComments($imgid);
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'Comments', 'message' => $data['data']]);
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'Comments', 'message' => $data['data']]);
             if ($data['data']) $data['success'] = true;
         }
         break;
@@ -361,9 +370,7 @@ switch ($method) {
     case 'POST':
         Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'POST', 'message' => $_POST]);
         if (isset($_FILES['file'])) {
-            Logger::Ilog(['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'FILES', 'message' => $_FILES]);
-            // if ($path === 'avatar') $data = changeAvatar($data);
-            // else uploadFile();
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'FILES', 'message' => $_FILES]);
             uploadFile();
         } else if ($path === 'comment') {
             $data = addComment($data);

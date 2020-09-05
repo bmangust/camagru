@@ -5,14 +5,15 @@ const placeImages = (data, target) => {
     target.appendChild(element);
     return;
   }
-  data.forEach((el, index) => {
-    const classes = data[index].imgid ? "like liked" : "like";
+  data.forEach((el) => {
+    const classes = el.imgid ? "like liked" : "like";
+    const avatar = el.avatar || 'default';
     const template = `<div class="imgWrapper" id="img_${el.id}">
   <img src="assets/uploads/${el.name}">
   <div class="info">
       <div class="author">
         <a class="author__name" href="${baseURL}index.php?route=profile&user=${el.user}">
-          <img src="assets/avatars/${el.avatar}.png" class="author__avatar"/>
+          <img src="assets/avatars/${avatar}.png" class="author__avatar"/>
           ${el.user}
         </a>
       </div>
@@ -40,12 +41,13 @@ const placeImages = (data, target) => {
 
 const placeImagesWithControls = (data, target) => {
   data.forEach((el, index) => {
+    const avatar = el.avatar || 'default';
     const template = `<div class="imgWrapper" id="img_${el.id}">
         <img src="assets/uploads/${el.name}">
         <div class="info">
             <div class="author">
             <a class="author__name" href="${baseURL}index.php?route=profile&user=${el.user}">
-              <img src="assets/avatars/${el.avatar}.png" class="author__avatar"/>
+              <img src="assets/avatars/${avatar}.png" class="author__avatar"/>
               ${el.user}
             </a>
             </div>
@@ -479,7 +481,7 @@ const sendImages = () => {
       height: el.offsetHeight,
       drawerWidth: img.offsetWidth,
       drawerHeight: img.offsetHeight,
-      opacity: el.style.opacity,
+      opacity: el.style.opacity || 1,
     };
     const snippet = document.createElement("input");
     snippet.type = "hidden";
