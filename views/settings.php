@@ -39,9 +39,6 @@ $user_info = $user['info'] ?? 'No info';
         <li>
             <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_EMAIL']?>">change email</a>
         </li>
-        <!-- <li>
-            <a class="button menuItem" href="./api/users.php?action=<?=$GLOBALS['ACTION_UPDATE_USERNAME']?>">change username</a>
-        </li> -->
         <li>
             <a class="button menuItem" onclick="confirmDelete()" href="#">delete account</a>
         </li>

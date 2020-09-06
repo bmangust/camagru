@@ -7,17 +7,25 @@ $header = './views/header.php';
 $main = './views/menu.php';
 $footer = './views/footer.php';
 $error = null;
+$path = explode(DIRECTORY_SEPARATOR, __DIR__);
+$GLOBALS['path'] = $path[count($path) - 1];
+
+if (isset($_SESSION['user'])) {
+    $user = DBOselectUser($_SESSION['user']);
+    if (!$user) {
+        $_SESSION['user'] = false;
+        $_SESSION['is_auth'] = false;
+    } else {
+        setcookie('user', $_SESSION['user']);
+    }
+}
+Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user ?? null]);
+Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
 
 $_SERVER['header'] = "Welcome to CAMAGRU";
 if (isset($_SESSION['user']) && $_SESSION['user'] !== FALSE && isset($_SESSION['is_auth']) && $_SESSION['is_auth'] !== FALSE) {
     $_SERVER['header'] = $_SERVER['header'] . ", " . $_SESSION['user'];
 }
-if (isset($_SESSION['user'])) {
-    $user = DBOselectUser($_SESSION['user']);
-    setcookie('user', $_SESSION['user']);
-}
-Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user ?? null]);
-Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
 
 if ($_GET) {
     if (isset($_SESSION['msg'])) {
@@ -66,9 +74,14 @@ if ($_GET) {
                 $main = './views/settings.php';
                 break;
             case 'profile':
-                $_SERVER['header'] = $_GET['user']."'s public gallery";
-                $main = './views/profile.php';
-                break;
+                if (isset($_GET['user'])) {
+                    $_SERVER['header'] = $_GET['user']."'s public gallery";
+                    $main = './views/profile.php';
+                    break;
+                } else {
+                    header("Location: ./index.php?route=menu");
+                    break;
+                }
             case 'gallery':
                 $_SERVER['header'] = "Gallery";
                 $main = './views/gallery.php';

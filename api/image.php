@@ -11,18 +11,17 @@ function addSnippet($snippetData, $target_file)
     Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'imageFileType', 'message' => $imageFileType]);
     Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'snippet data', 'message' => $snippetData]);
     if (file_exists($target_file)) {
-    Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'target_file', 'message' => $target_file]);
+        Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'target_file', 'message' => $target_file]);
     }
     switch($imageFileType) {
         case 'png':
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'create image from: ', 'message' => 'png']);
             $dest = imagecreatefrompng($target_file);
             break;
         case 'jpg':
         case 'jpeg':
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'create image from: ', 'message' => 'jpeg']);
             $dest = imagecreatefromjpeg($target_file);
-            break;
-        case 'gif':
-            $dest = imagecreatefromgif($target_file);
             break;
         default:
             $dest = null;
@@ -30,10 +29,9 @@ function addSnippet($snippetData, $target_file)
     Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'dest', 'message' => $dest]);
     if (!$dest) {
         $_SESSION['class'] = 'error';
+        $_SESSION['msg'] = [];
         $_SESSION['msg'][] = 'Error when create image';
-        header("Location: ../index.php?route=create");
-        echo 'Error when create image';
-        die();
+        return false;
     }
     $src = imagecreatefrompng("../{$snippetData->path}");
 
@@ -70,19 +68,28 @@ function addSnippet($snippetData, $target_file)
 
     imagealphablending($src, false);
     imagesavealpha($src,true);
-    // $opacity = $snippetData->opacity ?? 0;
     $transparency = 1 - floatval($snippetData->opacity);
-    Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "transparency: " . $transparency]);
+    Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "transparency: " . $transparency]);
     if ($transparency > 0) {
         imagefilter($src, IMG_FILTER_COLORIZE, 0, 0, 0, 127 * $transparency);
     }
     imagecopyresampled($dest,$src, $leftOffset, $topOffset, $left, $top, $pngWidth, $pngHeight, $width, $height );
 
-    imagejpeg($dest, $target_file);
+    switch($imageFileType) {
+        case 'png':
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'save image from: ', 'message' => 'png']);
+            imagepng($dest, $target_file);
+            break;
+        case 'jpg':
+        case 'jpeg':
+            Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'save image from: ', 'message' => 'jpeg']);
+            imagejpeg($dest, $target_file);
+            break;
+    }
     
     imagedestroy($dest);
     imagedestroy($src);
-
+    return true;
 }
 
 function uploadFile() {
@@ -93,20 +100,18 @@ function uploadFile() {
             Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "cannot create dir: " . $target_dir . PHP_EOL]);
             $_SESSION['class'] = 'error';
             $_SESSION['msg'][] = "Cannot create uploads directory";
-            header("Location: ../index.php?route=create");
             return false;
-            // die();
         }
     }
     if ($_FILES["file"]["error"] == UPLOAD_ERR_OK) {
         $target_dir = join(DIRECTORY_SEPARATOR, [__DIR__, '..', "assets", "uploads"]);
         $name = strlen($_FILES["file"]["name"]) > 50 ? 'capture' : str_replace(" ", "_", $_FILES["file"]["name"]);
-        $target_name = "{$_SESSION['user']}_".time()."_".basename($name);
+        $target_name = "{$_SESSION['user']}_".time()."_".pathinfo($name,PATHINFO_BASENAME);
         $target_file = "{$target_dir}".DIRECTORY_SEPARATOR.$target_name;
         $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+        $imageFileType = strtolower(pathinfo($name,PATHINFO_EXTENSION));
         // Check if image file is a actual image or fake image
-        if($uploadOk && $_POST) {
+        if($_POST) {
             $check = mime_content_type($_FILES["file"]["tmp_name"]);
             if(strstr($check, "image") !== false) {
                 Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "File is an image - " . $check .PHP_EOL]);
@@ -124,9 +129,8 @@ function uploadFile() {
         }
 
         // Allow certain file formats
-        if($uploadOk && $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-            && $imageFileType != "gif" ) {
-            $_SESSION['msg'][] = 'Sorry, only JPG, JPEG, PNG & GIF files are allowed';
+        if($uploadOk && $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg") {
+            $_SESSION['msg'][] = 'Sorry, only JPG, JPEG & PNG files are allowed';
             $uploadOk = 0;
         }
 
@@ -137,9 +141,7 @@ function uploadFile() {
             return;
         // if everything is ok, try to upload file
         } else {
-            if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-                $_SESSION['msg'][] = "The file ". basename( $_FILES["file"]["name"]). " has been uploaded";
-            } else {
+            if (!move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
                 $_SESSION['class'] = 'error';
                 $_SESSION['msg'][] = 'Sorry, there was an error uploading your file';
                 return;
@@ -179,13 +181,14 @@ function uploadFile() {
     } else {
         $_SESSION['class'] = 'error';
         $_SESSION['msg'][] = 'No file was created - empty canvas';
-        header("Location: ../index.php?route=create");
+        return false;
     }
     if (isset($_POST['snippet'])) {
         foreach($_POST['snippet'] as $snippet) {
             $s = json_decode($snippet);
             Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => "snippet: " . print_r($s, true) . ", target_file: " . $target_file . PHP_EOL]);
-            addSnippet($s, $target_file);
+            if (!addSnippet($s, $target_file)) 
+                return false;
         }
     }
     // add database record about new file. Delete file on error
@@ -196,7 +199,6 @@ function uploadFile() {
         $_SESSION['class'] = 'error';
         $_SESSION['msg'][] = 'Database error';
     }
-    header("Location: ../index.php?route=create");
 }
 
 function updateLike($data)
@@ -245,7 +247,9 @@ function removePicture($data)
     $input = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
     if ($input['remove'] === true) {
+        $target = join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'assets', 'uploads', $input['name']]);
         if (DBOremovePicture($input['id'])) {
+            unlink($target);
             $data['success'] = true;
             $data['data'] = 'removed';
         }
@@ -270,8 +274,12 @@ function addComment($data)
 
         if (!$user['notificationsEnable']) return $data;
         $message['title'] = 'New comment on your photo!';
-        $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it here: http://localhost/camagru/index.php?route=image&id={$input['imgid']}";
-        User::sendEmail($user['email'], $message);
+        $path = explode(DIRECTORY_SEPARATOR, __DIR__);
+        $path = $path[count($path) - 2];
+        $message['body'] = "Hi, {$user['name']}. Your photo just got a new comment. View it <a href=\"http://localhost/{$path}/index.php?route=image&id={$input['imgid']}\">here</a>";
+        if (!User::sendEmail($user['email'], $message)) {
+            $data['data'] = "Email notification was not sent due to network error";
+        }
 
     }
     return $data;
@@ -377,6 +385,7 @@ switch ($method) {
         if (isset($_FILES['file'])) {
             Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'FILES', 'message' => $_FILES]);
             uploadFile();
+            header("Location: ../index.php?route=create");
         } else if ($path === 'comment') {
             $data = addComment($data);
         } else if ($path === 'avatar') {

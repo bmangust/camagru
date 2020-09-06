@@ -46,7 +46,8 @@ class User {
                 
                 $res = json_decode(curl_exec ($ch), true);
                 curl_close ($ch);
-                return $res['success'];
+                Logger::Dlog (['function' => __FUNCTION__, 'line' => __LINE__, 'descr' => 'elastic response', 'message' => print_r($res, true)]);
+                return $res ? $res['success'] : false;
         }
         catch(Exception $ex){
             Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $ex->getMessage()]);
