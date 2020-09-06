@@ -9,6 +9,10 @@ function addSnippet($snippetData, $target_file)
 {
     $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
     Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'imageFileType', 'message' => $imageFileType]);
+    Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'snippet data', 'message' => $snippetData]);
+    if (file_exists($target_file)) {
+    Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'target_file', 'message' => $target_file]);
+    }
     switch($imageFileType) {
         case 'png':
             $dest = imagecreatefrompng($target_file);
@@ -23,7 +27,8 @@ function addSnippet($snippetData, $target_file)
         default:
             $dest = null;
     }
-    if ($dest == null) {
+    Logger::Dlog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr' => 'dest', 'message' => $dest]);
+    if (!$dest) {
         $_SESSION['class'] = 'error';
         $_SESSION['msg'][] = 'Error when create image';
         header("Location: ../index.php?route=create");

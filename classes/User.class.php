@@ -71,7 +71,9 @@ class User {
             $code = bin2hex($bytes);
             $message = [];
             $message['title'] = "Activate account";
-            $message['body'] = "Activate account using this <a href=\"http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}\">link</a>";
+            $path = explode(DIRECTORY_SEPARATOR, __DIR__);
+            $path = $path[count($path) - 2];
+            $message['body'] = "Activate account using this <a href=\"http://localhost/{$path}/api/users.php?action={$GLOBALS['ACTION_ACTIVATE']}&code={$code}&email={$email}\">link</a>";
             DBOsetUserCode($code, $_POST['username'], $email);
             if (!User::sendEmail($email, $message)) {
                 $_SESSION['user'] = FALSE;
@@ -79,7 +81,6 @@ class User {
                 $_SESSION['msg'][] = 'Server error, please try again';
                 header("Location: ../index.php?route=register");
             }
-            // $_SESSION['user'] = $_POST['username'];
             $_SESSION['msg'][] = 'Check your email';
             header("Location: ../index.php?route=login");
         } else {
@@ -121,7 +122,9 @@ class User {
             $code = bin2hex($bytes);
             $message = [];
             $message['title'] = "Restore password";
-            $message['body'] = "Restore password link: http://localhost/camagru/api/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}";
+            $path = explode(DIRECTORY_SEPARATOR, __DIR__);
+            $path = $path[count($path) - 2];
+            $message['body'] = "Restore password: <a href=\"http://localhost/{$path}/api/users.php?action={$GLOBALS['ACTION_RESTORE']}&code={$code}&email={$email}\">link</a>";
             DBOsetUserCode($code, $user['name'], $email);
             if (!User::sendEmail($email, $message)) {
                 $_SESSION['user'] = FALSE;
