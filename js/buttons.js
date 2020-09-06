@@ -22,7 +22,7 @@ const confirmDelete = () => {
 };
 
 const updateNotifications = async (el) => {
-  const body = { action: "Change notifications", value: el.checked };
+  const body = { action: "Change notifications", value: el.checked || 0 };
   const params = {
     method: "POST",
     headers: {
@@ -411,7 +411,6 @@ const editProfile = (e) => {
     const txt = await response.text();
     try {
       const result = JSON.parse(txt);
-      log(result);
       showMessage({ text: result.message, error: !result.success });
       if (!result.success) {
         username.textContent = initialUserInfo.username;

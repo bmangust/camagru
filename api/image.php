@@ -335,15 +335,15 @@ switch ($method) {
             $params = ['offset'=>$offset, 'limit'=>$limit];
             $data['success'] = true;
             $data['message'] = "limit: $limit, offset: $offset, url: {$_SERVER['REQUEST_URI']}";
-            $data['data'] = DBOselectAllUploads($_SESSION['user'], $params);
+            $data['data'] = DBOselectAllUploads(@$_SESSION['user'], $params);
             Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'More uploads', 'message' => $data['data']]);
         } else if ($path === 'size') {
             $data['success'] = true;
-            $data['data'] = DBOgetGallerySize($_SESSION['user']);
+            $data['data'] = DBOgetGallerySize(@$_SESSION['user']);
             Logger::Ilog(['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'descr'=> 'GallerySize', 'message' => $data['data']]);
         } else if ($path === 'my') {
             $offset = $_GET['offset'] ?? 0;
-            $limit = DBOgetGallerySize($_SESSION['user']);
+            $limit = DBOgetGallerySize(@$_SESSION['user']);
             $params = ['offset'=>$offset, 'limit'=>$limit, 'filter' => ['table'=>'us', 'value'=>$_SESSION['user']]];
             $data['success'] = true;
             $data['data'] = DBOselectUploads($params);

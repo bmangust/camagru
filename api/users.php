@@ -13,7 +13,13 @@ if ($_POST && (isset($_POST['submit']) || isset($_POST['action']))) {
         User::deleteAccount($_SESSION['user']);
         return;
     }
-    $email = $_POST['email'] ? strtolower($_POST['email']) : "";
+    if (isset($_POST['email'])) {
+        $email = $_POST['email'];
+    } else if (@$_SESSION['user'] !== false && @$_SESSION['is_auth'] !== false) {
+        $email = $_SESSION['user'];
+    } else {
+        $email = "";
+    }
     if ($_POST['submit'] === 'Register') {
         User::registerUser($_POST['username'], $email, $_POST['password']);
     } else if ($_POST['submit'] === 'Login') {

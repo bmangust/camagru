@@ -10,14 +10,11 @@ $error = null;
 $path = explode(DIRECTORY_SEPARATOR, __DIR__);
 $GLOBALS['path'] = $path[count($path) - 1];
 
-if (isset($_SESSION['user'])) {
-    $user = DBOselectUser($_SESSION['user']);
-    if (!$user) {
-        $_SESSION['user'] = false;
-        $_SESSION['is_auth'] = false;
-    } else {
-        setcookie('user', $_SESSION['user']);
-    }
+if (isset($_SESSION['user']) && ($user = DBOselectUser($_SESSION['user'])) ) {
+    setcookie('user', $_SESSION['user']);
+} else {
+    $_SESSION['user'] = false;
+    $_SESSION['is_auth'] = false;
 }
 Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'user', 'message' => $user ?? null]);
 Logger::Dlog (['function' => __FILE__.__FUNCTION__, 'line' => __LINE__, 'descr' => 'session', 'message' => $_SESSION]);
