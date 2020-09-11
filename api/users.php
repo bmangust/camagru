@@ -49,7 +49,7 @@ if ($_GET && isset($_GET['action'])) {
         setcookie('user', '', time() - 3600);
         header("Location: ../index.php?route=menu");
     } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_PASS']) {
-        header("Location: ../index.php?route=restore");
+        header("Location: ../index.php?route=restore&email={$user['email']}");
     } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_EMAIL']) {
         header("Location: ../index.php?route=update_email");
     } else if ($_GET['action'] === $GLOBALS['ACTION_UPDATE_USERNAME']) {

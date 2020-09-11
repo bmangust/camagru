@@ -227,13 +227,13 @@ function updatePrivacy($data)
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, true);
     Logger::Ilog (['function' => __FILE__.':'.__FUNCTION__, 'line' => __LINE__, 'message' => $input]);
-    if ($input['private'] === true) {
-        if (DBOupdatePrivacy($input['id'], true)) {
+    if ($input['private']) {
+        if (DBOupdatePrivacy($input['id'], 1)) {
             $data['success'] = true;
             $data['data'] = 'private';
         }
     } else {
-        if (DBOupdatePrivacy($input['id'], false)) {
+        if (DBOupdatePrivacy($input['id'], 0)) {
             $data['success'] = true;
             $data['data'] = 'public';
         }

@@ -17,7 +17,7 @@ const validateEmail = (form) => {
   const field = selectInput(form, "email");
   if (field.value === "") {
     return makeAlert(field, form, "Email must not be empty");
-  } else if (field.value.toLowerCase().search(/\w+@[\w-]+\.[a-z]+/) === -1) {
+  } else if (field.value.toLowerCase().search(/[\w-\.]+@[\w-]+\.[a-z]+/) === -1) {
     return makeAlert(field, form, "This does not look like email");
   }
   field.classList.remove("invalid");
@@ -104,7 +104,7 @@ const validateUpdateEmail = () => {
   const field = selectInput("update_email", "newEmail");
   if (field.value === "") {
     return makeAlert(field, form, "Email must not be empty");
-  } else if (field.value.toLowerCase().search(/\w+@\w+\.[a-z]+/) === -1) {
+  } else if (field.value.toLowerCase().search(/[\w-\.]+@[\w-]+\.[a-z]+/) === -1) {
     return makeAlert(field, "update_email", "This does not look like email");
   }
   field.classList.remove("invalid");

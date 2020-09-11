@@ -23,7 +23,7 @@ $user_info = $user['info'] ?? 'No info';
     </div>
     <div class="settings__username"><?=$user['name']?></div>
     <div class="settings__profile-info"><?=$user_info?></div>
-    <button id="edit" class="button" onclick="editProfile(event)">Edit profile</button>    
+    <button id="edit" class="button" onclick="editProfile(event)">Edit profile</button>
 </div>
 <ul class="settings__controls">
         <li>

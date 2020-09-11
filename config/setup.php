@@ -461,9 +461,9 @@ function DBOupdatePrivacy($imgid, $isPrivate)
 {
     $db = DBOconnect();
     $stmt = $db->prepare("UPDATE `uploads` SET `isPrivate`='{$isPrivate}' WHERE `id`={$imgid}");
+    Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
     try {
-        $res = $stmt->execute([$isPrivate, $imgid]);
-        Logger::Tlog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $stmt]);
+        $res = $stmt->execute();
         return $res;
     } catch (Exception $e) {
         Logger::Elog (['function' => __FUNCTION__, 'line' => __LINE__, 'message' => $e->getMessage()]);
