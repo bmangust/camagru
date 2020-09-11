@@ -60,7 +60,7 @@ const replaceVideoWithImage = (img = null) => {
     viewer.removeChild(video);
   }
   // if there is already one image appended
-  if (viewer.querySelector("img")) return;
+  if (viewer.querySelector("img") && viewer.querySelector("img") !== viewer.querySelector(".snippet")) return;
   if (!img) {
     img = document.createElement("img");
     img.classList.add("base");
