@@ -552,7 +552,7 @@ const createLightbox = (data) => {
 };
 
 const addComment = async (id) => {
-  const input = $("#comments_input");
+  const input = $("#comments_input").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#39;").replace(/"/g, "&#34;");
   const message = input.value;
   if (message.length === 0) return;
   const author = getCookie("user");
